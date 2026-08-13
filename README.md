@@ -1,2 +1,2 @@
 # market
-mini manrket tizimi uchun api yaratish
+Ilovada sotuv, sotib olish, kuryer bo'lish imkoni bor
