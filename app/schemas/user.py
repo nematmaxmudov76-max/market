@@ -1,0 +1,47 @@
+from datetime import datetime
+from pydantic import BaseModel
+
+class UserCreateRequest(BaseModel):
+    id:int
+    first_name:str | None = None
+    last_name:str | None = None
+    age:int | None = None
+    email:str
+    tell_number:int | None = None
+    password:str
+    password_hash:str
+    is_active:bool  | None = None
+
+
+
+class UserListResponse(BaseModel):
+    id:int
+    firs_name:str | None = None
+    last_name:str | None = None
+    email:str
+    age:int | None = None
+    bio:str | None = None 
+    tell_number:int | None = None
+    last_login: datetime 
+    is_active:bool | None = None
+    is_staff:bool  | None = None  
+    is_admin:bool | None = None
+    created_at:datetime
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "id": 6,
+                    "email": "eshmat@gmail.com",
+                    "password_hash": "eshmat123",
+                    "first_name": "Eshmat",
+                    "last_name": "Eshmatov",
+                    "bio": "Eshmat yaxshi o'quvchi, lekin u dangasa bilmaydi",
+                    "is_active": True,
+                    "is_admin": False,
+                    "is_staff": False,
+                    "created_at": "2026-19-01T13:01:18.001Z",
+                }
+            ]
+        }
+    }
