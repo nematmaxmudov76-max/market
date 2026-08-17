@@ -12,6 +12,7 @@ from sqlalchemy import (
     DECIMAL,
     DateTime,
     ForeignKey,
+    Numeric,
     func,
 )
 from typing import TYPE_CHECKING
@@ -80,6 +81,7 @@ class Product(BaseMain):
     comment:Mapped[list["Comment"]] = relationship("Comment", back_populates="product", lazy="raise_on_sql")
     shop_product:Mapped[list["Shop_Product"]] = relationship("Shop_Product", back_populates="product", lazy="raise_on_sql")
     like:Mapped[list["Like"]] = relationship("Like", back_populates="product", lazy="raise_on_sql")
+    discount:Mapped["Discount"] = relationship("Discount", back_populates="product", lazy="raise_on_sql")
 
 class Category(BaseMain):
     __tablename__ = "category"
@@ -148,9 +150,19 @@ class Comment(BaseMain):
     product:Mapped["Product"] = relationship("Product", back_populates="comment", lazy="raise_on_sql")
 
 
+class Discount(BaseMain):
+    __tablename__ = "discount"
+
+    product_id:Mapped[int] = mapped_column(SmallInteger, ForeignKey("product.id", ondelete="CASCADE"))
+    title:Mapped[str] = mapped_column(String(255), nullable=True)
+    percent:Mapped[DECIMAL] = mapped_column(Numeric(precision=10, scale=2)) # max -> 1234567890.99 10ta xona oldin 2 xona keyin max
+    is_active:Mapped[bool] = mapped_column(Boolean, nullable=True)
 
 
-
+    def __repr__(self):
+        return f"discoount percent: {self.percent}, title:{self.title}"
+        
+    product:Mapped["Product"] = relationship("Product", back_populates="discount", lazy="raise_on_sql")
 
 
 

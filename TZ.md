@@ -1,103 +1,136 @@
-#### 1. USER (Foydalanuvchilar) uchun TODO vazifalar (10 ta)
-##### Biznes modeli: Foydalanuvchilar xarid qiladi, sharh yozadi, manzillarini saqlaydi va kuryer bo'lib ishlashi mumkin.
+👤 1. FOYDALANUVCHILAR VA XAVFSIZLIK (USER & PROFILE)
+1-Topshiriq (Easy)
+## Tizimdagi barcha faol foydalanuvchilarning ismi, familiyasi hamda elektron pochta manzilini oling.
 
-# [Easy] Barcha faol (is_active = true) foydalanuvchilarning ismi, familiyasi va emailini chiqaring.
+ 2-Topshiriq (Easy)
+## Muayyan bir foydalanuvchi (masalan, ID si 5 ga teng bo'lgan) uchun uning profilda saqlab qo'yilgan barcha yetkazib berish manzillarini ko'rsating.
 
-# [Easy] Ma'lum bir foydalanuvchi (masalan, id = 5) uchun uning barcha saqlangan manzillarini (user_address jadvalidan) chiqaring.
+3-Topshiriq (Medium)
+Oxirgi 7 kun ichida platformada yangi ro'yxatdan o'tgan foydalanuvchilarning umumiy sonini hisoblang.
 
-# [Medium] Oxirgi 7 kun ichida ro'yxatdan o'tgan (create_at) foydalanuvchilar sonini hisoblang.
+4-Topshiriq (Medium)
+Tizimda xodim yoki administrator huquqiga ega bo'lgan foydalanuvchilar ro'yxatini shakllantiring.
 
+5-Topshiriq (High Level)
+Tizimda kuryer sifatida ro'yxatdan o'tgan barcha foydalanuvchilarning ismi-familiyasi bilan birga, ularning kuryerlik profilidagi transport vositasi turini va joriy balansini birgalikda taqdim eting.
 
-# [High Level] "Admin" yoki "Staff" huquqiga ega (is_admin = true yoki is_staff = true) bo'lgan foydalanuvchilar ro'yxatini chiqaring.
+6-Topshiriq (High Level)
+Muayyan bir xaridor (masalan, ID si 50 ga teng bo'lgan) shu paytgacha platformada jami nechta buyurtma rasmiylashtirganini aniqlang.
 
-# [High Level] Barcha kuryerlar (is_courier = true) ro'yxatini chiqaring va ularning courier_profile jadvalidagi transport vositalari (transport_type) va balanslarini (balance) qo'shib ko'rsating.
+7-Topshiriq (High Level)
+Tizimda akkounti faolsizlantirilgan yoki o'chirilgan foydalanuvchilarning barcha eski xabarnomalarini (bildirishnomalarini) tozalash mantiqini shakllantiring.
 
-# [High Level] Foydalanuvchi (masalan, user_id = 50) jami nechta buyurtma berganini order jadvalidan hisoblang.
+8-Topshiriq (High Level)
+Barcha foydalanuvchilarning oxirgi marotaba tizimga kirgan vaqtini hamda ularning platformada qilgan o'rtacha buyurtma summasini hisoblab chiquvchi analitik hisobot tayyorlang.
 
-# [High Level] O'chirilgan (is_deleted = true) foydalanuvchilarning barcha eski xabarlarini (notification jadvalidan) o'chirib tashlash uchun SQL so'rovini yozing.
+🏪 2. DO'KONLAR VA SOTUVCHILAR (SHOP & MERCHANTS)
+9-Topshiriq (Easy)
+Tizimdagi barcha faol do'konlarning nomlarini ularning o'rtacha reytingi bo'yicha kamayish tartibida saralab chiqaring.
 
-[High Level] Barcha foydalanuvchilar va ularning oxirgi tizimga kirish vaqtini (last_login) va o'rtacha buyurtma summasini hisoblaydigan statistik so'rov tayyorlang.
+10-Topshiriq (Easy)
+Muayyan bir do'konga (masalan, ID si 5 bo'lgan) tegishli bo'lgan barcha mahsulotlar va ularning sotuvdagi narxlarini ro'yxat qiling.
 
-#### 2. SHOP (Do'konlar) uchun TODO vazifalar (15 ta)
-##### Biznes modeli: Har bir do'kon o'z mahsulotlarini qo'shadi, medialarni yuklaydi, obunalar va reytingga ega.
+11-Topshiriq (Medium)
+Do'kon haqida tavsifi kiritilmagan (bo'sh bo'lgan) do'konlarni aniqlang va ularning tavsifiga "Ma'lumot kiritilmagan" degan qiymatni belgilash logikasini yarating.
 
-# [Easy] Barcha faol (is_active = true) do'konlarning nomlari va ularning reytingini (rating) o'rtacha qiymat bo'yicha kamayish tartibida chiqaring.
+12-Topshiriq (Medium)
+Platformadagi har bir do'konda jami nechta mahsulot sotilayotganini hisoblab chiquvchi statistikani tayyorlang.
 
-# [Easy] Ma'lum bir do'konga tegishli (shop_id = 5) barcha mahsulotlarni (product) va ularning narxini chiqaring.
+13-Topshiriq (Medium)
+O'z mahsulot katalogiga eng ko'p media fayllar (rasm yoki video) yuklagan top do'konni aniqlang.
 
-[Medium] shop jadvalidagi description maydoni bo'sh (NULL) bo'lgan do'konlarni toping va ularni yangilash uchun SQL so'rovini yozing (masalan, "Ma'lumot kiritilmagan" deb yozing).
+14-Topshiriq (High Level)
+Reytingi 4.5 dan yuqori bo'lgan yetakchi do meva beruvchi do'konlar ro'yxatini va ushbu do'konlardagi mahsulotlarning o'rtacha narxini hisoblang.
 
-# [Medium] Har bir do'konda qancha mahsulot borligini hisoblang (product jadvali bo'yicha shop_id guruhlab).
+15-Topshiriq (High Level)
+Oxirgi 1 oy davomida platformada yangi ochilgan va o'z faoliyatini boshlagan do'konlar ro'yxatini shakllantiring.
 
-# [Medium] Qaysi do'kon o'z mahsulotlariga eng ko'p media (rasm/video) yuklagan? (product_media jadvalidan foydalanib statistikani chiqaring).
+16-Topshiriq (High Level)
+Har bir do'kon ma'lumotlarini taqdim etganda, uning egasi bo'lgan foydalanuvchining shaxsiy ma'lumotlarini ham bitta so'rovda xotiraga yuklab beruvchi tizim yarating.
 
-# [High Level] Reytingi 4.5 dan yuqori bo'lgan do'konlar ro'yxatini va ularning mahsulotlarining o'rtacha narxini chiqaring.
+17-Topshiriq (High Level)
+Do'konning banner rasmini yangilash jarayonida eski banner rasmini saqlash joyidan va tizimdan to'liq o'chirish mantiqini tuzing.
 
-# [High Level] Oxirgi 1 oy ichida yangi ochilgan (create_at) do'konlar ro'yxatini chiqaring.
+18-Topshiriq (High Level)
+Barcha do'konlarni ularda mavjud bo'lgan mahsulotlarning umumiy soni bo'yicha eng ko'pidan eng kamiga qarab saralang.
 
-# [High Level] Do'kon egasini (user_id) do'kon ma'lumotlari bilan qo'shib ko'rsatadigan murakkab JOIN so'rovini yozing (shop + user).
+19-Topshiriq (High Level)
+Har bir do'kon bo'yicha ularning eng qimmat va eng arzon mahsulotlari narxlarini yonma-yon ko'rsatuvchi analitika tayyorlang.
 
-[High Level] Do'konning banner_id bo'yicha media jadvalidan rasmni topib, keyin o'sha rasmni o'chirish (banner rasmini yangilash uchun) mantiqini yozing.
+20-Topshiriq (High Level)
+Do'kon faoliyati to'xtatilganda yoki o'chirilganda, ushbu do'konga tegishli barcha mahsulotlarni va ularning takliflarini ham avtomatik ravishda nofaol holatga o'tkazish biznes mantiqini loyihalashtiring.
 
-[High Level] Barcha do'konlarni ularning mahsulotlarining umumiy soni bo'yicha saralang (eng ko'p mahsulotdan eng kamiga).
+📦 3. MAHSULOTLAR VA KATEGORIYALAR (PRODUCT & CATEGORY)
+21-Topshiriq (Easy)
+Sotuvda mavjud va faol bo'lgan barcha mahsulotlarning nomi va narxlarini ro'yxat qilib chiqaring.
 
-# [High Level] shop va product jadvallarini birlashtirib, har bir do'kon uchun eng qimmat va eng arzon mahsulot narxini ko'rsating.
+22-Topshiriq (Easy)
+Muayyan bir kategoriya (masalan, ID si 3 bo'lgan) tarkibiga kiruvchi barcha mahsulotlar ro'yxatini oling.
 
-# [High Level] Do'kon o'chirilganda (is_active = false), ushbu do'konga tegishli barcha mahsulotlarni ham avtomatik o'chirish uchun SQL skript yoki Trigger yozish rejasini tuzing (biznes mantiq).
+23-Topshiriq (Medium)
+Omborda haqiqatan ham zaxirasi qolgan (soni 0 dan ko me'yorda bo'lgan) mahsulotlarning umumiy sonini hisoblang.
 
-# [High Level] shop jadvalidagi ma'lumotlarni yangilashda update_at ustunini avtomatik yangilaydigan mexanizmni (Trigger) taklif qiling.
+24-Topshiriq (Medium)
+Platformadagi har bir kategoriya va ushbu kategoriyalarga biriktirilgan mahsulotlar sonini aks ettiruvchi hisobot tuzing.
 
-#### 3. PRODUCT & CATEGORY (Mahsulot va Kategoriyalar) uchun TODO vazifalar (10 ta)
-##### Biznes modeli: Mahsulotlar kategoriyalarga bo'linadi, zaxirada bo'ladi, chegirmalar va likelar (sevimlilar) mavjud.
+25-Topshiriq (High Level)
+Faol mahsulotlar ichidan kamida 50 ta va undan ko'p sotilgan mahsulotlarni toping va ularning barcha kategoriyalarini xotiraga yuklang.
 
-# [Easy] Barcha faol (is_active = true) mahsulotlarning nomi va narxini list qiling.
+26-Topshiriq (High Level)
+Omborda qolgan soni 5 tadan kam, lekin reytingi 4.5 dan yuqori bo'lgan mahsulotlarni toping va ularning barcha media rasmlarini taqdim eting.
 
-# [Easy] Ma'lum bir kategoriyaga (category_id = 3) tegishli barcha mahsulotlarni chiqaring.
- 
-# [Medium] Sotuvda mavjud bo'lgan (joriy zaxirasi current_quantity > 0) mahsulotlar sonini hisoblang.
+27-Topshiriq (High Level)
+Har bir mahsulotga xaridorlar tomonidan qo'yilgan yoqtirishlar (layklar) hamda yozilgan sharhlar (izohlar) sonini birgalikda hisoblang.
 
-# [Medium] Umumiy kategoriyalar (category jadvalidan) ro'yxatini va ular nechta mahsulotga ega ekanligini ko'rsating.
+28-Topshiriq (High Level)
+Muayyan mahsulotni sevimli deb belgilagan (layk bosgan) barcha foydalanuvchilarning ismi va familiyasi ro'yxatini chiqaring.
 
-[High Level] Mahsulotga qo'yilgan barcha Like va Comment (sharhlar) sonini birgalikda ko'rsating (like va comment jadvallarini birlashtirib).
+29-Topshiriq (High Level)
+Yaroqlilik yoki saqlash muddati o'tib ketgan mahsulotlarni aniqlang va ularning holatini avtomatik ravishda "muddati o'tgan" deb yangilash logikasini yozing.
 
-[High Level] "Bu mahsulotni kimlar yoqtirgan?" degan savolga javob berish uchun user va like jadvallarini birlashtirib, userlarning ismi va familiyasini chiqaring.
+30-Topshiriq (High Level)
+Mahsulot tavsifida belgilangan kalit so'z (masalan, "iPhone") qatnashgan mahsulotlarni qidiring va ularni xaridorlar orasidagi mashhurligi (layklar soni) bo'yicha saralang.
 
-[High Level] Muddati o'tgan mahsulotlarni (expiration_date < CURRENT_DATE) toping va ularni muddatli (expired) deb belgilang (UPDATE so'rovi).
+💳 4. BUYURTMALAR, TO'LOVLAR VA HAMYON (ORDER, PAYMENT & WALLET)
+31-Topshiriq (Easy)
+Tizimdagi muvaffaqiyatli yakunlangan barcha buyurtmalarni va ularning umumiy to me'langan summasini ko'rsating.
 
-[High Level] Chegirmadagi (promo_code orqali) mahsulotlarni aniqlash va ularning chegirmadagi yangi narxini hisoblab chiqadigan murakkab so'rov yozing.
+32-Topshiriq (Easy)
+Muayyan bir buyurtma (masalan, ID si 101 bo'lgan) tarkibida qaysi mahsulotlar borligi va ularning miqdorini aks ettiring.
 
-[High Level] Mahsulot tavsifi (description) da ma'lum bir kalit so'z (masalan, "iPhone") qatnashgan mahsulotlarni qidiring va ularni mashhurlik bo'yicha (like soni bo'yicha) saralang.
+33-Topshiriq (Medium)
+Muayyan bir foydalanuvchining (masalan, ID si 25 bo'lgan) hamyonidagi joriy balansini hamda valyuta turini ko'rsating.
 
-#### 4. ORDER & PAYMENT & WALLET (Buyurtma, To'lov va Hamyon) uchun TODO vazifalar (10 ta)
-##### Biznes modeli: Foydalanuvchi buyurtma beradi, buyurtma mahsulotlari (order_item), to'lov amalga oshadi, hamyon va tranzaksiyalar qayd etiladi.
+34-Topshiriq (Medium)
+Platformada eng ko'p xarid amalga oshirgan va eng ko'p pul sarflagan Top 3 xaridorni aniqlang.
 
-[Easy] Barcha tugallangan (status jadvalidagi status_method bo'yicha) buyurtmalarni va ularning umumiy summasini (total_amount) chiqaring.
+35-Topshiriq (Medium)
+To'lov jarayonida xatolik yuz bergan ("failed") barcha urinishlarni hamda ushbu xatolik sabablarini (tranzaksiya parametrlaridan) ajratib oling.
 
-[Easy] Bitta buyurtma (masalan, order_id = 101) ichida qancha va qanday mahsulotlar borligini order_item jadvalidan ko'rsating.
+36-Topshiriq (High Level)
+Statusi yakunlangan va umumiy summasi $300 dan oshgan barcha buyurtmalarni olib, ularga tegishli xaridor va to'lov ma'lumotlarini bitta so'rovda xotiraga yuklang.
 
-[Medium] Ma'lum bir foydalanuvchining (user_id = 25) hamyon (wallet) balansini va valyutasini (currency) chiqaring.
+37-Topshiriq (High Level)
+Xaridor o'z hamyonini to'ldirganda yoki xarid uchun to'lov qilganda, tizim tranzaksiyalar tarixiga ushbu amaliyotni avtomatik qayd etish mantiqini yozing.
 
-[Medium] Eng ko'p pul sarflagan eng yaxshi 3 ta mijozni order jadvalidagi total_amount bo'yicha saralab toping.
+38-Topshiriq (High Level)
+Kuryerlar tomonidan muvaffaqiyatli yetkazib berilgan barcha buyurtmalar ro'yxatini ularni yetkazgan kuryerning ismi va familiyasi bilan birga taqdim eting.
 
-[Medium] To'lov jarayonida (payment_process) status qiymati "failed" (muvaffaqiyatsiz) bo'lgan barcha urinishlarni va ularning sababini (transaction_param maydonidan) chiqaring.
+39-Topshiriq (High Level)
+Foydalanuvchining hamyon balansi va uning hozirda to'lanmagan buyurtmalari yig'indisini solishtirib, balansi yetarli bo'lmagan mijozlarni aniqlang.
 
-[High Level] Har bir buyurtma uchun to'lov jarayonini (summa, status, sana) va buyurtma holatini (order jadvalidagi status_id) birgalikda ko'rsatadigan JOIN so'rovini yozing.
+40-Topshiriq (High Level)
+Oxirgi bir oy davomida amalga oshirilgan to'lovlar bo'yicha platformaga eng ko'p daromad keltirgan top do'konlarni aniqlang.
 
-[High Level] Foydalanuvchi hamyonini to'ldirish yoki sarflash vaqtida transactions_log jadvaliga yozuv kiritadigan (INSERT) mantiqni yozing.
+⚡ 5. ADVANCED BIZNES LOGIKA VA TIZIM QOIDALARI (BONUS TASKLAR)
+41-Topshiriq (Chegirma Mantiqi)
+Promokod qo'llanilganda, unga belgilangan chegirma foizi yoki belgilangan summani buyurtmaning yakuniy summasiga to'g'ri hisoblab chiqish va qayta ishlash mantiqini yozing.
 
-[High Level] Kuryer tomonidan yetkazib berilgan (delivery_process jadvalidagi courier_id orqali) buyurtmalar ro'yxatini va ularning kuryer ismi bilan birga chiqaring.
+42-Topshiriq (Yetkazib Berish va Status Avtomatizatsiyasi)
+Yetkazib berish jarayonining holati "yetkazib berildi" holatiga o'zgarganda, tegishli buyurtmaning statusini ham avtomatik ravishda "Yakunlandi" holatiga o'tkazish mantiqini loyihalashtiring.
 
-[High Level] Har bir foydalanuvchining hamyon balansi va to'lanmagan buyurtmalari yig'indisini solishtirib, balansi yetarli bo'lmagan foydalanuvchilarni aniqlang.
+43-Topshiriq (Zaxira va Savatcha Tekshiruvi)
+Xaridor savatga mahsulot qo'shayotganda yoki savatdagi miqdorini oshirayotganda, mahsulotning ombordagi joriy zaxirasini tekshiring; agar omborda yetarli mahsulot bo'lmasa, xaridorga aniq xatolik xabarini qaytarish logikasini yozing.
 
-[High Level] O'tgan oy davomida to'lovlar (payment_process) yig'indisi bo'yicha eng ko'p daromad keltirgan do'konlarni (shop jadvalidan) aniqlang.
-
-Qo'shimcha Business Level Masalalar (Bonus)
-Bu erda oddiy SQL emas, balki biznes qoidalar (Business Logic) bo'yicha vazifalar:
-
-Chegirma mantiqi: promo_code jadvalidagi discount_amount ni order jadvalidagi total_amount ga qanday qo'llash kerak? (API logikasi yozing).
-
-Yetkazib berish: delivery_process jadvalidagi status o'zgarganda (masalan, "delivered"), order jadvalidagi status_id ni avtomatik ravishda "Yakunlandi" ga o'zgartirish mantiqi.
-
-Buyurtma tarkibi: Foydalanuvchi savatga (bucket) mahsulot qo'shganda bucket_product jadvaliga yozuv qo'shish. Ammo, agar mahsulot zaxirada (current_quantity) qolmagan bo'lsa, xatolik (Error) qaytarish mantiqi.
-
-O'chirish kaskadi: Agar kategoriya (category) o'chirilsa, unga tegishli barcha mahsulotlar ham o'chirilsinmi yoki kategoriya NULL ga o'zgartirilsinmi? Bu biznes qarorini asoslab bering.
+44-Topshiriq (Kaskadli O'chirish Qarori)
+Tizimdan mahsulot kategoriyasi o'chirilganida, ushbu kategoriyaga tegishli mahsulotlar tizimdan to'liq o'chib ketishi kerakmi yoki ularning kategoriyasi "kategoriyasiz" (bo'sh) holatga o'tishi kerakmi? Ushbu biznes qarorini me'yoriy va xavfsizlik nuqtai nazaridan asoslab bering.

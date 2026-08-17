@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Multi Market - Home Page</title>
+    <!-- CSS faylni ulash -->
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+    <!-- ================= FIXED HEADER ================= -->
+    <header>
+        <div class="header-left">
+            <button class="nav-btn" id="btn-category">CATEGORY</button>
+            <button class="nav-btn" id="btn-bucket">BUSCKET</button>
+            <button class="nav-btn" id="btn-liked">LIKED</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="serch by product name">
+        </div>
+
+        <div class="header-right">
+            <button class="auth-btn" id="btn-login">LOGIN</button>
+            <span>|</span>
+            <button class="auth-btn" id="btn-singup">SINGUP</button>
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main>
+
+        <!-- 1-SECTION: MAVSUMIY CHEGIRMALAR -->
+        <section class="section-box">
+            <div class="section-title-wrapper">
+                <span class="section-title">MAVSUMIY CHEGIRMALAR</span>
+            </div>
+            <div class="slider-container">
+                <button class="arrow-btn" onclick="prevSlide('seasonal')">&lt;</button>
+                
+                <div class="slider-grid" id="seasonal-discounts-container">
+                    
+                    <div class="discount-card" data-product-id="101">
+                        <!-- RASM O'RNI (FASTAPI STATIC/MEDIA URL) -->
+                        <div class="image-placeholder">image</div>
+                        <div class="discount-info">
+                            <button class="small-btn price-tag">PRICE</button>
+                            <button class="small-btn detail-tag">DETAIL</button>
+                        </div>
+                    </div>
+
+                    <div class="discount-card" data-product-id="102">
+                        <div class="image-placeholder">image</div>
+                        <div class="discount-info">
+                            <button class="small-btn price-tag">PRICE</button>
+                            <button class="small-btn detail-tag">DETAIL</button>
+                        </div>
+                    </div>
+
+                    <div class="discount-card" data-product-id="103">
+                        <div class="image-placeholder">image</div>
+                        <div class="discount-info">
+                            <button class="small-btn price-tag">PRICE</button>
+                            <button class="small-btn detail-tag">DETAIL</button>
+                        </div>
+                    </div>
+
+                    <div class="discount-card" data-product-id="104">
+                        <div class="image-placeholder">image</div>
+                        <div class="discount-info">
+                            <button class="small-btn price-tag">PRICE</button>
+                            <button class="small-btn detail-tag">DETAIL</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="arrow-btn" onclick="nextSlide('seasonal')">&gt;</button>
+            </div>
+        </section>
+
+
+        <!-- 2-SECTION: HAFTALIK CHEGIRMALAR -->
+        <section class="section-box">
+            <div class="section-title-wrapper">
+                <span class="section-title">HAFTALIK CHEGIRMALAR</span>
+            </div>
+            <div class="slider-container">
+                <button class="arrow-btn" onclick="prevSlide('weekly')">&lt;</button>
+                
+                <div class="slider-grid" id="weekly-discounts-container">
+                    
+                    <div class="discount-card" data-product-id="201">
+                        <div class="image-placeholder">image</div>
+                        <div class="discount-info">
+                            <button class="small-btn price-tag">PRICE</button>
+                            <button class="small-btn detail-tag">DETAIL</button>
+                        </div>
+                    </div>
+
+                    <div class="discount-card" data-product-id="202">
+                        <div class="image-placeholder">image</div>
+                        <div class="discount-info">
+                            <button class="small-btn price-tag">PRICE</button>
+                            <button class="small-btn detail-tag">DETAIL</button>
+                        </div>
+                    </div>
+
+                    <div class="discount-card" data-product-id="203">
+                        <div class="image-placeholder">image</div>
+                        <div class="discount-info">
+                            <button class="small-btn price-tag">PRICE</button>
+                            <button class="small-btn detail-tag">DETAIL</button>
+                        </div>
+                    </div>
+
+                    <div class="discount-card" data-product-id="204">
+                        <div class="image-placeholder">image</div>
+                        <div class="discount-info">
+                            <button class="small-btn price-tag">PRICE</button>
+                            <button class="small-btn detail-tag">DETAIL</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="arrow-btn" onclick="nextSlide('weekly')">&gt;</button>
+            </div>
+        </section>
+
+
+        <!-- 3-SECTION: MAIN LANDING PRODUCTS (PASTGA QARAB GRID) -->
+        <section>
+            <div class="landing-grid" id="main-products-container">
+                
+                <!-- CARD 1 -->
+                <div class="product-card" data-product-id="1">
+                    <div class="image-placeholder">PRODUCT IMAGE</div>
+                    
+                    <div class="card-row">
+                        <button class="btn-action">current price</button>
+                        <button class="btn-action flex-grow">product detail</button>
+                        <button class="btn-action">like</button>
+                    </div>
+                    
+                    <div class="card-row">
+                        <button class="btn-action">rating comment</button>
+                        <button class="btn-action flex-grow">buscket</button>
+                        <button class="btn-action">detail</button>
+                    </div>
+                </div>
+
+                <!-- CARD 2 -->
+                <div class="product-card" data-product-id="2">
+                    <div class="image-placeholder">PRODUCT IMAGE</div>
+                    
+                    <div class="card-row">
+                        <button class="btn-action">current price</button>
+                        <button class="btn-action flex-grow">product detail</button>
+                        <button class="btn-action">like</button>
+                    </div>
+                    
+                    <div class="card-row">
+                        <button class="btn-action">rating comment</button>
+                        <button class="btn-action flex-grow">buscket</button>
+                        <button class="btn-action">detail</button>
+                    </div>
+                </div>
+
+                <!-- CARD 3 -->
+                <div class="product-card" data-product-id="3">
+                    <div class="image-placeholder">PRODUCT IMAGE</div>
+                    
+                    <div class="card-row">
+                        <button class="btn-action">current price</button>
+                        <button class="btn-action flex-grow">product detail</button>
+                        <button class="btn-action">like</button>
+                    </div>
+                    
+                    <div class="card-row">
+                        <button class="btn-action">rating comment</button>
+                        <button class="btn-action flex-grow">buscket</button>
+                        <button class="btn-action">detail</button>
+                    </div>
+                </div>
+
+                <!-- CARD 4 -->
+                <div class="product-card" data-product-id="4">
+                    <div class="image-placeholder">PRODUCT IMAGE</div>
+                    
+                    <div class="card-row">
+                        <button class="btn-action">current price</button>
+                        <button class="btn-action flex-grow">product detail</button>
+                        <button class="btn-action">like</button>
+                    </div>
+                    
+                    <div class="card-row">
+                        <button class="btn-action">rating comment</button>
+                        <button class="btn-action flex-grow">buscket</button>
+                        <button class="btn-action">detail</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= FASTAPI INTEGRATION SETUP ================= -->
+    <script>
+        const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+
+        async function fetchMainProducts() {
+            try {
+                /*
+                const response = await fetch(`${API_BASE_URL}/products`);
+                const products = await response.json();
+                
+                const container = document.getElementById('main-products-container');
+                container.innerHTML = '';
+
+                products.forEach(product => {
+                    container.innerHTML += `
+                        <div class="product-card" data-product-id="${product.id}">
+                            <img src="${product.image_url}" alt="${product.title}" style="width:100%; height:180px; object-fit:cover; border-radius:6px;">
+                            
+                            <div class="card-row">
+                                <button class="btn-action">${product.price} UZS</button>
+                                <button class="btn-action flex-grow">${product.title}</button>
+                                <button class="btn-action">like</button>
+                            </div>
+                            
+                            <div class="card-row">
+                                <button class="btn-action">★ ${product.rating}</button>
+                                <button class="btn-action flex-grow">buscket</button>
+                                <button class="btn-action">detail</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                */
+                console.log("FastAPI bilan ulanishga tayyor!");
+            } catch (error) {
+                console.error("Xatolik yuz berdi:", error);
+            }
+        }
+
+        function prevSlide(type) {
+            console.log(`Previous slide for ${type}`);
+        }
+
+        function nextSlide(type) {
+            console.log(`Next slide for ${type}`);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchMainProducts();
+        });
+    </script>
+</body>
+</html>

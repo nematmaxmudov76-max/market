@@ -36,11 +36,11 @@ class User(BaseMain):
     password_hash:Mapped[str] = mapped_column(String(255), nullable=True)
     last_login:Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
     garbage_email:Mapped[str] = mapped_column(String(100), default=None, nullable=True) # deleted email is => garbage_email
-    is_active:Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
-    is_deleted:Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
-    is_staff:Mapped[bool] = mapped_column(Boolean, default=False, nullable=True) # First login is => staff bydefault
-    is_admin:Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
-    is_courier:Mapped[bool] = mapped_column(Boolean, default=False, nullable=True) 
+    is_active:Mapped[bool] = mapped_column(Boolean, default=True, )
+    is_deleted:Mapped[bool] = mapped_column(Boolean, default=False, )
+    is_staff:Mapped[bool] = mapped_column(Boolean, default=False, ) # First login is => staff bydefault
+    is_admin:Mapped[bool] = mapped_column(Boolean, default=False, )
+    is_courier:Mapped[bool] = mapped_column(Boolean, default=False,) 
 
     def __repr__(self):
         return f"user email: {self.email}"
