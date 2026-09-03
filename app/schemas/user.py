@@ -1,41 +1,42 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import EmailStr
+from .base import Base
 
-class UserCreateRequest(BaseModel):
-    id:int
-    first_name:str | None = None
-    last_name:str | None = None
-    age:int | None = None
-    email:EmailStr
-    tell_number:int | None = None
-    password:str
-    password_hash:str
-    is_active:bool 
 
-class UserAddressListResponse(BaseModel):
-    user_id:int
-    region_id:int
-    address:str
+class UserCreateRequest(Base):
+    first_name: str | None = None
+    last_name: str | None = None
+    age: int | None = None
+    email: EmailStr
+    tell_number: int | None = None
+    password_hash: str
+    is_active: bool
 
-class UserListResponse(BaseModel):
-    firs_name:str | None = None
-    last_name:str | None = None
-    email:EmailStr
-    age:int | None = None
-    bio:str | None = None 
-    tell_number:int | None = None
-    last_login: datetime 
-    is_active:bool | None = None
-    is_staff:bool  | None = None  
-    is_admin:bool | None = None
-    created_at:datetime
+
+class UserAddressListResponse(Base):
+    user_id: int
+    region_id: int
+    address: str
+
+
+class UserListResponse(Base):
+    first_name: str | None = None
+    last_name: str | None = None
+    email: EmailStr
+    age: int | None = None
+    bio: str | None = None
+    tell_number: int | None = None
+    last_login: datetime
+    is_active: bool
+    is_staff: bool | None = None
+    is_admin: bool | None = None
+    created_at: datetime | None = None
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
                     "id": 6,
                     "email": "eshmat@gmail.com",
-                    "password_hash": "eshmat123",
                     "first_name": "Eshmat",
                     "last_name": "Eshmatov",
                     "bio": "Eshmat yaxshi o'quvchi, lekin u dangasa bilmaydi",
@@ -48,5 +49,7 @@ class UserListResponse(BaseModel):
         }
     }
 
-# Mana shu sozlama ORM obyektini(user.post, user.email) Json formatga o'girib beradi(user["post"], user["email"])
-    model_config = ConfigDict(from_attributes=True)
+
+class CreateUserLikeRequest(Base):
+    user_id: int
+    product_id: int

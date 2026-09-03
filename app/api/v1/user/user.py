@@ -1,33 +1,33 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
-from sqlalchemy.orm import  joinedload, selectinload
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy import select
-from app.model import User , User_Address
-from app.model import Region, Country
-from app.schemas.user import (
-    UserListResponse, 
+from app.model import User, User_Address
+from app.model import Region, Like, Product
+from app.schemas import (
+    UserListResponse,
     UserCreateRequest,
     UserAddressListResponse,
+    CreateUserLikeRequest,
 )
 
+from app.utils import hash_password
 from app.database import db_dep
 from pydantic import BaseModel, Field
 from typing import Annotated, Literal
 
-router = APIRouter(prefix="/profil", tags=["User"])
+router = APIRouter(prefix="/user", tags=["User"])
 
 
 @router.post("/create")
-async def create_user(session:db_dep, data:UserCreateRequest):
+async def create_user(session: db_dep, data: UserCreateRequest):
     users = User(
-        id = data.id,
-        first_name = data.first_name,
-        last_name = data.last_name,
-        age = data.age,
-        email = data.email,
-        tell_number = data.tell_number,
-        password = data.password,
-        password_hash = data.password_hash,
-        is_active = data.is_active, 
+        first_name=data.first_name,
+        last_name=data.last_name,
+        age=data.age,
+        email=data.email,
+        tell_number=data.tell_number,
+        password_hash=hash_password(data.password_hash),
+        is_active=data.is_active,
     )
     session.add(users)
     session.commit()
@@ -35,44 +35,65 @@ async def create_user(session:db_dep, data:UserCreateRequest):
 
     return users
 
+
 # query paramda list ko'rinishida bizga malumot yetib keladi
 # TODO Tizimdagi barcha faol foydalanuvchilarning ismi, familiyasi hamda elektron pochta manzilini oling.
 
-@router.get("/{user_id}", response_model=list[UserListResponse])
-async def get_users(session:db_dep, is_active:bool | None = None,):
+
+@router.get("/{user_id}", response_model=UserListResponse)
+async def get_users(session: db_dep, user_id: int, is_active: bool = Query(True)):
     stmt = (
-    select(User)
-    .where(User.is_active == is_active)
-    .order_by(User.created_at.desc())
+        select(User)
+        .where(User.is_active == is_active, User.id == user_id)
+        .order_by(User.created_at.desc())
     )
-    if is_active is  None:
+    # if is_active is None:
+    #     raise HTTPException(status_code=404, detail="user not found")
+
+    res = (session.execute(stmt)).scalars().first()
+
+    if not res:
         raise HTTPException(status_code=404, detail="user not found")
-    
-    res = session.execute(stmt)
-    return res.scalars().all()
+
+    return res
+
 
 # TODO Muayyan bir foydalanuvchi (masalan, ID si 5 ga teng bo'lgan) uchun uning profilda saqlab qo'yilgan barcha yetkazib berish manzillarini ko'rsating.
-
-@router.get("/get_user_address/{user_id}", response_model=UserAddressListResponse) 
-async def get_user_address(session:db_dep, user_id:int):
+# path param
+@router.get("/get_user_address/{user_id}", response_model=UserAddressListResponse)
+async def get_user_address(session: db_dep, user_id: int):
     stmt = (
         select(User_Address)
         .where(User_Address.user_id == user_id)
-        .order_by(User_Address.id.desc())
-        .options(
-            joinedload(User_Address.region).joinedload(Region.country)
-            )
-        
+        .options(joinedload(User_Address.region).joinedload(Region.country))
     )
     res = (session.execute(stmt)).scalar_one_or_none()
 
     if not res:
         raise HTTPException(status_code=404, detail="user address not found")
-        
-    return res
-    
 
-    
+    return res
+
+
+@router.post("/create/like")
+async def create_like(session: db_dep, data: CreateUserLikeRequest):
+    user = session.get(User, data.user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="user not found")
+
+    product = session.get(Product, data.product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="product not found")
+
+    like = Like(user_id=data.user_id, product_id=data.product_id)
+    session.add(like)
+    session.commit()
+    session.refresh(like)
+
+    return like
+
+
+# for lessons______________________________________________________________
 class FilterParams(BaseModel):
     model_config = {"extra": "forbid"}
 
