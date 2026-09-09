@@ -162,25 +162,25 @@ class Product_Media(BaseMain):
     )
 
 
-class Product_Category(BaseMain):
-    __tablename__ = "product_category"
+# class Product_Category(BaseMain):
+#     __tablename__ = "product_category"
 
-    product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
-    )
-    category_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("category.id", ondelete="SET NULL"), onupdate=False
-    )
+#     product_id: Mapped[int] = mapped_column(
+#         SmallInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
+#     )
+#     category_id: Mapped[int] = mapped_column(
+#         SmallInteger, ForeignKey("category.id", ondelete="SET NULL"), onupdate=False
+#     )
 
-    def __repr__(self):
-        return f"product id:{self.product_id}, category id:{self.category_id}"
+#     def __repr__(self):
+#         return f"product id:{self.product_id}, category id:{self.category_id}"
 
-    product: Mapped["Product"] = relationship(
-        "Product", back_populates="product_category", lazy="raise_on_sql"
-    )
-    category: Mapped["Category"] = relationship(
-        "Category", back_populates="product_category", lazy="raise_on_sql"
-    )
+#     product: Mapped["Product"] = relationship(
+#         "Product", back_populates="product_category", lazy="raise_on_sql"
+#     )
+#     category: Mapped["Category"] = relationship(
+#         "Category", back_populates="product_category", lazy="raise_on_sql"
+#     )
 
 
 class Shop_Product(BaseMain):

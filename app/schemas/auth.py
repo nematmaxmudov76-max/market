@@ -1,26 +1,40 @@
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, model_validator
+from pydantic import EmailStr, model_validator
 from zxcvbn import zxcvbn
+from .base import Base
 
 
-class UserRegisterRequest(BaseModel):
+# user register
+class UserRegisterRequest(Base):
     email: EmailStr
-    password_hash: str
+    password: str
     password2: str
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def password_validate(self):
-        if self.password_hash != self.password2:
+        if self.password != self.password2:
             raise ValueError("password xato kititildi")
-        if len(self.password_hash) < 8:
+        if len(self.password) < 8:
             raise ValueError("password 8ta belgidan kam!!")
-        if zxcvbn(self.password_hash) and zxcvbn(self.password_hash)["score"] < 4:
+        if zxcvbn(self.password) and zxcvbn(self.password)["score"] < 2:
             raise ValueError("password zaif")
 
         return self
 
 
-class UserRegisterResponse(BaseModel):
+class UserRegisterResponse(Base):
     id: int
     email: str
     created_at: datetime
+
+
+# SESSION AUTH
+
+
+class UserLoginRequest(Base):
+    email: EmailStr
+    password: str
+
+
+class RefreshTokenRequest(Base):
+    token: str

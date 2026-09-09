@@ -30,6 +30,7 @@ class UserListResponse(Base):
     is_active: bool
     is_staff: bool | None = None
     is_admin: bool | None = None
+    is_courier: bool | None = None
     created_at: datetime | None = None
     model_config = {
         "json_schema_extra": {

@@ -14,8 +14,10 @@ from .location import (
     CountryUpdateRequest,
 )
 from .auth import (
-    UserRegisterRequest, 
-    UserRegisterResponse
+    UserRegisterRequest,
+    UserRegisterResponse,
+    UserLoginRequest,
+    RefreshTokenRequest,
 )
 
 __all__ = [
@@ -34,4 +36,6 @@ __all__ = [
     "NotifUpdateRequest",
     "UserRegisterRequest",
     "UserRegisterResponse",
+    "UserLoginRequest",
+    "RefreshTokenRequest",
 ]

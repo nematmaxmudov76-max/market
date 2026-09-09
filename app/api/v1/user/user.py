@@ -93,6 +93,29 @@ async def create_like(session: db_dep, data: CreateUserLikeRequest):
     return like
 
 
+@router.delete("/delete-user/{user_id}")
+async def delete_user(session: db_dep, user_id: int):
+    stmt = select(User).where(User.id == user_id)
+    res = (session.execute(stmt)).scalar_one_or_none()
+    if not res:
+        raise HTTPException(status_code=404, detail="user not found")
+
+    session.delete(res)
+    session.flush()
+    session.commit()
+
+    return f"user id:{user_id} is deleted"
+
+
+@router.get("/get_users/")
+async def delete_user(session: db_dep, is_active: bool):
+    stmt = select(User).where(User.is_active == is_active)
+    res = (session.execute(stmt)).scalars().all()
+    if not res:
+        raise HTTPException(status_code=404, detail="user not found")
+    return res
+
+
 # for lessons______________________________________________________________
 class FilterParams(BaseModel):
     model_config = {"extra": "forbid"}

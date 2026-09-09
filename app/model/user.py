@@ -27,9 +27,9 @@ class User(BaseMain):
     __tablename__ = "user"
 
     email: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
-    first_name: Mapped[str] = mapped_column(String(50))
-    age: Mapped[int] = mapped_column(SmallInteger)
-    last_name: Mapped[str] = mapped_column(String(50))
+    first_name: Mapped[str] = mapped_column(String(50), nullable=True)
+    age: Mapped[int] = mapped_column(SmallInteger, nullable=True)
+    last_name: Mapped[str] = mapped_column(String(50), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(250), nullable=False)
     bio: Mapped[str] = mapped_column(Text, nullable=True)
     tell_number: Mapped[int] = mapped_column(BigInteger, nullable=True)
@@ -112,6 +112,9 @@ class User(BaseMain):
     )
     user_search: Mapped[list["User_Search"]] = relationship(
         "User_Search", back_populates="user", lazy="raise_on_sql"
+    )
+    user_session_token: Mapped["UserSessionToken"] = relationship(
+        "UserSessionToken", back_populates="user", lazy="raise_on_sql"
     )
 
 
@@ -256,4 +259,20 @@ class User_Search(BaseMain):
     )
     product: Mapped["Product"] = relationship(
         "Product", back_populates="user_search", lazy="raise_on_sql"
+    )
+
+
+class UserSessionToken(BaseMain):
+    __tablename__ = "user_session_token"
+    user_id: Mapped[int] = mapped_column(
+        SmallInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=True
+    )
+    token: Mapped[str] = mapped_column(String(255), nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    def __repr__(self):
+        return f"user token:{self.token}"
+
+    user: Mapped["User"] = relationship(
+        "User", back_populates="user_session_token", lazy="raise_on_sql"
     )

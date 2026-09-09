@@ -4,7 +4,6 @@ from sqlalchemy.orm import joinedload, selectinload
 from app.database import db_dep
 from app.model import (
     Product,
-    Product_Category,
     Category,
     Discount,
     User_Rating,
