@@ -8,14 +8,13 @@ from app.config import settings
 # Docker uchun settings.DB_HOST="db" bo'lishi kerak
 DB_URL = f"postgresql+psycopg2://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 
-engin = create_engine(DB_URL, echo=True)
+engine = create_engine(DB_URL, echo=True)
 
-SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engin)
+SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 
 
 class Base(DeclarativeBase):
     pass
-
 
 def get_db():
     session = SessionLocal()

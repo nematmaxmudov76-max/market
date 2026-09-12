@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from app.config import settings
+from app.admin.settings import admin
+from .middleware import SessionValidationMiddleware
+
 
 from app.api.v1 import (
     user_router,
@@ -18,3 +21,7 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(common_router)
 app.include_router(product_router)
+
+admin.mount_to(app = app)
+
+app.add_middleware(SessionValidationMiddleware)

@@ -20,8 +20,10 @@ async def create_new_user(session: db_dep, data: UserRegisterRequest):
 
     user = User(email=data.email, password_hash=hash_password(data.password))
 
-    stmt2 = session.execute(select(User)).scalars().all()
-    if not stmt2:
+    active_user_exists = session.execute(
+        select(User.id).where(User.is_deleted.is_(False)).limit(1)
+    ).scalar_one_or_none()
+    if active_user_exists is None:
         user.is_admin = True
         user.is_staff = True
 

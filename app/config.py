@@ -15,12 +15,18 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     SECRET_KEY: str
 
+    #common
     DEBUG: bool
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
+
+    # MEDIA
+    MEDIA_PATH: str = "media"
+    FILE_SIZE: int = 1024 * 1024 * 5 # 5MB
+    FILE_TYPE: list[str] = [".jpg", ".png", ".jpeg"]
 
     # .env faylingizda bor bo'lgan va xatolik bergan o'zgaruvchilar:
     DATABASE_URL: str | None = None

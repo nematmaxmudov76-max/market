@@ -22,7 +22,7 @@ router = APIRouter(prefix="/basic_auth", tags=["Auth"])
 
 
 # for basic auth
-def get_current_user(session: db_dep, credention: basic_auth):
+def get_current_user_basic(session: db_dep, credention: basic_auth):
     stmt = select(User).where(User.email == credention.username)
     res = (session.execute(stmt)).scalars().first()
     if not res:
@@ -34,7 +34,7 @@ def get_current_user(session: db_dep, credention: basic_auth):
     return res
 
 
-current_user_basic = Annotated[User, Depends(get_current_user)]
+current_user_basic = Annotated[User, Depends(get_current_user_basic)]
 
 
 # for session auth
@@ -95,3 +95,17 @@ def get_current_user_jwt(
 
 
 current_user_jwt_dep = Annotated[User, Depends(get_current_user_jwt)]
+
+
+
+async def get_current_user(request:Request) -> User:
+    user: User | None = getattr(request.state, "user", None)
+
+    if user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="user not found or session expired"
+        )
+    return user
+
+current_user_dep = Depends(get_current_user)

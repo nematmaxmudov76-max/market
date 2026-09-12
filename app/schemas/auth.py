@@ -37,4 +37,4 @@ class UserLoginRequest(Base):
 
 
 class RefreshTokenRequest(Base):
-    token: str
+    access_token: str
