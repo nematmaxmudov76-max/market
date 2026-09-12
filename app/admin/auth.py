@@ -39,9 +39,9 @@ class JsonAuthProvider(AuthProvider):
       token = refresh_token if remember_me else access_token
 
       expire_token = (
-          settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+          settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60 # 1 kun
           if remember_me
-          else settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+          else settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60 * 60 # 1 soat
       )
 
       # Muvaffaqiyatli kirgach Admin panel bosh sahifasiga yo'naltirish

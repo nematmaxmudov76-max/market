@@ -11,6 +11,8 @@ from app.utils import decode_jwt_token
 EXCLUDE_PATHS = {
     "/api/v1/auth/login",
     "/api/v1/auth/register",
+    "/api/v1/jwt/login",
+    "/api/v1/session/login",
     "/api/v1/user-register/",
 }
 
@@ -34,6 +36,7 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
     # 2. Authorization Header yoki Cookie'dan tokenni olish
     auth_header = request.headers.get("Authorization")
     token = None
+    token_from_cookie = False
 
     if auth_header and auth_header.startswith("Bearer "):
       token = auth_header.split(" ")[1]
@@ -41,6 +44,7 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
       token = request.cookies.get("access_token") or request.cookies.get(
           "refresh_token"
       )
+      token_from_cookie = token is not None
 
     # 3. Tokenni dekod qilish va foydalanuvchini bazadan qidirish
     if token:
@@ -71,9 +75,13 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
 
     # 4. Agar so'rov /api bilan boshlansa va user topilmagan bo'lsa 401 qaytarish
     if request.state.user is None and path.startswith("/api"):
-      return JSONResponse(
+      response = JSONResponse(
           status_code=status.HTTP_401_UNAUTHORIZED,
           content={"detail": "Session is expired or invalid token"},
       )
+      if token_from_cookie:
+        response.delete_cookie("access_token", path="/")
+        response.delete_cookie("refresh_token", path="/")
+      return response
 
     return await call_next(request)

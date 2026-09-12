@@ -20,6 +20,7 @@ class UserAddressListResponse(Base):
 
 
 class UserListResponse(Base):
+    id: int 
     first_name: str | None = None
     last_name: str | None = None
     email: EmailStr

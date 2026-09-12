@@ -107,8 +107,8 @@ async def delete_user(session: db_dep, user_id: int):
     return f"user id:{user_id} is deleted"
 
 
-@router.get("/get_users/")
-async def delete_user(session: db_dep, is_active: bool):
+@router.get("/get_users/", response_model=list[UserListResponse])
+async def get_active_users(session: db_dep, is_active: bool):
     stmt = select(User).where(User.is_active == is_active)
     res = (session.execute(stmt)).scalars().all()
     if not res:

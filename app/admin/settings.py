@@ -13,5 +13,5 @@ admin = Admin(
     auth_provider=JsonAuthProvider(login_path="/login", logout_path="/logout")
 )
 
-admin.add_view(UserAdminView(User, icon="fa fa user"))
+admin.add_view(UserAdminView(User, icon="fa fa-user"))
  
