@@ -1,3 +1,5 @@
+from tempfile import template
+
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select, func
 from sqlalchemy.orm import joinedload, selectinload
@@ -19,7 +21,7 @@ from app.schemas import ProductListResponse
 router = APIRouter(prefix="/home", tags=["Home"])
 
 
-# (query param) barcha like bosilgan productlar
+# ["/user_id?q=is_active=<bool>"] barcha like bosilgan productlar
 @router.get("/liked-products", response_model=list[ProductListResponse])
 async def get_liked_product(session: db_dep, is_active: bool, user_id: int):
     stmt = (
@@ -108,6 +110,7 @@ class Current_date(Enum):
 (query) -4* oxirgi hafta/oy ichida chegirmaga ega productlar
 """
 
+from pydantic import BaseModel, Field
 
 @router.get("/monthly-discount", response_model=list[ProductListResponse])
 async def get_monthly_discount(
@@ -194,3 +197,5 @@ async def get_user_top_products(session: db_dep, user_id: int):
         raise HTTPException(status_code=404, detail="product not found")
 
     return res
+
+

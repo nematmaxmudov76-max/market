@@ -12,34 +12,16 @@ from app.schemas import (
 
 from app.utils import hash_password
 from app.database import db_dep
-from pydantic import BaseModel, Field
 from typing import Annotated, Literal
 
 router = APIRouter(prefix="/user", tags=["User"])
 
 
-@router.post("/create")
-async def create_user(session: db_dep, data: UserCreateRequest):
-    users = User(
-        first_name=data.first_name,
-        last_name=data.last_name,
-        age=data.age,
-        email=data.email,
-        tell_number=data.tell_number,
-        password_hash=hash_password(data.password_hash),
-        is_active=data.is_active,
-    )
-    session.add(users)
-    session.commit()
-    session.refresh(users)
-
-    return users
-
 
 # query paramda list ko'rinishida bizga malumot yetib keladi
 # TODO Tizimdagi barcha faol foydalanuvchilarning ismi, familiyasi hamda elektron pochta manzilini oling.
 
-
+# /user_id?q=is_active=<bool>
 @router.get("/{user_id}", response_model=UserListResponse)
 async def get_users(session: db_dep, user_id: int, is_active: bool = Query(True)):
     stmt = (
@@ -107,7 +89,7 @@ async def delete_user(session: db_dep, user_id: int):
     return f"user id:{user_id} is deleted"
 
 
-@router.get("/get_users/", response_model=list[UserListResponse])
+@router.get("/get_users", response_model=list[UserListResponse])
 async def get_active_users(session: db_dep, is_active: bool):
     stmt = select(User).where(User.is_active == is_active)
     res = (session.execute(stmt)).scalars().all()
@@ -115,17 +97,3 @@ async def get_active_users(session: db_dep, is_active: bool):
         raise HTTPException(status_code=404, detail="user not found")
     return res
 
-
-# for lessons______________________________________________________________
-class FilterParams(BaseModel):
-    model_config = {"extra": "forbid"}
-
-    limit: int = Field(100, gt=0, le=100)
-    offset: int = Field(0, ge=0)
-    order_by: Literal["created_at", "updated_at"] = "created_at"
-    tags: list[str] = []
-
-
-@router.get("/items/")
-async def read_items(filter_query: Annotated[FilterParams, Query()]):
-    return filter_query

@@ -48,5 +48,37 @@ services:
       redis:
         condition: service_started
 
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: market_celery_worker
+    restart: always
+    command: celery -A app.celery worker --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - db
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: market_celery_beat
+    restart: always
+    command: celery -A app.celery beat --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - db
+
+
 volumes:
   postgres_data:

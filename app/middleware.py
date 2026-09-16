@@ -6,15 +6,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.database import get_db  # get_db o'rniga SessionLocal
 from app.model import User
 from app.utils import decode_jwt_token
-
-# Autentifikatsiya talab qilinmaydigan ochiq API yo'llari
-EXCLUDE_PATHS = {
-    "/api/v1/auth/login",
-    "/api/v1/auth/register",
-    "/api/v1/jwt/login",
-    "/api/v1/session/login",
-    "/api/v1/user-register/",
-}
+from app.config import EXCLUDE_PATHS
+from jose import JWTError
 
 
 class SessionValidationMiddleware(BaseHTTPMiddleware):
@@ -23,7 +16,7 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
     request.state.user = None
     path = request.url.path
 
-    # 1. Admin panel, API docs va ochiq yo'llarni bypass qilish (tekshirmasdan o'tkazish)
+    # 1. Admin panel, EXCLUDE_PATH ichidagi va ochiq yo'llarni bypass qilish (tekshirmasdan o'tkazish)
     if (
         path.startswith("/admin")
         or path.startswith("/docs")
@@ -85,3 +78,13 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
       return response
 
     return await call_next(request)
+
+
+class TimeCounter(BaseHTTPMiddleware):
+
+  async def dispatch(self, request:Request, call_next):
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    time_delta = time.perf_counter()-start_time
+    response.headers["X-proccess-time"] = str(time_delta)
+    return response
