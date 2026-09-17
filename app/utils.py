@@ -2,6 +2,7 @@ import redis
 import smtplib
 from datetime import datetime, timezone, timedelta
 
+from email.mime.text import MIMEText
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from app.config import settings
@@ -61,7 +62,6 @@ def decode_jwt_token(token: str):
 
 def send_email(to_email:str, subject:str, body:str):
 
-    from email.mime.text import MIMEText
 
     msg = MIMEText(body)
     msg['Subject'] = subject
@@ -71,6 +71,6 @@ def send_email(to_email:str, subject:str, body:str):
     with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
         server.starttls()
         server.login(settings.EMAIL_FROM, settings.EMAIL_PASSWORD)
-        server.sendmail(msg)
+        server.send_message(msg)
 
 redis_client = redis.from_url(settings.REDIS_URL)

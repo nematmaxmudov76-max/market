@@ -33,8 +33,8 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
     REDIS_URL:str
-    CELERY_BROKER_URL: str = "redis://redis:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://redis:6379/0"
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str 
 
 
     # EMAIL SETTINGS
@@ -60,8 +60,8 @@ EXCLUDE_PATHS = {
     "/api/v1/auth/register",
     "/api/v1/jwt/login",
     "/api/v1/session/login",
-    "/api/v1/user-register",
-    "/api/v1/user-register/verify/{secret_code}",
+    "/api/v1/user/register",
+    "/api/v1/user/verify/{secret_code}",
     "/api/v1/user/get_users",
 
 

@@ -15,8 +15,8 @@ celery orqa fonda uvicorn serverga topshirmasdan
 o'zi emailga message yuborish ishni bajaradi hech kimga halaqit bermasdan
 """
 @celery.task(name = "send_email_message")
-def send_email_message(to_email:str, subject:str, boyd:str):
-    send_email(to_email=to_email, subject=subject, boyd=boyd)
+def send_email_message(to_email:str, subject:str, body:str):
+    send_email(to_email=to_email, subject=subject, body=body) # tartib muhim {to_email, subject, body} 
     return True
 
 

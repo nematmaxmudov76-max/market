@@ -44,7 +44,7 @@ class User(BaseMain):
     )  # deleted email is => garbage_email
     is_active: Mapped[bool] = mapped_column(
         Boolean,
-        default=True,
+        default=False,
     )
     is_deleted: Mapped[bool] = mapped_column(
         Boolean,

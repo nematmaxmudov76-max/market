@@ -8,7 +8,8 @@ from app.model import User
 from app.utils import decode_jwt_token
 from app.config import EXCLUDE_PATHS
 from jose import JWTError
-
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 class SessionValidationMiddleware(BaseHTTPMiddleware):
 
@@ -88,3 +89,6 @@ class TimeCounter(BaseHTTPMiddleware):
     time_delta = time.perf_counter()-start_time
     response.headers["X-proccess-time"] = str(time_delta)
     return response
+
+
+limiter = Limiter(key_func=get_remote_address)

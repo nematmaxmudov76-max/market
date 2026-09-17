@@ -1,5 +1,5 @@
 services:
-  # 1. PostgreSQL bazasi
+  # 1. PostgreSQL
   db:
     image: postgres:16-alpine
     container_name: market_db
@@ -19,6 +19,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - market_net
 
   # 2. Redis
   redis:
@@ -26,9 +28,16 @@ services:
     container_name: market_redis
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - market_net
 
-  # 3. FastAPI loyihangiz
+  # 3. FastAPI
   fastapi:
     build:
       context: .
@@ -46,9 +55,11 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+    networks:
+      - market_net
 
-
+  # 4. Celery Worker
   celery_worker:
     build:
       context: .
@@ -61,9 +72,14 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - redis
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - market_net
 
+  # 5. Celery Beat
   celery_beat:
     build:
       context: .
@@ -76,9 +92,16 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - redis
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - market_net
 
+networks:
+  market_net:
+    driver: bridge
 
 volumes:
   postgres_data:

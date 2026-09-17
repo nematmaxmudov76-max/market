@@ -16,12 +16,13 @@ from app.model import (
 from datetime import datetime, timedelta
 from enum import Enum
 from app.schemas import ProductListResponse
-
+from middleware import limiter
 
 router = APIRouter(prefix="/home", tags=["Home"])
 
 
 # ["/user_id?q=is_active=<bool>"] barcha like bosilgan productlar
+@limiter.limit("10/minute")
 @router.get("/liked-products", response_model=list[ProductListResponse])
 async def get_liked_product(session: db_dep, is_active: bool, user_id: int):
     stmt = (
@@ -42,6 +43,7 @@ async def get_liked_product(session: db_dep, is_active: bool, user_id: int):
 
 
 # (query param) product ni name bo'yicha search qilish
+@limiter.limit("15/minute")
 @router.get("/search-by-name", response_model=list[ProductListResponse])
 async def search_by_name(session: db_dep, search: str):
     stmt = (
@@ -59,6 +61,7 @@ async def search_by_name(session: db_dep, search: str):
 
 
 # (query) productni category bo'yicha search qilish
+@limiter.limit("20/minute")
 @router.get("/search-by-category", response_model=list[ProductListResponse])
 async def search_by_category(session: db_dep, is_active: bool):
     stmt = (
@@ -110,8 +113,7 @@ class Current_date(Enum):
 (query) -4* oxirgi hafta/oy ichida chegirmaga ega productlar
 """
 
-from pydantic import BaseModel, Field
-
+@limiter.limit("30/minute")
 @router.get("/monthly-discount", response_model=list[ProductListResponse])
 async def get_monthly_discount(
     session: db_dep, is_active: bool, month_or_week: Current_date
@@ -140,7 +142,7 @@ async def get_monthly_discount(
 - 5* oxirgi hafta ichida eng ko'p qidiruvdagi va ratingi baland productlar
 """
 
-
+@limiter.limit("20/minute")
 @router.get("/top-10-products", response_model=list[ProductListResponse])
 async def get_top_10_products(session: db_dep, is_active: bool):
     last_one_week = datetime.now() - timedelta(days=7)
@@ -169,7 +171,7 @@ async def get_top_10_products(session: db_dep, is_active: bool):
 - 6* user oxirgi hafta ichida eng ko'p qidirgan va ratingi baland productlar
 """
 
-
+@limiter.limit("10/minute")
 @router.get("/user-top-products", response_model=list[ProductListResponse])
 async def get_user_top_products(session: db_dep, user_id: int):
     last_one_week = datetime.now() - timedelta(days=7)
