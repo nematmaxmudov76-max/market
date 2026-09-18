@@ -97,15 +97,12 @@ def get_current_user_jwt(
 current_user_jwt_dep = Annotated[User, Depends(get_current_user_jwt)]
 
 
-
-async def get_current_user(request:Request) -> User:
+async def get_current_user(request: Request) -> User:
     user: User | None = getattr(request.state, "user", None)
 
     if user is None:
-        raise HTTPException(
-            status_code=401,
-            detail="user not found or session expired"
-        )
+        raise HTTPException(status_code=401, detail="user not found or session expired")
     return user
 
-current_user_dep = Depends(get_current_user)
+
+current_user_dep = Annotated[User, Depends(get_current_user)]

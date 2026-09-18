@@ -22,5 +22,34 @@
 
 
 one product data => detail + avg rating + discount + in store 
-
 this type products in category
+
+#### Report
+### register.py:
+## "/register" API ni vazifasi
+``` 
+ 1* Userni bazadan teshkiradi yo'q bo'lsa True ✔  oldin register qilingan bo'lsa Error(user alredy exist)
+ 2* Redisga %secred_kod, %user haqidagi data(json holatda), %is_active=fasle(chunki hali tasdiqlanmadi)
+ 3* 'send_email_message' funksiya-> regischi bo'lgan userga secred_kod yuboradi 
+```
+## "/verify/{secred_code}" API emailni tasdiqlaydi
+```
+ 1* 'redis_url' dan redisga saqlangan datani get qilib oladi va decode qiladi
+ 2* user ni yana bir bor email orqali bazadan teshkiradi va dublikatlikga yo'l qo'ymaydi
+ 3* redisdan olingan datalar yordamida new_user yaratiladi va 'is_active=true' qilib qo'yiladi
+ 4* agar bazada hali user not exist bo'lsa first user is-> 'is_admin=true'
+ ```
+
+
+
+
+
+
+
+#### DONE
+## 1* register/verify(email) + auth ✔ 
+## 2* custom middleware (for check over) ✔
+## 3*
+
+### NEED
+# 1* update_access_token for 

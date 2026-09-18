@@ -16,15 +16,15 @@ async def create_upload_file(file: UploadFile, db: db_dep):
             status_code=400, detail="File size is too large. Max size is 5MB."
         )
 
-    file_ext = Path(file.filename).suffix.lower() # image.png
+    file_ext = Path(file.filename).suffix.lower()  # image.png
     if file_ext not in settings.FILE_TYPE:
         raise HTTPException(
             status_code=400,
             detail="File type is not supported. Only .jpg, .png, .jpeg are allowed.",
-            )
+        )
     path = Path(settings.MEDIA_PATH)
     path.mkdir(exist_ok=True)
-    res = path / file.filename # chesnokuz/media/filename.jpg
+    res = path / file.filename  # chesnokuz/media/filename.jpg
     with open(res, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 

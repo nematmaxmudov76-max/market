@@ -60,17 +60,16 @@ def decode_jwt_token(token: str):
         return None
 
 
-def send_email(to_email:str, subject:str, body:str):
-
-
+def send_email(to_email: str, subject: str, body: str):
     msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = settings.EMAIL_FROM
-    msg['To'] = to_email
+    msg["Subject"] = subject
+    msg["From"] = settings.EMAIL_FROM
+    msg["To"] = to_email
 
     with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
         server.starttls()
         server.login(settings.EMAIL_FROM, settings.EMAIL_PASSWORD)
         server.send_message(msg)
 
-redis_client = redis.from_url(settings.REDIS_URL)
+
+redis_url = redis.from_url(settings.REDIS_URL)

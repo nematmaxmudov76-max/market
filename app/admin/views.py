@@ -1,7 +1,8 @@
 from starlette_admin.contrib.sqla import ModelView
 
+
 class UserAdminView(ModelView):
-    fields=[
+    fields = [
         "id",
         "email",
         "first_name",

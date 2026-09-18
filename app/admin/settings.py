@@ -10,8 +10,7 @@ admin = Admin(
     title="Market-place admin",
     base_url="/admin",
     secret_key=settings.SECRET_KEY,
-    auth_provider=JsonAuthProvider(login_path="/login", logout_path="/logout")
+    auth_provider=JsonAuthProvider(login_path="/login", logout_path="/logout"),
 )
 
 admin.add_view(UserAdminView(User, icon="fa fa-user"))
- 

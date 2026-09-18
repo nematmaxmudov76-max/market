@@ -17,9 +17,9 @@ from typing import Annotated, Literal
 router = APIRouter(prefix="/user", tags=["User"])
 
 
-
 # query paramda list ko'rinishida bizga malumot yetib keladi
 # TODO Tizimdagi barcha faol foydalanuvchilarning ismi, familiyasi hamda elektron pochta manzilini oling.
+
 
 # /user_id?q=is_active=<bool>
 @router.get("/{user_id}", response_model=UserListResponse)
@@ -96,4 +96,3 @@ async def get_active_users(session: db_dep, is_active: bool):
     if not res:
         raise HTTPException(status_code=404, detail="user not found")
     return res
-

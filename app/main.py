@@ -23,23 +23,24 @@ app.include_router(user_router)
 app.include_router(common_router)
 app.include_router(product_router)
 
-admin.mount_to(app = app)
+admin.mount_to(app=app)
+
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["*"],  # chesnok.uz, eshmat.uz *
+)  # yani, bu middleware orqali faqatgina ruxsat berilgan hostlar orqali so'rovlar qabul qilinadi. Bu xavfsizlikni oshiradi.
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # chesnok.uz, eshmat.uz *
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)  # bu middleware orqali CORS sozlamalari amalga oshiriladi. Bu, boshqa domenlardan keladigan so'rovlarni boshqarish imkonini beradi.
+
 
 app.add_middleware(SessionValidationMiddleware)
 app.add_middleware(TimeCounter)
 
-app.add_middleware(
-    TrustedHostMiddleware,
-    allow_hosts=settings.ALLOWED_HOSTS,
-) # yani, bu middleware orqali faqatgina ruxsat berilgan hostlar orqali so'rovlar qabul qilinadi. Bu xavfsizlikni oshiradi.
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-) # bu middleware orqali CORS sozlamalari amalga oshiriladi. Bu, boshqa domenlardan keladigan so'rovlarni boshqarish imkonini beradi.
 
 app.state.limiter = limiter
-

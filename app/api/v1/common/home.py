@@ -1,6 +1,5 @@
 from tempfile import template
-
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from sqlalchemy import select, func
 from sqlalchemy.orm import joinedload, selectinload
 from app.database import db_dep
@@ -16,7 +15,7 @@ from app.model import (
 from datetime import datetime, timedelta
 from enum import Enum
 from app.schemas import ProductListResponse
-from middleware import limiter
+from app.middleware import limiter
 
 router = APIRouter(prefix="/home", tags=["Home"])
 
@@ -24,7 +23,9 @@ router = APIRouter(prefix="/home", tags=["Home"])
 # ["/user_id?q=is_active=<bool>"] barcha like bosilgan productlar
 @limiter.limit("10/minute")
 @router.get("/liked-products", response_model=list[ProductListResponse])
-async def get_liked_product(session: db_dep, is_active: bool, user_id: int):
+async def get_liked_product(
+    request: Request, session: db_dep, is_active: bool, user_id: int
+):
     stmt = (
         select(Product)
         .join(Like, Like.product_id == Product.id)
@@ -45,7 +46,7 @@ async def get_liked_product(session: db_dep, is_active: bool, user_id: int):
 # (query param) product ni name bo'yicha search qilish
 @limiter.limit("15/minute")
 @router.get("/search-by-name", response_model=list[ProductListResponse])
-async def search_by_name(session: db_dep, search: str):
+async def search_by_name(request: Request, session: db_dep, search: str):
     stmt = (
         select(Product)
         .where(Product.name.like(f"%{search}%"))
@@ -63,7 +64,7 @@ async def search_by_name(session: db_dep, search: str):
 # (query) productni category bo'yicha search qilish
 @limiter.limit("20/minute")
 @router.get("/search-by-category", response_model=list[ProductListResponse])
-async def search_by_category(session: db_dep, is_active: bool):
+async def search_by_category(request: Request, session: db_dep, is_active: bool):
     stmt = (
         select(Product)
         .join(Category, Category.id == Product.category_id)
@@ -88,7 +89,7 @@ tugamagan chegirmalarga ega mahsulotlarni tortib kelish
 
 
 @router.get("/discount-products", response_model=list[ProductListResponse])
-async def get_discount_products(session: db_dep, is_active: bool):
+async def get_discount_products(request: Request, session: db_dep, is_active: bool):
     stmt = (
         select(Product)
         .join(Discount, Discount.id == Product.discount_id)
@@ -113,10 +114,11 @@ class Current_date(Enum):
 (query) -4* oxirgi hafta/oy ichida chegirmaga ega productlar
 """
 
+
 @limiter.limit("30/minute")
 @router.get("/monthly-discount", response_model=list[ProductListResponse])
 async def get_monthly_discount(
-    session: db_dep, is_active: bool, month_or_week: Current_date
+    request: Request, session: db_dep, is_active: bool, month_or_week: Current_date
 ):
     if month_or_week == Current_date.WEEK:
         current_date = datetime.now() - timedelta(days=7)
@@ -142,9 +144,10 @@ async def get_monthly_discount(
 - 5* oxirgi hafta ichida eng ko'p qidiruvdagi va ratingi baland productlar
 """
 
+
 @limiter.limit("20/minute")
 @router.get("/top-10-products", response_model=list[ProductListResponse])
-async def get_top_10_products(session: db_dep, is_active: bool):
+async def get_top_10_products(request: Request, session: db_dep, is_active: bool):
     last_one_week = datetime.now() - timedelta(days=7)
     stmt = (
         select(Product)
@@ -171,9 +174,10 @@ async def get_top_10_products(session: db_dep, is_active: bool):
 - 6* user oxirgi hafta ichida eng ko'p qidirgan va ratingi baland productlar
 """
 
+
 @limiter.limit("10/minute")
 @router.get("/user-top-products", response_model=list[ProductListResponse])
-async def get_user_top_products(session: db_dep, user_id: int):
+async def get_user_top_products(request: Request, session: db_dep, user_id: int):
     last_one_week = datetime.now() - timedelta(days=7)
     stmt = (
         select(Product)
@@ -199,5 +203,3 @@ async def get_user_top_products(session: db_dep, user_id: int):
         raise HTTPException(status_code=404, detail="product not found")
 
     return res
-
-
