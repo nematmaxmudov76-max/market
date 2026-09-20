@@ -13,9 +13,10 @@ from app.utils import generate_jwt_token, verify_password
 from app.middleware import limiter
 
 
-@limiter.limit("10/minute")  # Limit login attempts to 10 per minute
 class JsonAuthProvider(AuthProvider):
-    # faqat is_admin and is_staff  is True bo'lganlar admin panelga kiraoladi!!!
+    # faqat is_admin and is_manager  is True bo'lganlar admin panelga kiraoladi!!!
+
+    @limiter.limit("10/minute")  # Limit login attempts to 10 per minute
     async def login(
         self,
         username: str,
@@ -30,7 +31,7 @@ class JsonAuthProvider(AuthProvider):
             if not user or user.is_deleted:
                 raise LoginFailed("User not found or deleted.")
 
-            if not (user.is_admin or user.is_staff):
+            if not (user.is_admin or user.is_manager):
                 raise LoginFailed("You not permission to access admin panel.")
 
             if not verify_password(password, user.password_hash):
@@ -75,10 +76,10 @@ class JsonAuthProvider(AuthProvider):
 
         if user:
             is_admin = getattr(user, "is_admin", False)
-            is_staff = getattr(user, "is_staff", False)
+            is_manager = getattr(user, "is_manager", False)
             is_deleted = getattr(user, "is_deleted", False)
 
-            if (is_admin or is_staff) and not is_deleted:
+            if (is_admin or is_manager) and not is_deleted:
                 return AdminUser(username=user.email)
 
         # 2. Agar state'da user bo'lmasa, cookie'dan 'access_token'ni o'zi oladi
@@ -103,11 +104,11 @@ class JsonAuthProvider(AuthProvider):
             try:
                 db_user = db.query(User).filter(User.id == int(user_id)).first()
                 logger.warning(
-                    f">>>>>[auth]5 db_user -> {db_user}, is_admin ->{getattr(db_user, 'is_admin', None)}, is_staff ->{getattr(db_user, 'is_staff', None)}, is_deleted ->{getattr(db_user, 'is_deleted', None)}"
+                    f">>>>>[auth]5 db_user -> {db_user}, is_admin ->{getattr(db_user, 'is_admin', None)}, is_mahager ->{getattr(db_user, 'is_managerre', None)}, is_deleted ->{getattr(db_user, 'is_deleted', None)}"
                 )
                 if (
                     db_user
-                    and (db_user.is_admin or db_user.is_staff)
+                    and (db_user.is_admin or db_user.is_manager)
                     and not db_user.is_deleted
                 ):
                     # Keyingi requestlar uchun state ga ham yozib qo'yamiz
@@ -130,5 +131,5 @@ class JsonAuthProvider(AuthProvider):
         return None
 
     async def logout(self, request: Request, response: Response) -> Response:
-        response.delete_cookie("access_token", path="/")
-        return response
+        response.delete_cookie("access_token")
+        return RedirectResponse(url=request.url_for("admin:login"), status_code=303)

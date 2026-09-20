@@ -27,6 +27,7 @@ from .user import (
     User_Rating,
     User_Search,
     UserSessionToken,
+    Audit_Log,
 )
 from .payment import Payment_Process, Transaction_Log
 
@@ -60,4 +61,5 @@ __all__ = [
     "Discount",
     "User_Search",
     "UserSessionToken",
+    "Audit_Log",
 ]

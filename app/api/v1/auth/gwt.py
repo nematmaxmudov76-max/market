@@ -43,6 +43,6 @@ async def update_refresh_or_access_token(session: db_dep, data: RefreshTokenRequ
     return {"access_token": new_access_token}
 
 
-@router.get("profile", response_model=UserListResponse)
+@router.get("/profile", response_model=UserListResponse)
 async def get_profile(current_user: current_user_jwt_dep):
     return current_user

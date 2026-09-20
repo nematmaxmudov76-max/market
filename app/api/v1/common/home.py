@@ -1,5 +1,5 @@
 from tempfile import template
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlalchemy import select, func
 from sqlalchemy.orm import joinedload, selectinload
 from app.database import db_dep
@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from app.schemas import ProductListResponse
 from app.middleware import limiter
+from typing import Annotated
 
 router = APIRouter(prefix="/home", tags=["Home"])
 
@@ -203,3 +204,23 @@ async def get_user_top_products(request: Request, session: db_dep, user_id: int)
         raise HTTPException(status_code=404, detail="product not found")
 
     return res
+
+
+fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
+
+
+class CommonQueryParams:
+    def __init__(self, q: str | None = None, skip: int = 0, limit: int = 100):
+        self.q = q
+        self.skip = skip
+        self.limit = limit
+
+
+@router.get("/items/")
+async def read_items(commons: Annotated[CommonQueryParams, Depends(CommonQueryParams)]):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[commons.skip : commons.skip + commons.limit]
+    response.update({"items": items})
+    return response

@@ -14,7 +14,7 @@ class UserAdminView(ModelView):
         "last_login",
         "is_active",
         "is_deleted",
-        "is_staff",
+        "is_manager",
         "is_admin",
         "is_courier",
         "created_at",
