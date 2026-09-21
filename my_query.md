@@ -14,7 +14,7 @@
 
 ### one product details
 ## 1* name, descriptions, price, current_quantity, size, 
-# 2* shu categoryadagi productlar
+<!-- # 2* shu categoryadagi productlar -->
 # 3* agarda product uchun discount mavjud bo'lsa uni ham hisoblab current price ni hisobla
 # 4* shu mahulotni o'rtacha rating va user tomonidan rating belgulash
 # 5 store da shu productdan qancha borligini bilish
@@ -51,5 +51,23 @@ this type products in category
 ## 2* custom middleware (for check over) ✔
 ## 3*
 
-### NEED
-# 1* update_access_token for 
+
+### logic permissions
+### when is_active = false
+## => look at home page only (by select product)
+
+### when is_active = true going to
+## views => home page, bucker, liked product, product detail, accoutn page, order items page, shops page, her transaction logs
+## doing => create wallet, create order, add locations
+
+### when is_courier = true
+## => get salary, deliver product, courier profile, 
+
+### when is_merchant = true
+## => create shops, add products, connect to other shops, 
+
+### when is_manager =true
+## => manage to merchant, courier, users, manage to shop and permission only add shops with admin, looking shops/courier/users transactions
+
+### when is_admin = true
+## => manage to manager/shop/coureier/user, add manager and permissions

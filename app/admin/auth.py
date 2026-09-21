@@ -12,9 +12,9 @@ from app.model import User
 from app.utils import generate_jwt_token, verify_password
 from app.middleware import limiter
 
-
+# LOGIN IS DOING ACTIVE USER => + MERCHANT/MANAGER
 class JsonAuthProvider(AuthProvider):
-    # faqat is_admin and is_manager  is True bo'lganlar admin panelga kiraoladi!!!
+    # faqat admin, manager, merchant is True bo'lganlar admin panelga kiraoladi!!!
 
     @limiter.limit("10/minute")  # Limit login attempts to 10 per minute
     async def login(

@@ -16,7 +16,13 @@ from datetime import datetime, timedelta
 from enum import Enum
 from app.schemas import ProductListResponse
 from app.middleware import limiter
+from app.dependense import (
+    get_current_user,
+    get_pagination,
+    current_discount_date,
+)
 from typing import Annotated
+
 
 router = APIRouter(prefix="/home", tags=["Home"])
 
@@ -25,14 +31,19 @@ router = APIRouter(prefix="/home", tags=["Home"])
 @limiter.limit("10/minute")
 @router.get("/liked-products", response_model=list[ProductListResponse])
 async def get_liked_product(
-    request: Request, session: db_dep, is_active: bool, user_id: int
+    request: Request,
+    session: db_dep,
+    current_user: Annotated[User, Depends(get_current_user)],
+    pagination: Annotated[dict, Depends(get_pagination)],
 ):
     stmt = (
         select(Product)
         .join(Like, Like.product_id == Product.id)
         .join(User, User.id == Like.user_id)
-        .where(User.is_active == is_active, Like.user_id == user_id)
+        .where(User.is_active == True, Like.user_id == current_user)
         .order_by(Like.created_at.desc())
+        .offset(pagination["min"])
+        .limit(pagination["max"])
     )
 
     item = session.execute(stmt)
@@ -90,13 +101,19 @@ tugamagan chegirmalarga ega mahsulotlarni tortib kelish
 
 
 @router.get("/discount-products", response_model=list[ProductListResponse])
-async def get_discount_products(request: Request, session: db_dep, is_active: bool):
+async def get_discount_products(
+    request: Request,
+    session: db_dep,
+    pagination: Annotated[dict, Depends(get_pagination)],
+):
     stmt = (
         select(Product)
         .join(Discount, Discount.id == Product.discount_id)
-        .where(Discount.is_active == is_active, Product.is_active == is_active)
+        .where(Discount.is_active == True, Product.is_active == True)
         .order_by(Product.id.desc())
         .options(joinedload(Product.discount))
+        .offset(pagination["min"])
+        .limit(pagination["max"])
     )
     product = session.execute(stmt)
     res = product.scalars().all()
@@ -104,11 +121,6 @@ async def get_discount_products(request: Request, session: db_dep, is_active: bo
     if not res:
         raise HTTPException(status_code=404, detail="product not found")
     return res
-
-
-class Current_date(Enum):
-    MONTHLY = "monthly"
-    WEEK = "week"
 
 
 """
@@ -119,20 +131,20 @@ class Current_date(Enum):
 @limiter.limit("30/minute")
 @router.get("/monthly-discount", response_model=list[ProductListResponse])
 async def get_monthly_discount(
-    request: Request, session: db_dep, is_active: bool, month_or_week: Current_date
+    request: Request,
+    session: db_dep,
+    target_layer: Annotated[object, Depends(current_discount_date)],
+    pagination:Annotated[dict, Depends(get_pagination)]
 ):
-    if month_or_week == Current_date.WEEK:
-        current_date = datetime.now() - timedelta(days=7)
-    else:
-        current_date = datetime.now() - timedelta(days=30)
-
     stmt = (
         select(Product)
         .join(Discount, Discount.id == Product.discount_id)
-        .where(Product.is_active == is_active, Discount.created_at >= current_date)
+        .where(Product.is_active == True, Discount.created_at >= target_layer)
         .group_by(Product.id)
         .order_by(Product.id.desc())
         .options(joinedload(Product.discount))
+        .offset(pagination["min"])
+        .limit(pagination["max"])
     )
     res = (session.execute(stmt)).scalars().all()
 
@@ -148,15 +160,19 @@ async def get_monthly_discount(
 
 @limiter.limit("20/minute")
 @router.get("/top-10-products", response_model=list[ProductListResponse])
-async def get_top_10_products(request: Request, session: db_dep, is_active: bool):
-    last_one_week = datetime.now() - timedelta(days=7)
+async def get_top_10_products(
+    request: Request, 
+    session: db_dep, 
+    pagination:Annotated[dict, Depends(get_pagination)],
+    target_layer:Annotated[object, Depends(current_discount_date)]
+    ):
     stmt = (
         select(Product)
         .join(User_Search, User_Search.product_id == Product.id)
         .outerjoin(
             User_Rating, User_Rating.product_id == Product.id
         )  # oldin ratingi borlari keyin yo'qlari
-        .where(Product.is_active == is_active, User_Search.created_at >= last_one_week)
+        .where(Product.is_active == True, User_Search.created_at >= target_layer)
         .group_by(Product.id)
         .order_by(
             func.count(User_Search.user_id).desc(), func.avg(User_Rating.ball).desc()

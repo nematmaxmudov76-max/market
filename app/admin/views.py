@@ -16,6 +16,7 @@ class UserAdminView(ModelView):
         "is_deleted",
         "is_manager",
         "is_admin",
+        "is_merchant",
         "is_courier",
         "created_at",
         "updated_at",

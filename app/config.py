@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
     EMAIL_PASSWORD: str
+
+    # EXTRA METADATA
+    MAX_LIKED_PRODUCT: int = 10
     # Pydantic v2 uchun yangi config va kutilmagan extra o'zgaruvchilarni e'tiborsiz qoldirish
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -48,22 +51,23 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-# Autentifikatsiya talab qilinmaydigan ochiq API yo'llari
-EXCLUDE_PATHS = {
-    "/api/v1/auth/login",
-    "/api/v1/auth/logout",
-    "/api/v1/auth/register",
-    "/api/v1/jwt/login",
-    "/api/v1/session/login",
-    "/api/v1/user/register",
-    "/api/v1/user/verify/{secret_code}",
-    "/api/v1/user/get_users",
-    # HOME Page uchun, hali login qilmagan foydalanuvchi uchun
+# ONLY SCAN MANAGER/COURIYER/MERCHANT/ADMIN PATH
+INCLUDE_PATHS_ONLY_LOGIN = {
+
+}
+
+INCLUDE_PATHS_PASSIVE_USERS = {
     "/api/v1/home/search-by-name",
     "/api/v1/home/search-by-category",
     "/api/v1/home/discount-products",
-    "/api/v1/home/liked-products",
     "/api/v1/home/monthly-discount",
     "/api/v1/home/top-10-products",
-    "/api/v1/home/user-top-products",
 }
+
+INCLUDE_PREFIXES_PASSIVE_USERS = (
+    "/docs",
+    "/redoc",
+    "/openapi.json",
+    "/static/",
+    "/media/",
+)

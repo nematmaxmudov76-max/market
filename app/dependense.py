@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -8,7 +8,8 @@ from app.database import db_dep
 from typing import Annotated
 from app.utils import verify_password, decode_jwt_token
 from app.model import User, UserSessionToken
-
+from app.config import settings
+from enum import Enum
 
 # BASIC AUTH
 basic = HTTPBasic()
@@ -106,3 +107,17 @@ async def get_current_user(request: Request) -> User:
 
 
 current_user_dep = Annotated[User, Depends(get_current_user)]
+
+
+def get_pagination(min: int = 0, max: int = settings.MAX_LIKED_PRODUCT) -> dict:
+    return {"min": min, "max": max}
+
+
+class Target(Enum):
+    WEEK = "weekly"
+    MONTH = "monthly"
+
+
+def current_discount_date(target_data: Target = Target.WEEK):
+    days = 7 if target_data == Target.WEEK else 30
+    return datetime.now() - timedelta(days=days)

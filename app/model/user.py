@@ -27,7 +27,9 @@ if TYPE_CHECKING:
 class User(BaseMain):
     __tablename__ = "user"
 
-    email: Mapped[str] = mapped_column(String(100), nullable=False, unique=True, index=True)
+    email: Mapped[str] = mapped_column(
+        String(100), nullable=False, unique=True, index=True
+    )
     first_name: Mapped[str] = mapped_column(String(50), nullable=True)
     age: Mapped[int] = mapped_column(SmallInteger, nullable=True)
     last_name: Mapped[str] = mapped_column(String(50), nullable=True)
@@ -121,7 +123,10 @@ class User(BaseMain):
     user_session_token: Mapped["UserSessionToken"] = relationship(
         "UserSessionToken", back_populates="user", lazy="raise_on_sql"
     )
-    audit_log:Mapped[list["Audit_Log"]] = relationship("Audit_Log", back_populates="user", lazy="raise_on_sql")
+    audit_log: Mapped[list["Audit_Log"]] = relationship(
+        "Audit_Log", back_populates="user", lazy="raise_on_sql"
+    )
+
 
 class User_Address(BaseMain):
     __tablename__ = "user_address"
@@ -171,7 +176,7 @@ class Courier_Profile(BaseMain):
 
     user: Mapped["User"] = relationship(
         "User", back_populates="courier_profile", lazy="raise_on_sql"
-    ) # 1:1 relationship with User
+    )  # 1:1 relationship with User
 
     delivery_process: Mapped[list["Delivery_Process"]] = relationship(
         "Delivery_Process", back_populates="courier_profile", lazy="raise_on_sql"
@@ -267,22 +272,24 @@ class User_Search(BaseMain):
     )
 
 
-
 class Audit_Log(BaseMain):
     __tablename__ = "audit_log"
 
-    user_id:Mapped[int] = mapped_column(SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False)
-    action:Mapped[str] = mapped_column(String(150), nullable=True)
-    target_table:Mapped[str] = mapped_column(String(50), nullable=True)
-    target_table_id:Mapped[int] = mapped_column(SmallInteger, nullable=True)
-    before_data:Mapped[JSON] = mapped_column(JSON, nullable=True)
-    after_data:Mapped[JSON] = mapped_column(JSON, nullable=True)
+    user_id: Mapped[int] = mapped_column(
+        SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+    )
+    action: Mapped[str] = mapped_column(String(150), nullable=True)
+    target_table: Mapped[str] = mapped_column(String(50), nullable=True)
+    target_table_id: Mapped[int] = mapped_column(SmallInteger, nullable=True)
+    before_data: Mapped[JSON] = mapped_column(JSON, nullable=True)
+    after_data: Mapped[JSON] = mapped_column(JSON, nullable=True)
 
     def __repr__(self):
         return f"user change action: {self.action}, target table:{self.target_table}"
 
-    user:Mapped["User"] = relationship("User", back_populates="audit_log", lazy="raise_on_sql")
-
+    user: Mapped["User"] = relationship(
+        "User", back_populates="audit_log", lazy="raise_on_sql"
+    )
 
 
 class UserSessionToken(BaseMain):

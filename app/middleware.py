@@ -1,30 +1,29 @@
 import time
-from fastapi import Request, status
+from fastapi import Request, status, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.database import get_db  # get_db o'rniga SessionLocal
 from app.model import User
 from app.utils import decode_jwt_token
-from app.config import EXCLUDE_PATHS
+from app.config import (
+    INCLUDE_PATHS_ONLY_LOGIN,
+    INCLUDE_PATHS_PASSIVE_USERS,
+    INCLUDE_PREFIXES_PASSIVE_USERS,
+)
 from jose import JWTError
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 
+# THIS MIDDLEWARE SCAN ONLY => MANAGER/COURIYER/MERCHANT/ADMIN
 class SessionValidationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         request.state.user = None
         path = request.url.path
 
         # 1. Admin panel, EXCLUDE_PATH ichidagi va ochiq yo'llarni bypass qilish (tekshirmasdan o'tkazish)
-        if (
-            path.startswith("/admin")
-            or path.startswith("/docs")
-            or path.startswith("/openapi.json")
-            or path.startswith("/redoc")
-            or path in EXCLUDE_PATHS
-        ):
+        if  path not in INCLUDE_PATHS_ONLY_LOGIN:
             return await call_next(request)
 
         # 2. Authorization Header yoki Cookie'dan tokenni olish
@@ -91,3 +90,35 @@ class TimeCounter(BaseHTTPMiddleware):
 
 
 limiter = Limiter(key_func=get_remote_address)
+
+
+
+"""
+when is_active = false
+=> look at home page only (by select product)
+"""
+
+class PassiveUserPermissions(BaseHTTPMiddleware):
+    async def dispatch(self, request:Request, call_next):
+        request.state.user = None
+        path = request.url.path
+
+        if path  in INCLUDE_PATHS_PASSIVE_USERS or path.startswith(INCLUDE_PREFIXES_PASSIVE_USERS):
+            return await call_next(request)    
+
+        auth_header = request.headers.get("Authorization")
+
+        if not auth_header or not auth_header.startswith("Bearer:"):
+            raise JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "message":"Tizimga kirish(register) qilish talab qilinadi, sizning is_active = False"
+                }
+            )
+
+        response = await call_next(request)
+        return response
+
+    
+
+        

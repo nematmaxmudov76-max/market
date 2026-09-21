@@ -66,6 +66,7 @@ async def verifiy_code(session: db_dep, secret_code: str):
         email=user_data["email"],
         password_hash=user_data["password_hash"],
         is_active=True,
+        is_deleted=False,
     )
     stmt = select(User.id).where(User.is_deleted.is_(False)).limit(1)
     existing_user = session.execute(stmt).scalar_one_or_none()
