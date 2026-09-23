@@ -1,6 +1,7 @@
 from starlette_admin.contrib.sqla import ModelView
 from starlette_admin import IntegerField
 
+
 class UserAdminView(ModelView):
     fields = [
         "id",
@@ -48,4 +49,3 @@ class NotificationAdminView(ModelView):
         "type",
         "message",
     ]
-

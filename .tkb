@@ -21,8 +21,20 @@
     "Qaw838HHnkIVB7it5rybp": {
       "id": "Qaw838HHnkIVB7it5rybp",
       "description": "*~~ AdminNotificationAction -> userlarga notification yuborish, va audit_log ga log saqlab ketish",
-      "columnId": "column-doing",
+      "columnId": "column-todo",
       "color": "#292424"
+    },
+    "UhG_KDTJWTD_kGVUQrz6Y": {
+      "id": "UhG_KDTJWTD_kGVUQrz6Y",
+      "description": "USER choose permission role\n1-> user adminga role_request(post) qilib ariza yuboradi\n2-> admin arizani ko'rib chiqadi va uni \"check_status=approve\" qiladi lekin request_role o'zgarmaydi! \n3-> user tasdiqlangannini biladi va tizim email orqali uni register qiladi va \"request_role=merchant/...\" qiladi va admin panelga kirishga ruxsat oladi va login qiladi(o'zi estda qoladigan parol qo'yib)",
+      "columnId": "column-doing",
+      "color": "#763737"
+    },
+    "Z1FtLPSU0u6v10r4YPEiU": {
+      "id": "Z1FtLPSU0u6v10r4YPEiU",
+      "description": "1) user register qilganmi yani sqlda bormi va active userm?\n2)aynan shu user oldin shu rol bo'yicha ariza topshirganmi?\n3)agar resume bo'lsa yuklash(file upload proccesing)\n4)barcha holat sqlga saqlab qo'yiladi!!",
+      "columnId": "column-xLw8rhV0ci2GteMieo2cJ",
+      "color": "#443f3f"
     }
   },
   "columns": [
@@ -31,6 +43,7 @@
       "title": "To do",
       "tasksIds": [
         "Jkk796eTr6rFkRMnq1rcH",
+        "Qaw838HHnkIVB7it5rybp",
         "s7GrlMJd1BW14eCz5xdJk"
       ]
     },
@@ -39,13 +52,15 @@
       "title": "Doing",
       "tasksIds": [
         "task-SC2cPUgU4NqMh9Xda-kEc",
-        "Qaw838HHnkIVB7it5rybp"
+        "UhG_KDTJWTD_kGVUQrz6Y"
       ]
     },
     {
       "id": "column-xLw8rhV0ci2GteMieo2cJ",
       "title": "checking",
-      "tasksIds": []
+      "tasksIds": [
+        "Z1FtLPSU0u6v10r4YPEiU"
+      ]
     },
     {
       "id": "column-done",

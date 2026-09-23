@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # MEDIA
     MEDIA_PATH: str = "media"
     FILE_SIZE: int = 1024 * 1024 * 5  # 5MB
-    FILE_TYPE: list[str] = [".jpg", ".png", ".jpeg"]
+    FILE_TYPE: list[str] = [".jpg", ".png", ".jpeg", ".pdf", ".docx", ".doc", ".txt"]
 
     # .env faylingizda bor bo'lgan va xatolik bergan o'zgaruvchilar:
     DATABASE_URL: str | None = None
@@ -52,9 +52,7 @@ settings = Settings()
 
 
 # ONLY SCAN MANAGER/COURIYER/MERCHANT/ADMIN PATH
-INCLUDE_PATHS_ONLY_LOGIN = {
-
-}
+INCLUDE_PATHS_ONLY_LOGIN = {}
 
 INCLUDE_PATHS_PASSIVE_USERS = {
     "/api/v1/home/search-by-name",

@@ -50,3 +50,30 @@ posts = result.mappings().all()
 ## Obyekt atributidan xavfsiz o'qish	`getattr(obj, "attr", default)`	exp:`getattr(user, "is_admin", False)`
 ## Obyekt atributiga dinamik yozish	`setattr(obj, "attr", value)`	exp:`setattr(request.state, "user", db_user)`
 ## DB'dan primary key bo'yicha tez qidirish	`session.get(Model, pk)`	exp:`db.get(User, 1)`
+
+
+### 9* Bitda tableda ikki column ham PK orqali bitda columnga ulansa:
+```
+user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+    )
+reviewed_by: Mapped[int] = mapped_column(
+        SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
+
+
+
+
+user: Mapped["User"] = relationship(
+    "User",
+    foreign_keys=[user_id],
+    back_populates="role_request_user",
+    lazy="raise_on_sql",
+)
+reviewer: Mapped["User"] = relationship(
+    "User",
+    foreign_keys=[reviewed_by],
+    back_populates="reviewed_by_admin",
+    lazy="raise_on_sql",
+)
+```

@@ -23,7 +23,7 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
         path = request.url.path
 
         # 1. Admin panel, EXCLUDE_PATH ichidagi va ochiq yo'llarni bypass qilish (tekshirmasdan o'tkazish)
-        if  path not in INCLUDE_PATHS_ONLY_LOGIN:
+        if path not in INCLUDE_PATHS_ONLY_LOGIN:
             return await call_next(request)
 
         # 2. Authorization Header yoki Cookie'dan tokenni olish
@@ -92,19 +92,21 @@ class TimeCounter(BaseHTTPMiddleware):
 limiter = Limiter(key_func=get_remote_address)
 
 
-
 """
 when is_active = false
 => look at home page only (by select product)
 """
 
+
 class PassiveUserPermissions(BaseHTTPMiddleware):
-    async def dispatch(self, request:Request, call_next):
+    async def dispatch(self, request: Request, call_next):
         request.state.user = None
         path = request.url.path
 
-        if path  in INCLUDE_PATHS_PASSIVE_USERS or path.startswith(INCLUDE_PREFIXES_PASSIVE_USERS):
-            return await call_next(request)    
+        if path in INCLUDE_PATHS_PASSIVE_USERS or path.startswith(
+            INCLUDE_PREFIXES_PASSIVE_USERS
+        ):
+            return await call_next(request)
 
         auth_header = request.headers.get("Authorization")
 
@@ -112,13 +114,9 @@ class PassiveUserPermissions(BaseHTTPMiddleware):
             raise JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={
-                    "message":"Tizimga kirish(register) qilish talab qilinadi, sizning is_active = False"
-                }
+                    "message": "Tizimga kirish(register) qilish talab qilinadi, sizning is_active = False"
+                },
             )
 
         response = await call_next(request)
         return response
-
-    
-
-        

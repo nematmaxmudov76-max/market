@@ -12,6 +12,7 @@ from app.model import User
 from app.utils import generate_jwt_token, verify_password
 from app.middleware import limiter
 
+
 # LOGIN IS DOING ACTIVE USER => + MERCHANT/MANAGER
 class JsonAuthProvider(AuthProvider):
     # faqat admin, manager, merchant is True bo'lganlar admin panelga kiraoladi!!!

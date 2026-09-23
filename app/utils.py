@@ -76,10 +76,6 @@ def send_email(to_email: str, subject: str, body: str):
 redis_url = redis.from_url(settings.REDIS_URL)
 
 
-
-
-
-
 #### ENUMS ________________________________________________________________________________-
 class Target(Enum):
     WEEK = "weekly"
@@ -89,7 +85,14 @@ class Target(Enum):
 class ManageNotificationCreate(Enum):
     SINGLE = "single"
     ALL = "all"
-    ACTIVE_USER ="active_users"
+    ACTIVE_USER = "active_users"
     MERCHANTS = "merchants"
     COURIERS = "couriers"
-    MANAGERS  = "managers"
+    MANAGERS = "managers"
+
+
+class RoleRequestStatus(str, Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    COMPLETED = "completed"

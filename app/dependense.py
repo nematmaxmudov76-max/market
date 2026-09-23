@@ -113,8 +113,6 @@ def get_pagination(min: int = 0, max: int = settings.MAX_LIKED_PRODUCT) -> dict:
     return {"min": min, "max": max}
 
 
-
-
 def current_discount_date(target_data: Target = Target.WEEK):
     days = 7 if target_data == Target.WEEK else 30
     return datetime.now() - timedelta(days=days)

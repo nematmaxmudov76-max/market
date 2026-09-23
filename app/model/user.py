@@ -127,8 +127,19 @@ class User(BaseMain):
     audit_log: Mapped[list["Audit_Log"]] = relationship(
         "Audit_Log", back_populates="user", lazy="raise_on_sql"
     )
-    role_request_user:Mapped[list["Role_Request"]] = relationship("Role_Request", foreign_keys="Role_Request.user_id", back_populates="user", lazy="raise_on_sql")
-    reviewed_by_admin:Mapped[list["Role_Request"]] = relationship("Role_Request", foreign_keys="Role_Request.reviewed_by", back_populates="reviewer", lazy="raise_on_sql")
+    role_request_user: Mapped[list["Role_Request"]] = relationship(
+        "Role_Request",
+        foreign_keys="Role_Request.user_id",
+        back_populates="user",
+        lazy="raise_on_sql",
+    )
+    reviewed_by_admin: Mapped[list["Role_Request"]] = relationship(
+        "Role_Request",
+        foreign_keys="Role_Request.reviewed_by",
+        back_populates="reviewer",
+        lazy="raise_on_sql",
+    )
+
 
 class User_Address(BaseMain):
     __tablename__ = "user_address"
@@ -309,21 +320,44 @@ class UserSessionToken(BaseMain):
         "User", back_populates="user_session_token", lazy="raise_on_sql"
     )
 
-class Role_Request(BaseMain): # tableni maqsadi active user unchun manager/merchant/courier=true huquqini tastiqlash joyi
-    __tablename__="role_request"
 
-    user_id:Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False)
-    request_role:Mapped[bool] = mapped_column(Boolean, default="active")
-    application:Mapped[Text] = mapped_column(Text, nullable=True)
-    resume_url:Mapped[str] = mapped_column(String(250))
-    checking_status:Mapped[bool] = mapped_column(Boolean, nullable=True)
-    reviewed_by:Mapped[int] = mapped_column(SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False)
-    reviewed_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
-    status_expired_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
-    hash_code:Mapped[str] = mapped_column(String(255), nullable=True)
-    attempt_count:Mapped[int] = mapped_column(SmallInteger, default=0)
+class Role_Request(
+    BaseMain
+):  # tableni maqsadi active user unchun manager/merchant/courier=true huquqini tastiqlash joyi
+    __tablename__ = "role_request"
+
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+    )
+    request_role: Mapped[bool] = mapped_column(Boolean, default="active")
+    application: Mapped[Text] = mapped_column(Text, nullable=True)
+    resume_url: Mapped[str] = mapped_column(String(250), nullable=True)
+    checking_status: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    reviewed_by: Mapped[int] = mapped_column(
+        SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
+    reviewed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    status_expired_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    hash_code: Mapped[str] = mapped_column(String(255), nullable=True)
+    attempt_count: Mapped[int] = mapped_column(SmallInteger, default=0)
 
     def __repr__(self):
         return f"user:{self.user_id}, resume:{self.resume_url}"
-    user:Mapped["User"] = relationship("User", foreign_keys=[user_id], back_populates="role_request_user", lazy="raise_on_sql")
-    reviewer:Mapped["User"] = relationship("User", foreign_keys=[reviewed_by], back_populates="reviewed_by_admin", lazy="raise_on_sql")
+
+    user: Mapped["User"] = relationship(
+        "User",
+        
+        foreign_keys=[user_id],
+        back_populates="role_request_user",
+        lazy="raise_on_sql",
+    )
+    reviewer: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[reviewed_by],
+        back_populates="reviewed_by_admin",
+        lazy="raise_on_sql",
+    )

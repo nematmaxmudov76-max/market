@@ -20,7 +20,7 @@ async def create_upload_file(file: UploadFile, db: db_dep):
     if file_ext not in settings.FILE_TYPE:
         raise HTTPException(
             status_code=400,
-            detail="File type is not supported. Only .jpg, .png, .jpeg are allowed.",
+            detail="File type is not supported. Only .jpg, .png, .jpeg, .pdf, .docx, .doc, .txt are allowed.",
         )
     path = Path(settings.MEDIA_PATH)
     path.mkdir(exist_ok=True)

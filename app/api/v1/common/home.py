@@ -134,7 +134,7 @@ async def get_monthly_discount(
     request: Request,
     session: db_dep,
     target_layer: Annotated[object, Depends(current_discount_date)],
-    pagination:Annotated[dict, Depends(get_pagination)]
+    pagination: Annotated[dict, Depends(get_pagination)],
 ):
     stmt = (
         select(Product)
@@ -161,11 +161,11 @@ async def get_monthly_discount(
 @limiter.limit("20/minute")
 @router.get("/top-10-products", response_model=list[ProductListResponse])
 async def get_top_10_products(
-    request: Request, 
-    session: db_dep, 
-    pagination:Annotated[dict, Depends(get_pagination)],
-    target_layer:Annotated[object, Depends(current_discount_date)]
-    ):
+    request: Request,
+    session: db_dep,
+    pagination: Annotated[dict, Depends(get_pagination)],
+    target_layer: Annotated[object, Depends(current_discount_date)],
+):
     stmt = (
         select(Product)
         .join(User_Search, User_Search.product_id == Product.id)

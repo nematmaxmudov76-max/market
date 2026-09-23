@@ -31,6 +31,7 @@ async def get_notifications(session: db_dep, notification_id: int):
 
 # bitda user ga kelgan barcha notificationlar
 
+
 @router.get("/user-notifications", response_model=NotifListResponse)
 async def get_user_notifications(session: db_dep, user_id: int):
     stmt = (
@@ -44,6 +45,3 @@ async def get_user_notifications(session: db_dep, user_id: int):
         raise HTTPException(status_code=404, detail="notifications not found")
 
     return res
-
-
-

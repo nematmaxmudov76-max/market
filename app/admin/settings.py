@@ -1,14 +1,14 @@
 from starlette_admin.contrib.sqla import Admin
 from app.database import engine
 from app.model import (
-    User, 
-    Product, 
-    Shop, 
-    Wallet, 
+    User,
+    Product,
+    Shop,
+    Wallet,
     Order,
     Media,
     Notification,
-    User_Notification
+    User_Notification,
 )
 from app.admin.auth import JsonAuthProvider
 from app.admin.views import (
