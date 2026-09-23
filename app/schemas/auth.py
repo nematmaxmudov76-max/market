@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import EmailStr, model_validator
 from zxcvbn import zxcvbn
 from .base import Base
-from app.utils import ManageNotificationCreate, RoleRequestStatus
+from app.utils import ManageNotificationCreate, RoleRequestStatus, ChooseRoleRequest
 
 
 # user register
@@ -31,7 +31,7 @@ class UserRegisterResponse(Base):
 
 class UserRegisterRoleRequest(Base):
     user_id: int
-    requested_role: ManageNotificationCreate
+    requested_role: ChooseRoleRequest = None
     application: str
     checking_status: RoleRequestStatus = RoleRequestStatus.PENDING
     status_expires_at: datetime
@@ -41,8 +41,7 @@ class UserRegisterRoleRequest(Base):
     attempt_count: int = 0
 
 
-# SESSION AUTH
-
+# SESSION AUTH  
 
 class UserLoginRequest(Base):
     email: EmailStr

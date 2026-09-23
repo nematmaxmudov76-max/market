@@ -91,6 +91,13 @@ class ManageNotificationCreate(Enum):
     MANAGERS = "managers"
 
 
+class ChooseRoleRequest(Enum):
+    MERCHANT = "merchant"
+    COURIER = "courier"
+    MANAGER = "manager"
+    ADMIN = "admin"
+
+
 class RoleRequestStatus(str, Enum):
     PENDING = "pending"
     APPROVED = "approved"

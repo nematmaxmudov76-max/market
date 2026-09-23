@@ -9,11 +9,13 @@ from app.model import (
     Media,
     Notification,
     User_Notification,
+    Role_Request,
 )
 from app.admin.auth import JsonAuthProvider
 from app.admin.views import (
     UserAdminView,
     NotificationAdminView,
+    RoleRequestView,
 )
 
 from starlette_admin.contrib.sqla import ModelView
@@ -29,3 +31,4 @@ admin = Admin(
 
 admin.add_view(UserAdminView(User, icon="fa fa-user"))
 admin.add_view(NotificationAdminView(Notification))
+admin.add_view(RoleRequestView(Role_Request))

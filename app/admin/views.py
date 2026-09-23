@@ -48,4 +48,40 @@ class NotificationAdminView(ModelView):
         "title",
         "type",
         "message",
+        "target_role",
+    ]
+
+
+class RoleRequestView(ModelView):
+    fields=[
+        "user_id",
+        "request_role",
+        "application",
+        "resume_url",
+        "checking_status",
+        "reviewed_by",
+        "reviewed_at",
+        "status_expired_at",
+        "attempt_count",
+        "hash_code",
+        "created_at",
+        "updated_at",
+    ]
+    exclude_fields_from_list=[
+        "reviewed_by",
+        "status_expired_at",
+        "hash_code",
+        "created_at",
+        "updated_at",
+    ]
+    exclude_fields_from_create = [
+        "id",
+        "created_at",
+        "updated_at",
+    ]
+    exclude_fields_from_edit=[
+        "user_id",
+        "hash_code",
+        "created_at",
+        "last_login",
     ]

@@ -144,7 +144,10 @@ async def create_new_user_role(
         request_role = data.requested_role,
         application = data.application,
         checking_status = data.checking_status,
-        checking_status = RoleRequestStatus.PENDING
+        status_expired_at = None,
+        hash_code = None,
+        reviewed_by = None,
+        reviewed_at = None,
     )
     session.add(new_application)
     session.commit()

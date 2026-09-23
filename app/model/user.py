@@ -13,10 +13,14 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     func,
+    Enum as sqlEnum,
 )
 from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.model.base import BaseMain
+from app.utils import ChooseRoleRequest, RoleRequestStatus
+
+
 
 if TYPE_CHECKING:
     from .common import Region, User_Notification
@@ -329,10 +333,22 @@ class Role_Request(
     user_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
     )
-    request_role: Mapped[bool] = mapped_column(Boolean, default="active")
+    request_role: Mapped[ChooseRoleRequest] = mapped_column(
+        sqlEnum(
+            ChooseRoleRequest,
+            native_enum = False
+        ),
+        default=None,
+    )
     application: Mapped[Text] = mapped_column(Text, nullable=True)
     resume_url: Mapped[str] = mapped_column(String(250), nullable=True)
-    checking_status: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    checking_status: Mapped[RoleRequestStatus] = mapped_column(
+        sqlEnum(
+            RoleRequestStatus,
+            native_enum = False
+            ),
+            default=None
+    )
     reviewed_by: Mapped[int] = mapped_column(
         SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
