@@ -153,6 +153,7 @@ class Bucket_Product(BaseMain):
     )
     quantity: Mapped[int] = mapped_column(BigInteger, default=None)
     total_price: Mapped[float] = mapped_column(Float, default=None)
+    is_checked:Mapped[bool] = mapped_column(Boolean, default=False)
 
     def __repr__(self):
         return f"bucket id: {self.bucket_id}, product id: {self.product_id}, quantity: {self.quantity}, total price: {self.total_price}"

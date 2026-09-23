@@ -239,6 +239,7 @@ class Discount(BaseMain):
     percent: Mapped[DECIMAL] = mapped_column(
         Numeric(precision=10, scale=2)
     )  # max -> 1234567890.99 10ta xona oldin 2 xona keyin max
+    category:Mapped[str] = mapped_column(String(150), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
     def __repr__(self):

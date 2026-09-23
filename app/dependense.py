@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy import select
 from app.database import db_dep
 from typing import Annotated
-from app.utils import verify_password, decode_jwt_token
+from app.utils import verify_password, decode_jwt_token, Target
 from app.model import User, UserSessionToken
 from app.config import settings
 from enum import Enum
@@ -113,9 +113,6 @@ def get_pagination(min: int = 0, max: int = settings.MAX_LIKED_PRODUCT) -> dict:
     return {"min": min, "max": max}
 
 
-class Target(Enum):
-    WEEK = "weekly"
-    MONTH = "monthly"
 
 
 def current_discount_date(target_data: Target = Target.WEEK):

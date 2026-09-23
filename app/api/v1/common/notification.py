@@ -14,11 +14,11 @@ router = APIRouter(prefix="/notifications", tags=["Notification"])
 
 #  bitda notification_id qayssi userlarga send qilingan
 @router.get("/get-users", response_model=NotifListResponse)
-async def get_notifications(session: db_dep, notification_id: int, is_active: bool):
+async def get_notifications(session: db_dep, notification_id: int):
     stmt = (
         select(User)
         .join(User_Notification, User_Notification.notification_id == notification_id)
-        .where(User.is_active == is_active)
+        .where(User.is_active == True)
         .order_by(User_Notification.id.desc())
     )
     res = (session.execute(stmt)).scalars().all()
@@ -30,7 +30,6 @@ async def get_notifications(session: db_dep, notification_id: int, is_active: bo
 
 
 # bitda user ga kelgan barcha notificationlar
-
 
 @router.get("/user-notifications", response_model=NotifListResponse)
 async def get_user_notifications(session: db_dep, user_id: int):
@@ -47,10 +46,4 @@ async def get_user_notifications(session: db_dep, user_id: int):
     return res
 
 
-@router.post("/create-notif")
-async def create_notif(session: db_dep, data: NotifCreateResponse):
-    notif = Notification(title=data.title, type=data.type, message=data.message)
-    session.add(notif)
-    session.commit()
-    session.refresh(notif)
-    return notif
+

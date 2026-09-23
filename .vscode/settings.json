@@ -3,5 +3,6 @@
         "alembic"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "mayank1513.trello-kanban.Workspace.filePath": ".tkb"
 }

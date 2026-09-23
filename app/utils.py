@@ -1,5 +1,6 @@
 import redis
 import smtplib
+from enum import Enum
 from datetime import datetime, timezone, timedelta
 
 from email.mime.text import MIMEText
@@ -73,3 +74,22 @@ def send_email(to_email: str, subject: str, body: str):
 
 
 redis_url = redis.from_url(settings.REDIS_URL)
+
+
+
+
+
+
+#### ENUMS ________________________________________________________________________________-
+class Target(Enum):
+    WEEK = "weekly"
+    MONTH = "monthly"
+
+
+class ManageNotificationCreate(Enum):
+    SINGLE = "single"
+    ALL = "all"
+    ACTIVE_USER ="active_users"
+    MERCHANTS = "merchants"
+    COURIERS = "couriers"
+    MANAGERS  = "managers"

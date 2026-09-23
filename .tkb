@@ -1,0 +1,56 @@
+{
+  "scope": "Workspace",
+  "tasks": {
+    "task-SC2cPUgU4NqMh9Xda-kEc": {
+      "id": "task-SC2cPUgU4NqMh9Xda-kEc",
+      "description": "notification oxiriga yetkaziladi!!!",
+      "columnId": "column-doing"
+    },
+    "Jkk796eTr6rFkRMnq1rcH": {
+      "id": "Jkk796eTr6rFkRMnq1rcH",
+      "description": "Bucked logikasi:\n\n*~~\"bucked_product\" tableddan har bir productni quantitysi va overal summa qisoblash\n\n*~~hamma productlar va o'zkari bilan bor datalar\n\n*~~is_checked=true bo'lgan(savatdan sotib olish uchunbelgilangan  productlar) barcha productlarni overal price ni hizoblash",
+      "columnId": "column-todo",
+      "color": "#272626"
+    },
+    "s7GrlMJd1BW14eCz5xdJk": {
+      "id": "s7GrlMJd1BW14eCz5xdJk",
+      "description": "one_Product_detail:\n*~~ faqat currnet_cuantitit>0&is_active=true bo'lgan productlar chiqsin\n*~~ uni image, descriptions, name\n*~~ortacha ratingi\n*~~ rating belgilash\n*~~ userlar yozgan commenti, faqat order tabledagi aynan shu productni {statusi = sotilgan} bo'lganlar\n*~~ omborda qancha qolganligi(current_cuantity)\n*~~ nechta userni bucketida mavjud lekin current_cuantitydan chopilmaydi!!!!\n*~~ productni qanchadir miqdorini belgilab buckedga solib qo'yish\n*~~ current_price ni discount bilan birga qisoblash\n*~~ like lar qatoriga qo'shib qo'yish \n*~~ tegidan shu categoriyaga tegishli ratingi baland produuctlar",
+      "columnId": "column-todo",
+      "color": "#b1e19558"
+    },
+    "Qaw838HHnkIVB7it5rybp": {
+      "id": "Qaw838HHnkIVB7it5rybp",
+      "description": "*~~ AdminNotificationAction -> userlarga notification yuborish, va audit_log ga log saqlab ketish",
+      "columnId": "column-doing",
+      "color": "#292424"
+    }
+  },
+  "columns": [
+    {
+      "id": "column-todo",
+      "title": "To do",
+      "tasksIds": [
+        "Jkk796eTr6rFkRMnq1rcH",
+        "s7GrlMJd1BW14eCz5xdJk"
+      ]
+    },
+    {
+      "id": "column-doing",
+      "title": "Doing",
+      "tasksIds": [
+        "task-SC2cPUgU4NqMh9Xda-kEc",
+        "Qaw838HHnkIVB7it5rybp"
+      ]
+    },
+    {
+      "id": "column-xLw8rhV0ci2GteMieo2cJ",
+      "title": "checking",
+      "tasksIds": []
+    },
+    {
+      "id": "column-done",
+      "title": "Done",
+      "tasksIds": []
+    }
+  ]
+}

@@ -28,6 +28,7 @@ from .user import (
     User_Search,
     UserSessionToken,
     Audit_Log,
+    Role_Request,
 )
 from .payment import Payment_Process, Transaction_Log
 
@@ -62,4 +63,5 @@ __all__ = [
     "User_Search",
     "UserSessionToken",
     "Audit_Log",
+    "Role_Request",
 ]

@@ -11,11 +11,13 @@ from sqlalchemy import (
     DECIMAL,
     DateTime,
     ForeignKey,
+    Enum as RoleEnum,
     func,
 )
 from typing import TYPE_CHECKING
 from app.model.base import BaseMain
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.utils import ManageNotificationCreate
 
 if TYPE_CHECKING:
     from .user import User, User_Address
@@ -60,7 +62,10 @@ class Notification(BaseMain):
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     type: Mapped[str] = mapped_column(String(100), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
-
+    target_role:Mapped[ManageNotificationCreate] = mapped_column(
+        RoleEnum(ManageNotificationCreate, native_enum=False,), 
+        default=ManageNotificationCreate.ALL, 
+        nullable=False)
     def __repr__(self):
         return f"notification title: {self.title}, type: {self.type}"
 
