@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.5",
     "argon2-cffi>=25.1.0",
+    "asyncpg>=0.31.0",
     "celery>=5.6.3",
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.141.1",
@@ -15,7 +16,8 @@ dependencies = [
     "python-jose>=3.5.0",
     "redis>=8.1.0",
     "slowapi>=0.1.10",
-    "sqlalchemy>=2.0.51",
+    "sqlalchemy[asyncio]>=2.0.51",
+    "starlette>=1.4.1",
     "starlette-admin>=1.0.1",
     "uvicorn>=0.52.1",
     "zxcvbn>=4.5.0",

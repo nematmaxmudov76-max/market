@@ -6,6 +6,4 @@ from starlette_admin import action
 from starlette_admin.contrib.sqla import ModelView
 from app.database import SessionLocal
 
-class ManageNotificationAdmin(ModelView):
 
-    async def send_message(self, request:Request, )

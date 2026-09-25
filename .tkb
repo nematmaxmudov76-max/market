@@ -35,6 +35,12 @@
       "description": "1) user register qilganmi yani sqlda bormi va active userm?\n2)aynan shu user oldin shu rol bo'yicha ariza topshirganmi?\n3)agar resume bo'lsa yuklash(file upload proccesing)\n4)barcha holat sqlga saqlab qo'yiladi!!",
       "columnId": "column-xLw8rhV0ci2GteMieo2cJ",
       "color": "#443f3f"
+    },
+    "bqDVWhz76-BFFDQNClIH9": {
+      "id": "bqDVWhz76-BFFDQNClIH9",
+      "description": "BUCKET DETAIL:\n1=> \"is_active=true\" bo'lgan userni bitda yagona bucketdagi productlarni tiortib kel, \n2=> )(DEPENDENSIES)  agar \"is_active=false\" bo'lsa bucket ha \"is_active=false\" bo'ladi\n3=> bucked da crud amali\n",
+      "columnId": "column-todo",
+      "color": "#524545"
     }
   },
   "columns": [
@@ -44,6 +50,7 @@
       "tasksIds": [
         "Jkk796eTr6rFkRMnq1rcH",
         "Qaw838HHnkIVB7it5rybp",
+        "bqDVWhz76-BFFDQNClIH9",
         "s7GrlMJd1BW14eCz5xdJk"
       ]
     },

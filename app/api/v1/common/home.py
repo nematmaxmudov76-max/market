@@ -1,4 +1,3 @@
-from tempfile import template
 from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlalchemy import select, func
 from sqlalchemy.orm import joinedload, selectinload
@@ -7,6 +6,7 @@ from app.model import (
     Like,
     User,
     Product,
+    
     Category,
     Discount,
     User_Search,

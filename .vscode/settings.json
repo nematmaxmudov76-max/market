@@ -4,5 +4,6 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "mayank1513.trello-kanban.Workspace.filePath": ".tkb"
+    "mayank1513.trello-kanban.Workspace.filePath": ".tkb",
+    "python-envs.defaultEnvManager": "ms-python.python:system"
 }

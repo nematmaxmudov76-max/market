@@ -22,7 +22,6 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
         request.state.user = None
         path = request.url.path
 
-        # 1. Admin panel, EXCLUDE_PATH ichidagi va ochiq yo'llarni bypass qilish (tekshirmasdan o'tkazish)
         if path not in INCLUDE_PATHS_ONLY_LOGIN:
             return await call_next(request)
 
@@ -100,7 +99,6 @@ when is_active = false
 
 class PassiveUserPermissions(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        request.state.user = None
         path = request.url.path
 
         if path in INCLUDE_PATHS_PASSIVE_USERS or path.startswith(
@@ -120,3 +118,9 @@ class PassiveUserPermissions(BaseHTTPMiddleware):
 
         response = await call_next(request)
         return response
+
+# passive userlar uchun doim ochiq
+class ExistingProductInStore(BaseHTTPMiddleware):
+    async def dispatch(self, request:Request, call_next):
+        request.state.
+        
