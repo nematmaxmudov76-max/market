@@ -6,7 +6,6 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     Text,
-    SmallInteger,
     Float,
     DECIMAL,
     DateTime,
@@ -32,12 +31,10 @@ class Shop(BaseMain):
         unique=True,
         nullable=False,
     )
-    # banner_id:Mapped[int] = mapped_column(BigInteger, ForeignKey("media.id", ondelete = "CASCADE"), nullable=False)
     image_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("media.id", ondelete="CASCADE")
     )
     description: Mapped[str] = mapped_column(Text, default=None)
-    rating: Mapped[int] = mapped_column(BigInteger, default=None)
     is_active: Mapped[bool] = mapped_column(Boolean, default=None)
 
     def __repr__(self):
@@ -52,8 +49,37 @@ class Shop(BaseMain):
     shop_product: Mapped[list["Shop_Product"]] = relationship(
         "Shop_Product", back_populates="shop", lazy="raise_on_sql"
     )
+    shop_rating: Mapped[list["Shop_Rating"]] = relationship(
+        "Shop_Rating", back_populates="shop", lazy="raise_on_sql"
+    )
 
-    # shop_banner:Mapped[list["Media"]] = relationship("Media", back_populates="media_banner", foreign_keys=[banner_id], lazy="raise_on_sql")
+
+class Shop_Rating(BaseMain):
+    __tablename__ = "shop_rating"
+
+    user_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("user.id", ondelete="SET NULL"),
+        unique=True,
+        nullable=False,
+    )
+    shop_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("shop.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    )
+    rating_ball: Mapped[float] = mapped_column(Float, default=0.0)
+
+    def __repr__(self):
+        return f"shop rating:{self.rating_ball}"
+
+    user: Mapped["User"] = relationship(
+        "User", back_populates="shop_rating", lazy="raise_on_sql"
+    )
+    shop: Mapped["Shop"] = relationship(
+        "Shop", back_populates="shop_rating", lazy="raise_on_sql"
+    )
 
 
 class Media(BaseMain):
@@ -64,7 +90,6 @@ class Media(BaseMain):
     def __repr__(self):
         return f"file url: {self.file_url}"
 
-    # media_banner:Mapped["Shop"] = relationship("Shop", back_populates="shop_banner", foreign_keys="Shop.banner_id", lazy="raise_on_sql")
     shop: Mapped["Shop"] = relationship(
         "Shop", back_populates="media", lazy="raise_on_sql"
     )
@@ -83,10 +108,10 @@ class Product(BaseMain):
     description: Mapped[str] = mapped_column(Text)
     price: Mapped[float] = mapped_column(Float, default=None)
     discount_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("discount.id", ondelete="SET NULL"), nullable=True
+        BigInteger, ForeignKey("discount.id", ondelete="SET NULL"), nullable=True
     )
     category_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("category.id", ondelete="SET NULL"), nullable=True
+        BigInteger, ForeignKey("category.id", ondelete="SET NULL"), nullable=True
     )
     current_quantity: Mapped[int] = mapped_column(BigInteger, default=None)
     expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -145,10 +170,10 @@ class Product_Media(BaseMain):
     __tablename__ = "product_media"
 
     product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
     )
     media_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=False
     )
 
     def __repr__(self):
@@ -166,10 +191,10 @@ class Product_Media(BaseMain):
 #     __tablename__ = "product_category"
 
 #     product_id: Mapped[int] = mapped_column(
-#         SmallInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
+#         BigInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
 #     )
 #     category_id: Mapped[int] = mapped_column(
-#         SmallInteger, ForeignKey("category.id", ondelete="SET NULL"), onupdate=False
+#         BigInteger, ForeignKey("category.id", ondelete="SET NULL"), onupdate=False
 #     )
 
 #     def __repr__(self):
@@ -187,10 +212,10 @@ class Shop_Product(BaseMain):
     __tablename__ = "shop_product"
 
     shop_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("shop.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("shop.id", ondelete="SET NULL"), nullable=False
     )
     product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
     )
 
     def __repr__(self):
@@ -208,10 +233,10 @@ class Comment(BaseMain):
     __tablename__ = "comment"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
     )
     product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("product.id", ondelete="CASCADE"), nullable=False
     )
     title: Mapped[str] = mapped_column(Text, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)

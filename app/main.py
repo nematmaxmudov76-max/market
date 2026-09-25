@@ -4,6 +4,23 @@ from app.admin.settings import admin
 from .middleware import SessionValidationMiddleware, TimeCounter, limiter
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.cors import CORSMiddleware
+import sqlalchemy.orm.attributes
+
+
+"""
+versiyalar xatoligi sqlalchemy[asyncio] = 2.0.51 versiya starletteni "1.0.1" versiyasiga hali moslashtirilmagan
+yechim "Monkey Patching" uslubida yechamiz
+"""
+# SQLAlchemy ning yangi  versiyalaridagi o'zgarishni starlette_admin uchun moslaymiz
+if not hasattr(sqlalchemy.orm.attributes, "ScalarObjectAttributeImpl"):
+    sqlalchemy.orm.attributes.ScalarObjectAttributeImpl = getattr(
+        sqlalchemy.orm.attributes, "_ScalarObjectAttributeImpl", None
+    )
+
+# Qolgan barcha importlaringiz shu yerdan pastda davom etadi:
+from app.admin.settings import admin
+from fastapi import FastAPI
+
 
 from app.api.v1 import (
     user_router,

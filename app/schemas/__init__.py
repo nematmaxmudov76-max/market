@@ -20,6 +20,7 @@ from .auth import (
     RefreshTokenRequest,
     UserRegisterRoleRequest,
 )
+from .product import OneProductDetailsRespones
 
 __all__ = [
     "UserAddressListResponse",
@@ -40,4 +41,5 @@ __all__ = [
     "UserLoginRequest",
     "RefreshTokenRequest",
     "UserRegisterRoleRequest",
+    "OneProductDetailsRespones",
 ]

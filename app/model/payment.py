@@ -5,7 +5,7 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     Text,
-    SmallInteger,
+    BigInteger,
     Float,
     DECIMAL,
     DateTime,
@@ -25,13 +25,13 @@ class Payment_Process(BaseMain):
     __tablename__ = "payment_process"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
     )
     order_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("order.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("order.id", ondelete="SET NULL"), nullable=False
     )
     wallet_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("wallet.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("wallet.id", ondelete="SET NULL"), nullable=False
     )
     total_amount: Mapped[float] = mapped_column(Float, default=None)
     status: Mapped[str] = mapped_column(String(100), default="pending")
@@ -57,12 +57,12 @@ class Transaction_Log(BaseMain):
     __tablename__ = "transaction_log"
 
     payment_id: Mapped[int] = mapped_column(
-        SmallInteger,
+        BigInteger,
         ForeignKey("payment_process.id", ondelete="SET NULL"),
         nullable=False,
     )
     wallet_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("wallet.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("wallet.id", ondelete="SET NULL"), nullable=False
     )
     status: Mapped[str] = mapped_column(String(100), default="pending")
     transaction_params: Mapped[str] = mapped_column(Text, default=None)

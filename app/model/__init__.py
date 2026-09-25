@@ -7,6 +7,7 @@ from .product import (
     Media,
     Comment,
     Discount,
+    Shop_Rating,
 )
 from .common import Region, Country, Notification, User_Notification
 from .order import (
@@ -64,4 +65,5 @@ __all__ = [
     "UserSessionToken",
     "Audit_Log",
     "Role_Request",
+    "Shop_Rating",
 ]

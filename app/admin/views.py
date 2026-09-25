@@ -53,7 +53,7 @@ class NotificationAdminView(ModelView):
 
 
 class RoleRequestView(ModelView):
-    fields=[
+    fields = [
         "user_id",
         "request_role",
         "application",
@@ -67,7 +67,7 @@ class RoleRequestView(ModelView):
         "created_at",
         "updated_at",
     ]
-    exclude_fields_from_list=[
+    exclude_fields_from_list = [
         "reviewed_by",
         "status_expired_at",
         "hash_code",
@@ -79,7 +79,7 @@ class RoleRequestView(ModelView):
         "created_at",
         "updated_at",
     ]
-    exclude_fields_from_edit=[
+    exclude_fields_from_edit = [
         "user_id",
         "hash_code",
         "created_at",

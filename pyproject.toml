@@ -16,9 +16,9 @@ dependencies = [
     "python-jose>=3.5.0",
     "redis>=8.1.0",
     "slowapi>=0.1.10",
-    "sqlalchemy[asyncio]>=2.0.51",
+    "sqlalchemy[asyncio]>=2.0.35,<2.1",
     "starlette>=1.4.1",
-    "starlette-admin>=1.0.1",
+    "starlette-admin>=0.14.0",
     "uvicorn>=0.52.1",
     "zxcvbn>=4.5.0",
 ]

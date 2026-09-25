@@ -6,7 +6,6 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     Text,
-    SmallInteger,
     Float,
     DECIMAL,
     DateTime,
@@ -29,7 +28,7 @@ class Region(BaseMain):
 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     country_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("country.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("country.id", ondelete="SET NULL"), nullable=False
     )
 
     def __repr__(self):
@@ -83,10 +82,10 @@ class User_Notification(BaseMain):
     __tablename__ = "user_notification"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
     )
     notification_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("notification.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("notification.id", ondelete="CASCADE"), nullable=False
     )
     read_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=None)
 

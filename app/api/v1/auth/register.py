@@ -113,10 +113,7 @@ async def create_new_user_role(
     )
     res = (session.execute(stmt)).scalar_one_or_none()
     if res:
-        raise HTTPException(
-            status_code=403, 
-            detail="user already registered before"
-            )
+        raise HTTPException(status_code=403, detail="user already registered before")
 
     if file is not None:
         if file.size > settings.FILE_SIZE:
@@ -129,25 +126,23 @@ async def create_new_user_role(
             )
         file_path = Path(settings.MEDIA_PATH)
         file_path.mkdir(exist_ok=True)
-        media_path = file_path/file.filename
+        media_path = file_path / file.filename
         with open(media_path, "wb") as pth:
             shutil.copyfileobj(file.file, pth)
 
-        db_file = Role_Request(
-            resume_url = f"{settings.MEDIA_PATH}/{file.filename}"
-        )
+        db_file = Role_Request(resume_url=f"{settings.MEDIA_PATH}/{file.filename}")
         session.add(db_file)
         session.flush()
 
     new_application = Role_Request(
-        user_id = data.user_id,
-        request_role = data.requested_role,
-        application = data.application,
-        checking_status = data.checking_status,
-        status_expired_at = None,
-        hash_code = None,
-        reviewed_by = None,
-        reviewed_at = None,
+        user_id=data.user_id,
+        request_role=data.requested_role,
+        application=data.application,
+        checking_status=data.checking_status,
+        status_expired_at=None,
+        hash_code=None,
+        reviewed_by=None,
+        reviewed_at=None,
     )
     session.add(new_application)
     session.commit()
@@ -156,5 +151,3 @@ async def create_new_user_role(
         status_code=201,
         content={"message": "Role request submitted successfully."},
     )
-
-

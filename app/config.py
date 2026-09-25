@@ -2,7 +2,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 
 
-BASE_DIR=Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+
 class Settings(BaseSettings):
     PROJECT_VERSION: str = "v1"
     PROJECT_NAME: str
@@ -48,11 +50,8 @@ class Settings(BaseSettings):
     MAX_LIKED_PRODUCT: int = 10
     # Pydantic v2 uchun yangi config va kutilmagan extra o'zgaruvchilarni e'tiborsiz qoldirish
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR/".env", 
-        env_file_encoding = "utf-8",
-        extra="ignore"
-        case_sensitive=True
-        )
+        env_file=BASE_DIR / ".env", env_file_encoding="utf-8", case_sensitive=True
+    )
 
 
 settings = Settings()

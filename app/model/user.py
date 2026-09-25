@@ -7,7 +7,7 @@ from sqlalchemy import (
     Text,
     JSON,
     Integer,
-    SmallInteger,
+    BigInteger,
     Float,
     # DECIMAL,
     DateTime,
@@ -21,10 +21,9 @@ from app.model.base import BaseMain
 from app.utils import ChooseRoleRequest, RoleRequestStatus
 
 
-
 if TYPE_CHECKING:
     from .common import Region, User_Notification
-    from .product import Media, Shop, Comment, Product
+    from .product import Media, Shop, Comment, Product, Shop_Rating
     from .order import Order, Delivery_Process, Bucket, Promo_Code_Report
     from .payment import Payment_Process, Transaction_Log
 
@@ -36,7 +35,7 @@ class User(BaseMain):
         String(100), nullable=False, unique=True, index=True
     )
     first_name: Mapped[str] = mapped_column(String(50), nullable=True)
-    age: Mapped[int] = mapped_column(SmallInteger, nullable=True)
+    age: Mapped[int] = mapped_column(BigInteger, nullable=True)
     last_name: Mapped[str] = mapped_column(String(50), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(250), nullable=False)
     bio: Mapped[str] = mapped_column(Text, nullable=True)
@@ -143,16 +142,19 @@ class User(BaseMain):
         back_populates="reviewer",
         lazy="raise_on_sql",
     )
+    shop_rating: Mapped[list["Shop_Rating"]] = relationship(
+        "Shop_Rating", back_populates="user", lazy="raise_on_sql"
+    )
 
 
 class User_Address(BaseMain):
     __tablename__ = "user_address"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
     )
     region_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("region.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("region.id", ondelete="SET NULL"), nullable=False
     )
     address: Mapped[str] = mapped_column(String(250), nullable=False)
 
@@ -178,7 +180,7 @@ class Courier_Profile(BaseMain):
     __tablename__ = "courier_profile"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger,
+        BigInteger,
         ForeignKey("user.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -204,7 +206,7 @@ class Wallet(BaseMain):
     __tablename__ = "wallet"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger,
+        BigInteger,
         ForeignKey("user.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -230,10 +232,10 @@ class Wallet(BaseMain):
 class Like(BaseMain):
     __tablename__ = "like"
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
     )
     product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("product.id", ondelete="CASCADE"), nullable=False
     )
 
     user: Mapped["User"] = relationship(
@@ -248,12 +250,12 @@ class User_Rating(BaseMain):
     __tablename__ = "user_rating"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
     )
     product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("product.id", ondelete="CASCADE"), nullable=False
     )
-    ball: Mapped[int] = mapped_column(SmallInteger, nullable=True)
+    ball: Mapped[int] = mapped_column(BigInteger, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
     def __repr__(self):
@@ -271,10 +273,10 @@ class User_Search(BaseMain):
     __tablename__ = "user_search"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
     )
     product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="CASCADE"), nullable=True
+        BigInteger, ForeignKey("product.id", ondelete="CASCADE"), nullable=True
     )
     query_text: Mapped[str] = mapped_column(String(255))
 
@@ -293,11 +295,11 @@ class Audit_Log(BaseMain):
     __tablename__ = "audit_log"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
     )
     action: Mapped[str] = mapped_column(String(150), nullable=True)
     target_table: Mapped[str] = mapped_column(String(50), nullable=True)
-    target_table_id: Mapped[int] = mapped_column(SmallInteger, nullable=True)
+    target_table_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
     before_data: Mapped[JSON] = mapped_column(JSON, nullable=True)
     after_data: Mapped[JSON] = mapped_column(JSON, nullable=True)
 
@@ -312,7 +314,7 @@ class Audit_Log(BaseMain):
 class UserSessionToken(BaseMain):
     __tablename__ = "user_session_token"
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
     )
     token: Mapped[str] = mapped_column(String(255), nullable=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -334,23 +336,16 @@ class Role_Request(
         BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
     )
     request_role: Mapped[ChooseRoleRequest] = mapped_column(
-        sqlEnum(
-            ChooseRoleRequest,
-            native_enum = False
-        ),
+        sqlEnum(ChooseRoleRequest, native_enum=False),
         default=None,
     )
     application: Mapped[Text] = mapped_column(Text, nullable=True)
     resume_url: Mapped[str] = mapped_column(String(250), nullable=True)
     checking_status: Mapped[RoleRequestStatus] = mapped_column(
-        sqlEnum(
-            RoleRequestStatus,
-            native_enum = False
-            ),
-            default=None
+        sqlEnum(RoleRequestStatus, native_enum=False), default=None
     )
     reviewed_by: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
     reviewed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=True
@@ -359,14 +354,13 @@ class Role_Request(
         DateTime(timezone=True), nullable=True
     )
     hash_code: Mapped[str] = mapped_column(String(255), nullable=True)
-    attempt_count: Mapped[int] = mapped_column(SmallInteger, default=0)
+    attempt_count: Mapped[int] = mapped_column(BigInteger, default=0)
 
     def __repr__(self):
         return f"user:{self.user_id}, resume:{self.resume_url}"
 
     user: Mapped["User"] = relationship(
         "User",
-        
         foreign_keys=[user_id],
         back_populates="role_request_user",
         lazy="raise_on_sql",

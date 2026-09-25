@@ -6,7 +6,6 @@ from app.model import (
     Like,
     User,
     Product,
-    
     Category,
     Discount,
     User_Search,

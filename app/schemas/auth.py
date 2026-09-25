@@ -41,7 +41,8 @@ class UserRegisterRoleRequest(Base):
     attempt_count: int = 0
 
 
-# SESSION AUTH  
+# SESSION AUTH
+
 
 class UserLoginRequest(Base):
     email: EmailStr

@@ -120,7 +120,7 @@ class PassiveUserPermissions(BaseHTTPMiddleware):
         return response
 
 # passive userlar uchun doim ochiq
-class ExistingProductInStore(BaseHTTPMiddleware):
-    async def dispatch(self, request:Request, call_next):
-        request.state.
+# class ExistingProductInStore(BaseHTTPMiddleware):
+#     async def dispatch(self, request:Request, call_next):
+#         request.state.
         

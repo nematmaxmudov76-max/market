@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select, func, exists
+from sqlalchemy import select, func, exists, null, case, and_
 from sqlalchemy.orm import joinedload, selectinload, join, outerjoin
 from app.database import db_dep
 from app.model import (
@@ -12,7 +12,7 @@ from app.model import (
     Product_Media,
     Like,
 )
-
+from app.schemas import OneProductDetailsRespones
 
 router = APIRouter(prefix="/product", tags=["Product"])
 
@@ -26,66 +26,86 @@ ONE PRODUCT DETAIL => views -> PASSIVE, ACTIVE USERS
 """
 
 # TODO 1* name, descriptions, price, current_quantity, size,
-@router.get("/details/{product_id}", response_model=)
-async def get_product_details(session: db_dep, product_id: int, current_user:int):
+@router.get("/details/{product_id}", response_model=OneProductDetailsRespones)
+async def get_product_details(session: db_dep, product_id: int, current_user: int | None = None):
+    # 1. Is Liked Subquery
     is_liked_product = (
         exists()
         .where(
             Like.product_id == Product.id,
             Like.user_id == current_user
         )
-        .collate(Product)
+        .correlate(Product)
         if current_user else False
-        )
+    )
 
+    # 2. Asosiy So'rov (Query)
     stmt = (
         select(
-            #avg reting, reting count 
+            Product.id.label("id"),
+            Product.name.label("name"),
+            Product.description.label("description"),
+            Product.size.label("product_size"),
+            Product.category_id.label("category_id"),
+            func.coalesce(Product.current_quantity, 0).label("product_current_count_in_store"),
+            
+            # Rating
+            func.coalesce(func.avg(User_Rating.ball), 0.0).label("product_rating_avg"),
+            func.coalesce(func.count(User_Rating.id), 0).label("product_rating_counts"),
+
+            # Media ID (Array or First ID)
+            Product_Media.media_id.label("media_id"),
+
+            # Comment (Faqat active bo'lgan birinchi yoki oxirgi comment sarlavhasi)
+            func.max(
+                case(
+                    (Comment.is_active == True, Comment.title),
+                    else_=None
+                )
+            ).label("users_comments"),
+
+            # Discount va Hisoblangan Joriy Narx
             func.coalesce(
-                func.avg(User_Rating.ball),
-                0.0
-            )
-            .label("product rating avg"),
-            func.coalesce(
-                func.count(User_Rating.id),
-                0
-            )
-            .label("product rating counts"),
+                case(
+                    (Discount.is_active == True, Product.price - (Product.price * Discount.percent / 100)),
+                    else_=Product.price
+                ),
+                Product.price
+            ).label("current_price"),
 
-            Product_Media.media_id,
-            Product.name,
-            Product.description,
-            func.coalesce(Product.size, None).label("product size"),
-            Product.category_id,
+            case(
+                (Discount.is_active == True, func.coalesce(Discount.title, Discount.category)),
+                else_=None
+            ).label("discount_title"),
 
-            # comment faqat zakas qilib va is_active=true bo'lganlar kelsin!!
-            func.coalesce(Comment.title if Comment.is_active == True else None, None ).label("users comments"),
-
-            #product current_cuantity
-            func.coalesce(Product.current_quantity, 0).label("product current count in store"),
-
-            # current prise
-            func.coalesce(
-                Product.price - Product.price*(int(Discount.percent))/100 if Discount.is_active else Product.price
-            ).label("current prise"),
-
-            # discount title
-            func.coalesce(Discount.title, Discount.category, None).label("discount title"),
-
-            #expiretion date
-            is_liked_product
+            # Is Liked
+            is_liked_product.label("is_liked")
         )
+        .outerjoin(User_Rating, User_Rating.product_id == Product.id)
+        .outerjoin(Product_Media, Product_Media.product_id == Product.id)
+        .outerjoin(Category, Category.id == Product.category_id)
+        .outerjoin(Comment, and_(Comment.product_id == Product.id, Comment.is_active == True))
+        .outerjoin(Discount, Discount.id == Product.discount_id)
         .where(Product.is_active == True, Product.id == product_id)
-        # user_rating, product_media, category, comment, discount,
-        .join(Product.id == User_Rating.product_id)
-        .join(Product.id == Product_Media.product_id)
-        .join(Product.category_id == Category.id)
-        .outerjoin(Product, Product.id == Comment.product_id)
-        .join(Product.discount_id == Discount.id)
+        .group_by(
+            Product.id, 
+            Product_Media.media_id, 
+            Discount.is_active, 
+            Discount.percent, 
+            Discount.title, 
+            Discount.category
+        )
     )
-    one_product = (session.execute(stmt)).mappings()
 
-    if not one_product:
-        raise HTTPException(status_code=404, detail="product not found")
+    result = session.execute(stmt).mappings().first()
 
-    return one_product
+    if not result:
+        raise HTTPException(
+            status_code=404, 
+            detail="Product not found"
+        )
+
+    return result
+
+
+# @router.get("/shop-about/{}")

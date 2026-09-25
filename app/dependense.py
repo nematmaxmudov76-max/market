@@ -7,7 +7,11 @@ from sqlalchemy import select
 from app.database import db_dep
 from typing import Annotated
 from app.utils import verify_password, decode_jwt_token, Target
-from app.model import User, UserSessionToken
+from app.model import (
+    User,
+    UserSessionToken,
+    Product,
+)
 from app.config import settings
 from enum import Enum
 
@@ -116,3 +120,14 @@ def get_pagination(min: int = 0, max: int = settings.MAX_LIKED_PRODUCT) -> dict:
 def current_discount_date(target_data: Target = Target.WEEK):
     days = 7 if target_data == Target.WEEK else 30
     return datetime.now() - timedelta(days=days)
+
+
+def get_current_product(session: db_dep, request: Request, product_id: int):
+    stmt = select(Product).where(Product.id == product_id, Product.is_active == True)
+    product = (session.execute(stmt)).scalar_one_or_none()
+    if not product:
+        raise HTTPException(status_code=404, detail="product not found")
+
+    return {"product_id":product_id} 
+
+current_product_dep = Annotated[dict, Depends(get_current_product)]

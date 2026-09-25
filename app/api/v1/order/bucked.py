@@ -7,5 +7,3 @@ from app.model import (
     Bucket_Product,
     Product,
 )
-
-

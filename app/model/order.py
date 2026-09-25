@@ -6,7 +6,6 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     Text,
-    SmallInteger,
     Float,
     DECIMAL,
     DateTime,
@@ -27,12 +26,12 @@ class Order(BaseMain):
     __tablename__ = "order"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
     )
     total_amount: Mapped[float] = mapped_column(Float, default=None)
     order_number: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     address_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user_address.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user_address.id", ondelete="SET NULL"), nullable=False
     )
     status: Mapped[str] = mapped_column(String(100), default="pending")
 
@@ -63,18 +62,18 @@ class Delivery_Process(BaseMain):
     __tablename__ = "delivery_process"
 
     courier_id: Mapped[int] = mapped_column(
-        SmallInteger,
+        BigInteger,
         ForeignKey("courier_profile.id", ondelete="SET NULL"),
         nullable=False,
     )
     order_id: Mapped[int] = mapped_column(
-        SmallInteger,
+        BigInteger,
         ForeignKey("order.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
     )
     address_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user_address.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user_address.id", ondelete="SET NULL"), nullable=False
     )
     delivery_fee: Mapped[float] = mapped_column(Float, default=None)
     status: Mapped[str] = mapped_column(String(100), default="pending")
@@ -102,10 +101,10 @@ class Order_Item(BaseMain):
     __tablename__ = "order_item"
 
     order_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("order.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("order.id", ondelete="SET NULL"), nullable=False
     )
     product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
     )
     quantity: Mapped[int] = mapped_column(BigInteger, default=None)
 
@@ -124,7 +123,7 @@ class Bucket(BaseMain):
     __tablename__ = "bucket"
 
     user_id: Mapped[int] = mapped_column(
-        SmallInteger,
+        BigInteger,
         ForeignKey("user.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -146,10 +145,10 @@ class Bucket_Product(BaseMain):
     __tablename__ = "bucket_product"
 
     bucket_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("bucket.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("bucket.id", ondelete="SET NULL"), nullable=False
     )
     product_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
     )
     quantity: Mapped[int] = mapped_column(BigInteger, default=None)
     total_price: Mapped[float] = mapped_column(Float, default=None)
@@ -186,13 +185,13 @@ class Promo_Code_Report(BaseMain):
     __tablename__ = "promo_code_report"
 
     promo_code_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("promo_code.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("promo_code.id", ondelete="SET NULL"), nullable=False
     )
     order_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("order.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("order.id", ondelete="SET NULL"), nullable=False
     )
     user_id: Mapped[int] = mapped_column(
-        SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
     )
     used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=None)
 
