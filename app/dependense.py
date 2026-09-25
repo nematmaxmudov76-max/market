@@ -102,15 +102,15 @@ def get_current_user_jwt(
 current_user_jwt_dep = Annotated[User, Depends(get_current_user_jwt)]
 
 
-async def get_current_user(request: Request) -> User:
-    user: User | None = getattr(request.state, "user", None)
+async def get_current_user_login(request: Request) -> User:
+    user: User | None = getattr(request.state, "user_login", None)
 
     if user is None:
         raise HTTPException(status_code=401, detail="user not found or session expired")
     return user
 
 
-current_user_dep = Annotated[User, Depends(get_current_user)]
+current_user_dep = Annotated[User, Depends(get_current_user_login)]
 
 
 def get_pagination(min: int = 0, max: int = settings.MAX_LIKED_PRODUCT) -> dict:
@@ -131,3 +131,5 @@ def get_current_product(session: db_dep, request: Request, product_id: int):
     return {"product_id":product_id} 
 
 current_product_dep = Annotated[dict, Depends(get_current_product)]
+
+

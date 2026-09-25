@@ -2,7 +2,7 @@ import json
 import shutil
 import secrets
 from datetime import datetime
-from fastapi import HTTPException, APIRouter, UploadFile
+from fastapi import HTTPException, APIRouter, UploadFile, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from app.database import db_dep
@@ -28,7 +28,7 @@ router = APIRouter(prefix="/user", tags=["Auth"])
 
 
 @router.post("/register", response_model=UserRegisterResponse)
-async def create_new_user(session: db_dep, data: UserRegisterRequest):
+async def create_new_user(session: db_dep, data: UserRegisterRequest, request:Request):
     stmt = select(User).where(User.email == data.email)
     res = (session.execute(stmt)).scalar_one_or_none()
 
@@ -51,6 +51,8 @@ async def create_new_user(session: db_dep, data: UserRegisterRequest):
     send_email_message.delay(
         data.email, "Eamil confirmation proccessing", f"your verifay kod:  {secret_kod}"
     )
+    # oldin faza shaffof holatda bo'ladi
+    request.state.user = None
 
     return JSONResponse(
         status_code=201,
@@ -59,7 +61,7 @@ async def create_new_user(session: db_dep, data: UserRegisterRequest):
 
 
 @router.post("/verify/{secret_code}", response_model=UserRegisterResponse)
-async def verifiy_code(session: db_dep, secret_code: str):
+async def verifiy_code(session: db_dep, secret_code: str, request:Request):
     decode_data = redis_url.get(secret_code)
 
     if not decode_data:
@@ -81,12 +83,16 @@ async def verifiy_code(session: db_dep, secret_code: str):
         is_active=True,
         is_deleted=False,
     )
+    # is_active = true bo'lgan userlar fazasiga qo'shildi!!!
+    request.state.user = new_user
+
     stmt = select(User.id).where(User.is_deleted.is_(False)).limit(1)
     existing_user = session.execute(stmt).scalar_one_or_none()
 
     if existing_user is None:
         new_user.is_admin = True
         new_user.is_staff = True
+
 
     session.add(new_user)
     session.commit()

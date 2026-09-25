@@ -16,6 +16,8 @@
 ### ASOSIY MAQSADI: Faqat ma'lumot o'qish (Read-only API), ro'yxat ko'rsatish va shu sababli scalars() ga qaraganda juda tez va minimal RAM sarflaydi 
 ## NIMALAR BILAN ISHLATISH QULAY: aqat tekis (Flat) ma'lumot va yuqori tezlik kerak bo'lsa:
 
+
+
 ## 6* Ichma-ich (Nested) munosabatlar va struktura kerak bo'lsa:
 # select(Post).options(selectinload(Post.author)) qilib, .scalars() bilan oling va Pydantic orqali serialized qiling.
 
@@ -77,3 +79,8 @@ reviewer: Mapped["User"] = relationship(
     lazy="raise_on_sql",
 )
 ```
+
+
+### 10* OLDINDAN KELISHUVLAR!!!!
+## request.state.user_login => login qilingan userlar fazasi (diapazoni)
+## request.state.user => login qilinmagan!!! lekin => is_active = True bo'lgan userlar fazasi!!

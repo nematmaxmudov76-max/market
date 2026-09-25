@@ -75,3 +75,10 @@ INCLUDE_PREFIXES_PASSIVE_USERS = (
     "/static/",
     "/media/",
 )
+
+INCLUDE_PATH_ACTIVE_USER = {
+    INCLUDE_PATHS_PASSIVE_USERS,
+
+    "/api/v1/user/register/role",
+}
+

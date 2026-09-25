@@ -13,6 +13,7 @@ from app.model import (
     Like,
 )
 from app.schemas import OneProductDetailsRespones
+from app.dependense import current_product_dep
 
 router = APIRouter(prefix="/product", tags=["Product"])
 
@@ -27,8 +28,12 @@ ONE PRODUCT DETAIL => views -> PASSIVE, ACTIVE USERS
 
 # TODO 1* name, descriptions, price, current_quantity, size,
 @router.get("/details/{product_id}", response_model=OneProductDetailsRespones)
-async def get_product_details(session: db_dep, product_id: int, current_user: int | None = None):
-    # 1. Is Liked Subquery
+async def get_product_details(session: db_dep, product: current_product_dep = None):
+    product_id = product.get("product_id")
+    
+    if not product or product is None:
+        raise HTTPException(status_code=404, detail="current product not found")
+    
     is_liked_product = (
         exists()
         .where(

@@ -10,6 +10,7 @@ from app.config import (
     INCLUDE_PATHS_ONLY_LOGIN,
     INCLUDE_PATHS_PASSIVE_USERS,
     INCLUDE_PREFIXES_PASSIVE_USERS,
+    INCLUDE_PATH_ACTIVE_USER,
 )
 from jose import JWTError
 from slowapi import Limiter
@@ -19,7 +20,7 @@ from slowapi.util import get_remote_address
 # THIS MIDDLEWARE SCAN ONLY => MANAGER/COURIYER/MERCHANT/ADMIN
 class SessionValidationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        request.state.user = None
+        request.state.user_login = None
         path = request.url.path
 
         if path not in INCLUDE_PATHS_ONLY_LOGIN:
@@ -58,7 +59,8 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
                         )
 
                         if user:
-                            request.state.user = user
+                            request.state.user_login = user # faqat login qilgan userlar fazasi!!!
+
             except Exception:
                 # JWT dekod qilishda yoki bazadan o'qishda har qanday xatolik bo'lsa request.state.user = None bo'lib qoladi
                 pass
@@ -66,7 +68,7 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
                 db.close()
 
         # 4. Agar so'rov /api bilan boshlansa va user topilmagan bo'lsa 401 qaytarish
-        if request.state.user is None and path.startswith("/api"):
+        if request.state.user_login is None and path.startswith("/api"):
             response = JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Session is expired or invalid token"},
@@ -97,30 +99,37 @@ when is_active = false
 """
 
 
-class PassiveUserPermissions(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+class ActivePassiveUserPermissions(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next, session:get_db):
         path = request.url.path
 
-        if path in INCLUDE_PATHS_PASSIVE_USERS or path.startswith(
-            INCLUDE_PREFIXES_PASSIVE_USERS
-        ):
-            return await call_next(request)
+        if request.state.user is None :
+            if path in INCLUDE_PATHS_PASSIVE_USERS or path.startswith(
+                INCLUDE_PREFIXES_PASSIVE_USERS
+            ):
+                return await call_next(request)
 
+        # agar register qilingan bo'lsa request.state.user dan teshkirib oladi
+        user:User | None = getattr(request.state, "user", None)
+
+        if not user or (user.is_active == False or user is None):
+            return HTTPException(status_code=401, detail="Please, going to register in system")
+
+        if path in INCLUDE_PATH_ACTIVE_USER and path.startswith(INCLUDE_PREFIXES_PASSIVE_USERS):
+            return await call_next(request)
+    
         auth_header = request.headers.get("Authorization")
 
         if not auth_header or not auth_header.startswith("Bearer:"):
             raise JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={
-                    "message": "Tizimga kirish(register) qilish talab qilinadi, sizning is_active = False"
+                    "message": "You don't have permission, please going to login!!"
                 },
             )
 
         response = await call_next(request)
         return response
 
-# passive userlar uchun doim ochiq
-# class ExistingProductInStore(BaseHTTPMiddleware):
-#     async def dispatch(self, request:Request, call_next):
-#         request.state.
-        
+    
+# class ActiveUserPermissions(BaseHTTPMiddleware):
