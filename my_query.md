@@ -34,7 +34,7 @@ this type products in category
 ```
 ## "/verify/{secred_code}" API emailni tasdiqlaydi
 ```
- 1* 'redis_url' dan redisga saqlangan datani get qilib oladi va decode qiladi
+ 1* `redis_url` dan redisga saqlangan datani get qilib oladi va decode qiladi
  2* user ni yana bir bor email orqali bazadan teshkiradi va dublikatlikga yo'l qo'ymaydi
  3* redisdan olingan datalar yordamida new_user yaratiladi va 'is_active=true' qilib qo'yiladi
  4* agar bazada hali user not exist bo'lsa first user is-> 'is_admin=true'
@@ -42,6 +42,7 @@ this type products in category
 
 
 
+### `Antipattern` => (samarasiz yechim namunasi)
 
 
 
@@ -71,3 +72,26 @@ this type products in category
 
 ### when is_admin = true
 ## => manage to manager/shop/coureier/user, add manager and permissions
+
+
+
+### ENG SODDA CASHE logikasi:
+```
+import json
+from app.database import redis_client  # sizda mavjud bo'lgan Redis client
+
+async def get_cached_user(user_id: int, db: Session):
+    cache_key = f"user:{user_id}"
+    cached = redis_client.get(cache_key)
+    if cached:
+        data = json.loads(cached)
+        return data  # yoki User obyektiga aylantiring
+
+    db_user = db.get(User, user_id)
+    if db_user:
+        redis_client.setex(
+            cache_key, 300,  # 5 daqiqa TTL
+            json.dumps({"id": db_user.id, "is_admin": db_user.is_admin, ...})
+        )
+    return db_user
+```

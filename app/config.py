@@ -58,27 +58,33 @@ settings = Settings()
 
 
 # ONLY SCAN MANAGER/COURIYER/MERCHANT/ADMIN PATH
-INCLUDE_PATHS_ONLY_LOGIN = {}
+INCLUDE_PATHS_ONLY_LOGIN = []
 
-INCLUDE_PATHS_PASSIVE_USERS = {
+INCLUDE_PATHS_PASSIVE_USERS = [
     "/api/v1/home/search-by-name",
     "/api/v1/home/search-by-category",
     "/api/v1/home/discount-products",
     "/api/v1/home/monthly-discount",
     "/api/v1/home/top-10-products",
-}
+]
 
-INCLUDE_PREFIXES_PASSIVE_USERS = (
+INCLUDE_PREFIXES_PASSIVE_USERS = [
     "/docs",
     "/redoc",
     "/openapi.json",
     "/static/",
     "/media/",
-)
+]
 
-INCLUDE_PATH_ACTIVE_USER = {
+INCLUDE_PATH_ACTIVE_USER = [
     INCLUDE_PATHS_PASSIVE_USERS,
-
+    INCLUDE_PREFIXES_PASSIVE_USERS,
     "/api/v1/user/register/role",
-}
+]
 
+
+INCLUDE_PATH_COURIERS = [
+    INCLUDE_PATH_ACTIVE_USER,
+    #courier profile
+    # deliver proccess
+]

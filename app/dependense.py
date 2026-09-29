@@ -4,7 +4,8 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy import select
-from app.database import db_dep
+from sqlalchemy.orm import Session
+from app.database import db_dep, get_db
 from typing import Annotated
 from app.utils import verify_password, decode_jwt_token, Target
 from app.model import (
@@ -12,7 +13,11 @@ from app.model import (
     UserSessionToken,
     Product,
 )
-from app.config import settings
+from app.config import (
+    settings,
+    INCLUDE_PATH_COURIERS,
+
+)
 from enum import Enum
 
 # BASIC AUTH
@@ -26,51 +31,6 @@ jwt_securty = HTTPBearer(auto_error=False)
 router = APIRouter(prefix="/basic_auth", tags=["Auth"])
 
 
-# for basic auth
-def get_current_user_basic(session: db_dep, credention: basic_auth):
-    stmt = select(User).where(User.email == credention.username)
-    res = (session.execute(stmt)).scalars().first()
-    if not res:
-        raise HTTPException(status_code=404, detail="user not found")
-
-    if not verify_password(credention.password, res.password_hash):
-        raise HTTPException(status_code=401, detail="incorrect password")
-
-    return res
-
-
-current_user_basic = Annotated[User, Depends(get_current_user_basic)]
-
-
-# for session auth
-
-
-def check_current_user_session(session: db_dep, request: Request) -> dict:
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401, detail="not authenticate")
-
-    stmt = select(UserSessionToken).where(UserSessionToken.token == token)
-    user_obj = (session.execute(stmt)).scalars().first()
-
-    if not user_obj:
-        raise HTTPException(status_code=401, detail="not authenticate")
-
-    if user_obj.expires_at < datetime.now(tz=timezone.utc):
-        session.delete(user_obj)
-        session.commit()
-        raise HTTPException(status_code=401, detail="time expired, login again")
-
-    stmt = select(User).where(User.id == user_obj.user_id)
-    user = (session.execute(stmt)).scalars().first()
-
-    if not user or user.is_deleted:
-        raise HTTPException(status_code=404, detail="user not found")
-
-    return {"check": True, "user_id": User.id}
-
-
-check_user_session_dep = Annotated[dict, Depends(check_current_user_session)]
 
 
 def get_current_user_jwt(
@@ -102,16 +62,76 @@ def get_current_user_jwt(
 current_user_jwt_dep = Annotated[User, Depends(get_current_user_jwt)]
 
 
-async def get_current_user_login(request: Request) -> User:
-    user: User | None = getattr(request.state, "user_login", None)
 
-    if user is None:
-        raise HTTPException(status_code=401, detail="user not found or session expired")
+# Role base control for merchant, courier, manager, admin
+
+
+#logins user
+def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    payload = getattr(request.state, "token_payload", None)
+    if payload is None:
+        raise HTTPException(status_code=401, detail="Tizimga kiring")
+
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Token noto'g'ri")
+
+    user = db.get(User, int(user_id))
+    if user is None or user.is_deleted or not user.is_active:
+        raise HTTPException(status_code=401, detail="Foydalanuvchi topilmadi yoki faol emas")
+
+    return user
+
+#couriers
+def get_current_courier_user(user: User = Depends(get_current_user)) -> User:
+    if not user.is_courier:
+        raise HTTPException(status_code=403, detail="only couriers")
     return user
 
 
-current_user_dep = Annotated[User, Depends(get_current_user_login)]
+# merchants
+def get_current_merchant_user(user:User = Depends(get_current_user)):
 
+    if not user.is_merchant:
+        raise HTTPException(status_code=403, detail="only for merchants")
+    return user
+
+#managers
+def get_current_manager_user(user: User = Depends(get_current_user)):
+
+    if not user.is_manager:
+        raise HTTPException(status_code=403, detail="only managers")
+
+    return user
+
+
+
+#admins
+def get_current_admin_user(user: User = Depends(get_current_user)) -> User:
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="only admins")
+    return user
+
+
+current_user_dep = Annotated[User, Depends(get_current_user)]
+current_courier_dep = Annotated[User, Depends(get_current_courier_user)]
+current_admin_dep = Annotated[User, Depends(get_current_admin_user)]
+current_merchant_dep = Annotated[User, Depends(get_current_merchant_user)]
+currnet_manager_user_dep = Annotated[User, Depends(get_current_manager_user)]
+
+
+"""
+active / passive userlarni argumentga kiruvchi user_id bilan teshkirilari
+state dan url ni olib unga mos bo'lgan path ga ruxsat beriladi
+"""
+
+
+
+
+
+
+
+# home page dependency
 
 def get_pagination(min: int = 0, max: int = settings.MAX_LIKED_PRODUCT) -> dict:
     return {"min": min, "max": max}
@@ -133,3 +153,91 @@ def get_current_product(session: db_dep, request: Request, product_id: int):
 current_product_dep = Annotated[dict, Depends(get_current_product)]
 
 
+
+
+
+
+
+# async def get_current_courier_user(request: Request) -> User[object] | None:
+#     get_user: User | None = getattr(request.state, "user", None)
+
+#     if not get_user or get_user is None:
+#         raise HTTPException(status_code=401, detail="user not found or session expired")
+
+    
+#     try:
+#         user_id = int(get_user.get("sub"))
+#         exp_timestamp = get_user.get("exp")
+
+#         if not exp_timestamp:
+#             raise HTTPException(status_code=401, detail="time expires")
+#         exp_time = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+#         if exp_time < datetime.now(tz=timezone.utc):
+#             raise HTTPException(status_code=401, detail="time expires")
+
+#         db = next(get_db())
+#         try: 
+#             current_user = db.query(User).filter(User.id == user_id).first()
+
+#             if (current_user and current_user.is_courier):
+#                 return current_user
+
+#         finally:
+#             db.close()
+
+#     except Exception:
+#         return None
+
+# current_courier_dep = Annotated[User, Depends(get_current_courier_user)]
+
+
+
+
+
+
+
+# # for basic auth
+# def get_current_user_basic(session: db_dep, credention: basic_auth):
+#     stmt = select(User).where(User.email == credention.username)
+#     res = (session.execute(stmt)).scalars().first()
+#     if not res:
+#         raise HTTPException(status_code=404, detail="user not found")
+
+#     if not verify_password(credention.password, res.password_hash):
+#         raise HTTPException(status_code=401, detail="incorrect password")
+
+#     return res
+
+
+# current_user_basic = Annotated[User, Depends(get_current_user_basic)]
+
+
+
+# for session auth
+
+# def check_current_user_session(session: db_dep, request: Request) -> dict:
+#     token = request.cookies.get("token")
+#     if not token:
+#         raise HTTPException(status_code=401, detail="not authenticate")
+
+#     stmt = select(UserSessionToken).where(UserSessionToken.token == token)
+#     user_obj = (session.execute(stmt)).scalars().first()
+
+#     if not user_obj:
+#         raise HTTPException(status_code=401, detail="not authenticate")
+
+#     if user_obj.expires_at < datetime.now(tz=timezone.utc):
+#         session.delete(user_obj)
+#         session.commit()
+#         raise HTTPException(status_code=401, detail="time expired, login again")
+
+#     stmt = select(User).where(User.id == user_obj.user_id)
+#     user = (session.execute(stmt)).scalars().first()
+
+#     if not user or user.is_deleted:
+#         raise HTTPException(status_code=404, detail="user not found")
+
+#     return {"check": True, "user_id": User.id}
+
+
+# check_user_session_dep = Annotated[dict, Depends(check_current_user_session)]

@@ -20,10 +20,10 @@ from slowapi.util import get_remote_address
 # THIS MIDDLEWARE SCAN ONLY => MANAGER/COURIYER/MERCHANT/ADMIN
 class SessionValidationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        request.state.user_login = None
+        request.state.user = None
         path = request.url.path
 
-        if path not in INCLUDE_PATHS_ONLY_LOGIN:
+        if path in INCLUDE_PATH_ACTIVE_USER: # faqat active userlar uchun call_next ishlaydi
             return await call_next(request)
 
         # 2. Authorization Header yoki Cookie'dan tokenni olish
@@ -41,7 +41,6 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
 
         # 3. Tokenni dekod qilish va foydalanuvchini bazadan qidirish
         if token:
-            db = next(get_db())
             try:
                 payload = decode_jwt_token(token)
                 if payload:
@@ -52,23 +51,14 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
                     current_timestamp = int(time.time())
 
                     if user_id and exp_time and int(exp_time) > current_timestamp:
-                        user = (
-                            db.query(User)
-                            .filter(User.id == int(user_id), User.is_deleted == False)
-                            .first()
-                        )
-
-                        if user:
-                            request.state.user_login = user # faqat login qilgan userlar fazasi!!!
+                        request.state.user = payload# faqat login qilgan userlar fazasi!!!
 
             except Exception:
                 # JWT dekod qilishda yoki bazadan o'qishda har qanday xatolik bo'lsa request.state.user = None bo'lib qoladi
                 pass
-            finally:
-                db.close()
 
         # 4. Agar so'rov /api bilan boshlansa va user topilmagan bo'lsa 401 qaytarish
-        if request.state.user_login is None and path.startswith("/api"):
+        if request.state.user is None and path.startswith("/api"):
             response = JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Session is expired or invalid token"},
@@ -96,11 +86,17 @@ limiter = Limiter(key_func=get_remote_address)
 """
 when is_active = false
 => look at home page only (by select product)
+
+passive | 
+active  | => ActivePassiveUserPermission 
+
+
+
 """
 
 
 class ActivePassiveUserPermissions(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next, session:get_db):
+    async def dispatch(self, request: Request, call_next):
         path = request.url.path
 
         if request.state.user is None :
@@ -131,5 +127,16 @@ class ActivePassiveUserPermissions(BaseHTTPMiddleware):
         response = await call_next(request)
         return response
 
-    
-# class ActiveUserPermissions(BaseHTTPMiddleware):
+
+class AdminOnlyPermissions(BaseHTTPMiddleware):
+    async def dispatch(self, request:Request, call_next):
+        request.state.user = None
+        path = request.url.path
+
+        if path not in INCLUDE_ADMIN_PATH:
+            return call_next(request)
+
+        
+        auth_header = request.headers.get("Authorization")
+
+        

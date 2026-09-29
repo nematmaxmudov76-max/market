@@ -82,5 +82,8 @@ reviewer: Mapped["User"] = relationship(
 
 
 ### 10* OLDINDAN KELISHUVLAR!!!!
-## request.state.user_login => login qilingan userlar fazasi (diapazoni)
-## request.state.user => login qilinmagan!!! lekin => is_active = True bo'lgan userlar fazasi!!
+## `request.state` — bu "saqlash joyi" emas, balki vaqtinchalik "record" (chippak)
+## `request.state` — RAM'da, faqat bitta so'rov (request) davomida yashaydigan oddiy obyekt. So'rov kelganda yaratiladi, javob (response) qaytarilgach, Python "garbage collector" tomonidan tozalanadi. U:
+## Boshqa foydalanuvchining so'roviga umuman ko'chmaydi (har bir so'rov — alohida request obyekti).
+## Disk'ga yozilmaydi, tarmoq orqali uzatilmaydi.
+## Hech qanday tashqi hujum unga to'g'ridan-to'g'ri yeta olmaydi — chunki u serverning ichki xotirasida, `faqat o'sha so'rov davomida mavjud`.

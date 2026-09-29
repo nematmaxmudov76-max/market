@@ -34,6 +34,9 @@ class User(BaseMain):
     email: Mapped[str] = mapped_column(
         String(100), nullable=False, unique=True, index=True
     )
+    username:Mapped[str] = mapped_column(
+        String(100), nullable=True, unique=True, index=True
+    )
     first_name: Mapped[str] = mapped_column(String(50), nullable=True)
     age: Mapped[int] = mapped_column(BigInteger, nullable=True)
     last_name: Mapped[str] = mapped_column(String(50), nullable=True)
