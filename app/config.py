@@ -13,9 +13,10 @@ class Settings(BaseSettings):
     # for session auth
     SESSION_EXPIRATION_DAY: int = 7
 
-    # for jwt auth
+    # for auth
     REFRESH_TOKEN_EXPIRE_DAYS: int = 1
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    EXP_DATETIME_ROLE_REQUEST: int = 1 # user(active user) tanlagan rolni-> active qilish uchun registerga ulgurish vaqti
     ALGORITHM: str = "HS256"
     SECRET_KEY: str
 

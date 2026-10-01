@@ -41,9 +41,24 @@ class UserRegisterRoleRequest(Base):
     attempt_count: int = 0
 
 
+
+# admin action
+class AdminMarkedRoleRequest(Base):
+    checking_status:RoleRequestStatus = RoleRequestStatus.WAITING
+    reviewed_at:datetime
+    status_expired_at:datetime
+
+class AdminMarkedRoleResponse(Base):
+    user_id:int
+    request_role:ChooseRoleRequest = None
+    checking_status:RoleRequestStatus = RoleRequestStatus.WAITING
+    reviewed_by:int
+    reviewed_at:datetime
+    status_expired_at:datetime
+
+
+
 # SESSION AUTH
-
-
 class UserLoginRequest(Base):
     email: EmailStr
     password: str
@@ -52,38 +67,3 @@ class UserLoginRequest(Base):
 class RefreshTokenRequest(Base):
     access_token: str
 
-
-"""
-
-
-class ManageNotificationCreate(Enum):
-    SINGLE = "single"
-    ALL = "all"
-    ACTIVE_USER ="active_users"
-    MERCHANTS = "merchants"
-    COURIERS = "couriers"
-    MANAGERS  = "managers"
-
-class RoleRequestStatus(str, Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-    COMPLETED = "completed"
-
-
-
-
-
-    user_id:Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False)
-    request_role:Mapped[bool] = mapped_column(Boolean, default="active")
-    application:Mapped[Text] = mapped_column(Text, nullable=True)
-    resume_url:Mapped[str] = mapped_column(String(250))
-    checking_status:Mapped[bool] = mapped_column(Boolean, nullable=True)
-    reviewed_by:Mapped[int] = mapped_column(SmallInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False)
-    reviewed_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
-    status_expired_at:Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
-    hash_code:Mapped[str] = mapped_column(String(255), nullable=True)
-    attempt_count:Mapped[int] = mapped_column(SmallInteger, default=0)
-
-    
-"""

@@ -32,7 +32,7 @@ class JsonAuthProvider(AuthProvider):
             if not user or user.is_deleted:
                 raise LoginFailed("User not found or deleted.")
 
-            if not (user.is_admin or user.is_manager):
+            if not (user.is_admin or user.is_manager or user.is_merchant):
                 raise LoginFailed("You not permission to access admin panel.")
 
             if not verify_password(password, user.password_hash):
@@ -80,7 +80,7 @@ class JsonAuthProvider(AuthProvider):
             is_manager = getattr(user, "is_manager", False)
             is_deleted = getattr(user, "is_deleted", False)
 
-            if (is_admin or is_manager) and not is_deleted:
+            if (is_admin or is_manager ) and not is_deleted:
                 return AdminUser(username=user.email)
 
         # 2. Agar state'da user bo'lmasa, cookie'dan 'access_token'ni o'zi oladi

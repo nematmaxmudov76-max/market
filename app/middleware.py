@@ -42,16 +42,16 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
         # 3. Tokenni dekod qilish va foydalanuvchini bazadan qidirish
         if token:
             try:
-                payload = decode_jwt_token(token)
-                if payload:
-                    user_id = payload.get("sub")
-                    exp_time = payload.get("exp")
+                token_payload = decode_jwt_token(token)
+                if token_payload:
+                    user_id = token_payload.get("sub")
+                    exp_time = token_payload.get("exp")
 
                     # Unix timestamp orqali vaqtni tekshirish
                     current_timestamp = int(time.time())
 
                     if user_id and exp_time and int(exp_time) > current_timestamp:
-                        request.state.user = payload# faqat login qilgan userlar fazasi!!!
+                        request.state.user = token_payload# faqat login qilgan userlar fazasi!!!
 
             except Exception:
                 # JWT dekod qilishda yoki bazadan o'qishda har qanday xatolik bo'lsa request.state.user = None bo'lib qoladi
@@ -128,15 +128,15 @@ class ActivePassiveUserPermissions(BaseHTTPMiddleware):
         return response
 
 
-class AdminOnlyPermissions(BaseHTTPMiddleware):
-    async def dispatch(self, request:Request, call_next):
-        request.state.user = None
-        path = request.url.path
+# class AdminOnlyPermissions(BaseHTTPMiddleware):
+#     async def dispatch(self, request:Request, call_next):
+#         request.state.user = None
+#         path = request.url.path
 
-        if path not in INCLUDE_ADMIN_PATH:
-            return call_next(request)
+#         if path not in INCLUDE_ADMIN_PATH:
+#             return call_next(request)
 
         
-        auth_header = request.headers.get("Authorization")
+#         auth_header = request.headers.get("Authorization")
 
         

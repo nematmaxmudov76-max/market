@@ -95,3 +95,9 @@ async def get_cached_user(user_id: int, db: Session):
         )
     return db_user
 ```
+
+
+
+1**register qilgan user biron rolga login qilish uchun adminga role_request tableliga ariza qoldirdi
+2**admin uni ko'rdi va statusni=>"approve" and user.is_(role)=true qiladi va expires_time vaqt ichida login qilib olishi kerak 
+3**active user vaqtincha tanlagan role=>true bo'lib turadi shu vaqt ishida admin panelga login qilib olishga ulgurish kerak bo'lmasa 
