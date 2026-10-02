@@ -63,13 +63,18 @@ async def get_product_details(session: db_dep, product: current_product_dep = No
             Product_Media.media_id.label("media_id"),
 
             # Comment (Faqat active bo'lgan birinchi yoki oxirgi comment sarlavhasi)
-            func.max(
+            func.coalesce(
                 case(
                     (Comment.is_active == True, Comment.title),
                     else_=None
                 )
             ).label("users_comments"),
 
+            func.coalesce(
+                case(Comment.is_active == True, func.count(Comment.id),
+                else_ = 0     
+                )
+            ).label("comment_count"),
             # Discount va Hisoblangan Joriy Narx
             func.coalesce(
                 case(
@@ -77,10 +82,12 @@ async def get_product_details(session: db_dep, product: current_product_dep = No
                     else_=Product.price
                 ),
                 Product.price
-            ).label("current_price"),
+            ).label("price"),
 
             case(
-                (Discount.is_active == True, func.coalesce(Discount.title, Discount.category)),
+                (Discount.is_active == True, 
+                func.coalesce(Discount.title, Discount.category)
+                ),
                 else_=None
             ).label("discount_title"),
 

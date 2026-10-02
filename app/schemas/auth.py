@@ -44,6 +44,7 @@ class UserRegisterRoleRequest(Base):
 
 # admin action
 class AdminMarkedRoleRequest(Base):
+    role_request_id:int
     checking_status:RoleRequestStatus = RoleRequestStatus.WAITING
     reviewed_at:datetime
     status_expired_at:datetime
@@ -66,4 +67,5 @@ class UserLoginRequest(Base):
 
 class RefreshTokenRequest(Base):
     access_token: str
+    refresh_token:str
 

@@ -21,7 +21,7 @@ if not hasattr(sqlalchemy.orm.attributes, "ScalarObjectAttributeImpl"):
 from app.admin.settings import admin
 from fastapi import FastAPI
 
-from app.admin import action_router
+from app.admin import admin_router
 from app.api.v1 import (
     user_router,
     common_router,
@@ -40,7 +40,7 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(common_router)
 app.include_router(product_router)
-app.include_router(action_router)
+app.include_router(admin_router)
 
 admin.mount_to(app=app)
 

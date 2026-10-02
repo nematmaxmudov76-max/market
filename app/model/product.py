@@ -11,6 +11,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Numeric,
+    UniqueConstraint,
 )
 from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -56,17 +57,22 @@ class Shop(BaseMain):
 
 class Shop_Rating(BaseMain):
     __tablename__ = "shop_rating"
+    __table_args__= (UniqueConstraint("user_id", "shop_id", name = "uniq_user_shop_rating"),)
+    """
+    UniqueConstraint => bu huddi shop_id ga unique=True dek gap lekin table ga qo'yilsa
+    Bu butun do'konga butun baza bo'yicha FAQAT BITTA foydalanuvchi reyting bera oladi degani.
+    Ikkinchi foydalanuvchi reyting berganda ma'lumotlar bazasi UniqueViolation xatosini tashlaydi. 
+    """
 
     user_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("user.id", ondelete="SET NULL"),
         unique=True,
-        nullable=False,
+        nullable=True,
     )
     shop_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("shop.id", ondelete="CASCADE"),
-        unique=True,
         nullable=False,
     )
     rating_ball: Mapped[float] = mapped_column(Float, default=0.0)
@@ -142,7 +148,7 @@ class Product(BaseMain):
     like: Mapped[list["Like"]] = relationship(
         "Like", back_populates="product", lazy="raise_on_sql"
     )
-    discount: Mapped[list["Discount"]] = relationship(
+    discount: Mapped["Discount"] = relationship(
         "Discount", back_populates="product", lazy="raise_on_sql"
     )
     user_rating: Mapped[list["User_Rating"]] = relationship(
@@ -170,10 +176,10 @@ class Product_Media(BaseMain):
     __tablename__ = "product_media"
 
     product_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("product.id", ondelete="SET NULL"), nullable=True
     )
     media_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("media.id", ondelete="SET NULL"), nullable=True
     )
 
     def __repr__(self):
@@ -270,6 +276,6 @@ class Discount(BaseMain):
     def __repr__(self):
         return f"discoount percent: {self.percent}, title:{self.title}"
 
-    product: Mapped["Product"] = relationship(
+    product: Mapped[list["Product"]] = relationship(
         "Product", back_populates="discount", lazy="raise_on_sql"
     )

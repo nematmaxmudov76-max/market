@@ -16,7 +16,7 @@ from enum import Enum
 from app.schemas import ProductListResponse
 from app.middleware import limiter
 from app.dependense import (
-    get_current_active_user,
+    get_current_active_user, # is_active=true
     get_pagination,
     current_discount_date,
 )
@@ -26,7 +26,7 @@ from typing import Annotated
 router = APIRouter(prefix="/home", tags=["Home"])
 
 
-# ["/user_id?q=is_active=<bool>"] barcha like bosilgan productlar
+# ["/user_id?q=is_active=True"] barcha like bosilgan productlar
 @limiter.limit("10/minute")
 @router.get("/liked-products", response_model=list[ProductListResponse])
 async def get_liked_product(
@@ -39,7 +39,7 @@ async def get_liked_product(
         select(Product)
         .join(Like, Like.product_id == Product.id)
         .join(User, User.id == Like.user_id)
-        .where(User.is_active == True, Like.user_id == current_user)
+        .where(User.is_active == True, Like.user_id == current_user.id)
         .order_by(Like.created_at.desc())
         .offset(pagination["min"])
         .limit(pagination["max"])
@@ -75,11 +75,11 @@ async def search_by_name(request: Request, session: db_dep, search: str):
 # (query) productni category bo'yicha search qilish
 @limiter.limit("20/minute")
 @router.get("/search-by-category", response_model=list[ProductListResponse])
-async def search_by_category(request: Request, session: db_dep, is_active: bool):
+async def search_by_category(request: Request, session: db_dep, category_id:int):
     stmt = (
         select(Product)
         .join(Category, Category.id == Product.category_id)
-        .where(Product.is_active == is_active)
+        .where(Product.is_active == True, Product.category_id == category_id)
         .order_by(Product.created_at.desc())
         .options(selectinload(Product.category))
     )
@@ -207,7 +207,7 @@ async def get_user_top_products(request: Request, session: db_dep, user_id: int)
             User_Search.created_at >= last_one_week,
         )
         .group_by(Product.id)
-        .order(
+        .order_by(
             func.count(User_Search.user_id).desc(), func.avg(User_Rating.ball).desc()
         )
         .limit(10)

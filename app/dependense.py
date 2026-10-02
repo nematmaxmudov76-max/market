@@ -28,7 +28,7 @@ router = APIRouter(prefix="/basic_auth", tags=["Auth"])
 
 
 # only active userlar uchun ishlaydi "is_active=true" va "is_deleted=false" 
-def get_current_active_user(request: Request, user_id:int = None, db:Session = Depends(get_db)) -> User:
+def get_current_active_user(request: Request, user_id:int , db:Session = Depends(get_db)) -> User:
     user = getattr(request.state, "user", None)
     if user is None:
         user_obj = db.get(User, int(user_id))

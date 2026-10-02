@@ -27,7 +27,7 @@ class UserListResponse(Base):
     age: int | None = None
     bio: str | None = None
     tell_number: int | None = None
-    last_login: datetime
+    last_login: datetime | None = None
     is_active: bool
     is_manager: bool | None = None
     is_admin: bool | None = None

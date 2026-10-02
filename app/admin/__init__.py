@@ -1,5 +1,5 @@
-from .router import action_router
+from .router import router as admin_router
 
 __all__=[
-    "action_router",
+    "admin_router",
 ]

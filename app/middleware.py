@@ -53,7 +53,6 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
                         request.state.user = token_payload# faqat login qilgan userlar fazasi!!!
 
             except Exception:
-                # JWT dekod qilishda yoki bazadan o'qishda har qanday xatolik bo'lsa request.state.user = None bo'lib qoladi
                 request.state.user = None
 
 
@@ -68,7 +67,7 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
                 response.delete_cookie("access_token", path="/")
                 response.delete_cookie("refresh_token", path="/")
             return response
-
+        # user tizimga kirgan lekin activligini ham teshkirish kerak
         if request.state.user:
             active_user = request.state.user.get("is_active", True)
             if not active_user and not is_public_path:
@@ -76,7 +75,7 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
                     status_code=status.HTTP_403_FORBIDDEN,
                     content={"message":"your account not active, please register to system"}
                 )
-
+        # faqat ruxsat berilgan url path bo'yicha action qilgan active userlar uchun call_next ishlaydi!!!
         response = await call_next(request)
 
         proccess_time=time.perf_counter() - start_time
@@ -97,15 +96,7 @@ class TimeCounter(BaseHTTPMiddleware):
 limiter = Limiter(key_func=get_remote_address)
 
 
-"""
-when is_active = false
-=> look at home page only (by select product)
 
-active  | => ActiveUserPermission 
-
-
-
-"""
 
 
 # class ActiveUserPermissions(BaseHTTPMiddleware):

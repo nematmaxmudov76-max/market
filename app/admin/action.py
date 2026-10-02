@@ -48,22 +48,21 @@ async def get_role_aplication_users(session:db_dep):
 """
 @router.post("/marked/role", response_model=AdminMarkedRoleResponse)
 async def marked_role_user(session:db_dep, data:AdminMarkedRoleRequest, admin_data:current_admin_dep):
-    user = session.get(User, Role_Request.user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="user not found")
-    exp_time = datetime.now(timezone.utc)+ timedelta(days=settings.EXP_DATETIME_ROLE_REQUEST * 60 * 60 * 24),
-       
-    new_user_role = Role_Request(
-        user_id = user.id,
-        checking_status = data.checking_status,
-        reviewed_by = admin_data.id,
-        reviewed_at = datetime.now(tz=timezone.utc),
-        status_expired_at = exp_time,
-    )
-    session.add(new_user_role)
-    session.commit()
+    role_request = session.get(Role_Request, data.role_request_id)
+    if not role_request:
+        raise HTTPException(status_code=404, detail="Role request not found")
 
-    return new_user_role
+    exp_time = datetime.now(timezone.utc)+ timedelta(days=settings.EXP_DATETIME_ROLE_REQUEST)
+    role_request.checking_status = data.checking_status
+    role_request.reviewed_by = admin_data.id
+    role_request.reviewed_at = datetime.now(tz=timezone.utc)
+    role_request.status_expired_at = exp_time
+
+    session.add(role_request)
+    session.commit()
+    session.refresh(role_request)
+
+    return role_request
 
 
 

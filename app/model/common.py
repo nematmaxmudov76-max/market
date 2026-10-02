@@ -28,7 +28,7 @@ class Region(BaseMain):
 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     country_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("country.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("country.id", ondelete="SET NULL"), nullable=True
     )
 
     def __repr__(self):

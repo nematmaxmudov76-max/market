@@ -36,7 +36,7 @@ class UserAdminView(ModelView):
     ]
     exclude_fields_from_edit = [
         "id",
-        "password_pash",
+        "password_hash",
         "updated_at",
         "created_at",
         "last_login",
@@ -83,5 +83,4 @@ class RoleRequestView(ModelView):
         "user_id",
         "hash_code",
         "created_at",
-        "last_login",
     ]

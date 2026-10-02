@@ -87,3 +87,6 @@ reviewer: Mapped["User"] = relationship(
 ## Boshqa foydalanuvchining so'roviga umuman ko'chmaydi (har bir so'rov — alohida request obyekti).
 ## Disk'ga yozilmaydi, tarmoq orqali uzatilmaydi.
 ## Hech qanday tashqi hujum unga to'g'ridan-to'g'ri yeta olmaydi — chunki u serverning ichki xotirasida, `faqat o'sha so'rov davomida mavjud`.
+
+### 11* 
+##  Ma'lumotlar bazasida ustun `nullable=False` (bo'sh bo'lishi mumkin emas) qilib yaratilgan, lekin tashqi kalit harakatiga `ondelete="SET NULL` berilgan. Masalan, biron-bir foydalanuvchi o'chirilganda, PostgreSQL order.user_id ustunini NULL qilishga urinadi, lekin NOT NULL cheklovi tufayli tranzaksiya IntegrityError bilan to'xtaydi.                                                                                     Yechim:Ushbu ustunlar yo `nullable=True`bo'lishi kerak, yoki o'chirish harakati `ondelete="CASCADE"` yoki ondelete="RESTRICT" ga o'zgartirilishi lozim.                                                                                                                                                                                      

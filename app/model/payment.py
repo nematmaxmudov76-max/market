@@ -25,13 +25,13 @@ class Payment_Process(BaseMain):
     __tablename__ = "payment_process"
 
     user_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
     order_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("order.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("order.id", ondelete="SET NULL"), nullable=True
     )
     wallet_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("wallet.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("wallet.id", ondelete="SET NULL"), nullable=True
     )
     total_amount: Mapped[float] = mapped_column(Float, default=None)
     status: Mapped[str] = mapped_column(String(100), default="pending")

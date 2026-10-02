@@ -336,7 +336,7 @@ class Role_Request(
     __tablename__ = "role_request"
 
     user_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
     request_role: Mapped[ChooseRoleRequest] = mapped_column(
         sqlEnum(ChooseRoleRequest, native_enum=False),

@@ -26,12 +26,12 @@ class Order(BaseMain):
     __tablename__ = "order"
 
     user_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
     total_amount: Mapped[float] = mapped_column(Float, default=None)
     order_number: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     address_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("user_address.id", ondelete="SET NULL"), nullable=False
+        BigInteger, ForeignKey("user_address.id", ondelete="SET NULL"), nullable=True
     )
     status: Mapped[str] = mapped_column(String(100), default="pending")
 

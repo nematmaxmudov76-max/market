@@ -30,6 +30,7 @@ class Settings(BaseSettings):
 
     # MEDIA
     MEDIA_PATH: str = "media"
+    BASE_URL: str = "http://market-place"
     FILE_SIZE: int = 1024 * 1024 * 5  # 5MB
     FILE_TYPE: list[str] = [".jpg", ".png", ".jpeg", ".pdf", ".docx", ".doc", ".txt"]
 

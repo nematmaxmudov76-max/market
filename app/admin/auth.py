@@ -109,7 +109,7 @@ class JsonAuthProvider(AuthProvider):
                 )
                 if (
                     db_user
-                    and (db_user.is_admin or db_user.is_manager)
+                    and (db_user.is_admin or db_user.is_manager or db_user.is_merchant)
                     and not db_user.is_deleted
                 ):
                     # Keyingi requestlar uchun state ga ham yozib qo'yamiz

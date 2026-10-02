@@ -22,7 +22,7 @@ router = APIRouter(prefix="/user", tags=["User"])
 
 
 # /user_id?q=is_active=<bool>
-@router.get("/{user_id}", response_model=UserListResponse)
+@router.get("/detail/{user_id}", response_model=UserListResponse)
 async def get_users(session: db_dep, user_id: int, is_active: bool = Query(True)):
     stmt = (
         select(User)
