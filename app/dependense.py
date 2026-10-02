@@ -27,16 +27,23 @@ jwt_securty = HTTPBearer(auto_error=False)
 router = APIRouter(prefix="/basic_auth", tags=["Auth"])
 
 
+# only active userlar uchun ishlaydi "is_active=true" va "is_deleted=false" 
+def get_current_active_user(request: Request, user_id:int = None, db:Session = Depends(get_db)) -> User:
+    user = getattr(request.state, "user", None)
+    if user is None:
+        user_obj = db.get(User, int(user_id))
+        if not user_obj.is_active and  user_obj.is_deleted:
+            raise HTTPException(status_code=401, detail="your not permission, please register the system")
+        return user_obj
+    else:
+        return user
+
 
 
 # Role base control for merchant, courier, manager, admin
 
-
 #logins user
-def get_current_login_user(request: Request, db: Session = Depends(get_db)) -> User:
-    user = getattr(request.state, "user", None)
-    if user is None:
-        raise HTTPException(status_code=401, detail="Tizimga kiring")
+def get_current_login_user(user:User = Depends(get_current_active_user), db: Session = Depends(get_db)) -> User:
 
     user_id = user.get("sub")
     if user_id is None:
@@ -84,15 +91,6 @@ current_courier_dep = Annotated[User, Depends(get_current_courier_user)]
 current_admin_dep = Annotated[User, Depends(get_current_admin_user)]
 current_merchant_dep = Annotated[User, Depends(get_current_merchant_user)]
 currnet_manager_user_dep = Annotated[User, Depends(get_current_manager_user)]
-
-
-"""
-active / passive userlarni argumentga kiruvchi user_id bilan teshkirilari
-state dan url ni olib unga mos bo'lgan path ga ruxsat beriladi
-"""
-
-
-
 
 
 

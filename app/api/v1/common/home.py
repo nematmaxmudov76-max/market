@@ -16,7 +16,7 @@ from enum import Enum
 from app.schemas import ProductListResponse
 from app.middleware import limiter
 from app.dependense import (
-    get_current_user,
+    get_current_active_user,
     get_pagination,
     current_discount_date,
 )
@@ -32,7 +32,7 @@ router = APIRouter(prefix="/home", tags=["Home"])
 async def get_liked_product(
     request: Request,
     session: db_dep,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     pagination: Annotated[dict, Depends(get_pagination)],
 ):
     stmt = (

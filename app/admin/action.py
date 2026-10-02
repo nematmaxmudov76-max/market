@@ -19,7 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import join
 
 
-router = APIRouter(prefix="/admin", tags=["Admin"], dependencies=current_user_dep)
+router = APIRouter(prefix="/admin", tags=["Admin"])
 
 """
 get => role_request tabel in users

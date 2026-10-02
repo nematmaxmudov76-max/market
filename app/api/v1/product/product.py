@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select, func, exists, null, case, and_
 from sqlalchemy.orm import joinedload, selectinload, join, outerjoin
 from app.database import db_dep
 from app.model import (
     Product,
+    User,
     Category,
     Discount,
     User_Rating,
@@ -13,12 +14,12 @@ from app.model import (
     Like,
 )
 from app.schemas import OneProductDetailsRespones
-from app.dependense import current_product_dep
+from app.dependense import current_product_dep, get_current_active_user
 
 router = APIRouter(prefix="/product", tags=["Product"])
 
 """
-ONE PRODUCT DETAIL => views -> PASSIVE, ACTIVE USERS
+ONE PRODUCT DETAIL => views ->  ACTIVE USERS
 
 3 types query will build:
 1)product detail
@@ -28,7 +29,7 @@ ONE PRODUCT DETAIL => views -> PASSIVE, ACTIVE USERS
 
 # TODO 1* name, descriptions, price, current_quantity, size,
 @router.get("/details/{product_id}", response_model=OneProductDetailsRespones)
-async def get_product_details(session: db_dep, product: current_product_dep = None):
+async def get_product_details(session: db_dep, product: current_product_dep = None, user:User = Depends(get_current_active_user)):
     product_id = product.get("product_id")
     
     if not product or product is None:
@@ -38,10 +39,10 @@ async def get_product_details(session: db_dep, product: current_product_dep = No
         exists()
         .where(
             Like.product_id == Product.id,
-            Like.user_id == current_user
+            Like.user_id == user.id
         )
         .correlate(Product)
-        if current_user else False
+        if user else False
     )
 
     # 2. Asosiy So'rov (Query)

@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
@@ -61,15 +61,8 @@ settings = Settings()
 # ONLY SCAN MANAGER/COURIYER/MERCHANT/ADMIN PATH
 INCLUDE_PATHS_ONLY_LOGIN = []
 
-INCLUDE_PATHS_PASSIVE_USERS = [
-    "/api/v1/home/search-by-name",
-    "/api/v1/home/search-by-category",
-    "/api/v1/home/discount-products",
-    "/api/v1/home/monthly-discount",
-    "/api/v1/home/top-10-products",
-]
 
-INCLUDE_PREFIXES_PASSIVE_USERS = [
+INCLUDE_PREFIXES_USERS = [
     "/docs",
     "/redoc",
     "/openapi.json",
@@ -78,9 +71,15 @@ INCLUDE_PREFIXES_PASSIVE_USERS = [
 ]
 
 INCLUDE_PATH_ACTIVE_USER = [
-    INCLUDE_PATHS_PASSIVE_USERS,
-    INCLUDE_PREFIXES_PASSIVE_USERS,
+    "/api/v1/user/register",                                                                                                                                                                                                                                                                                                     
+    "/api/v1/jwt/login",                                                                                                                                                                                                                                                                                                         
+    "/api/v1/user/verify",
     "/api/v1/user/register/role",
+    "/api/v1/home/search-by-name",
+    "/api/v1/home/search-by-category",
+    "/api/v1/home/discount-products",
+    "/api/v1/home/monthly-discount",
+    "/api/v1/home/top-10-products",
 ]
 
 
