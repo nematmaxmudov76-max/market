@@ -33,7 +33,7 @@ class UserRegisterRoleRequest(Base):
     user_id: int
     requested_role: ChooseRoleRequest = None
     application: str
-    checking_status: RoleRequestStatus = RoleRequestStatus.PENDING
+    checking_status: RoleRequestStatus
     status_expires_at: datetime
     hash_code: str | None = None
     reviewed_by: int | None = None
@@ -45,14 +45,13 @@ class UserRegisterRoleRequest(Base):
 # admin action
 class AdminMarkedRoleRequest(Base):
     role_request_id:int
-    checking_status:RoleRequestStatus = RoleRequestStatus.WAITING
     reviewed_at:datetime
     status_expired_at:datetime
 
 class AdminMarkedRoleResponse(Base):
     user_id:int
     request_role:ChooseRoleRequest = None
-    checking_status:RoleRequestStatus = RoleRequestStatus.WAITING
+    checking_status:RoleRequestStatus
     reviewed_by:int
     reviewed_at:datetime
     status_expired_at:datetime

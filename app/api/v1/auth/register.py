@@ -83,15 +83,14 @@ async def verifiy_code(session: db_dep, secret_code: str, request:Request):
         is_active=True,
         is_deleted=False,
     )
-    # is_active = true bo'lgan userlar fazasiga qo'shildi!!!
-    request.state.user = new_user
+ 
 
     stmt = select(User.id).where(User.is_deleted.is_(False)).limit(1)
     existing_user = session.execute(stmt).scalar_one_or_none()
 
     if existing_user is None:
         new_user.is_admin = True
-        new_user.is_staff = True
+        new_user.is_manager = True
 
 
     session.add(new_user)
@@ -104,9 +103,7 @@ async def verifiy_code(session: db_dep, secret_code: str, request:Request):
 
 # middleware da default => is_active = true larhgina ariza topshira olishi va emailni tasdiqlashi kerak
 @router.post("/register/role", response_model=UserRegisterResponse)
-async def create_new_user_role(
-    session: db_dep, data: UserRegisterRoleRequest, file: UploadFile = None
-):
+async def create_new_user_role(session: db_dep, data: UserRegisterRoleRequest):
     stmt = select(User).where(User.id == data.user_id, User.is_deleted.is_(False))
     res = (session.execute(stmt)).scalar_one_or_none()
 
@@ -121,7 +118,25 @@ async def create_new_user_role(
     if res:
         raise HTTPException(status_code=403, detail="user already registered before")
 
-    if file is not None:
+
+
+    new_application = Role_Request(
+        user_id=data.user_id,
+        request_role=data.requested_role,
+        application=data.application,
+        checking_status=RoleRequestStatus.PENDING,
+        status_expired_at=None,
+        hash_code=None,
+        reviewed_by=None,
+        reviewed_at=None,
+    )
+    session.add(new_application)
+    session.commit()
+
+    return new_application
+
+@router.post("/register/role/upload-file")
+async def upload_file(file:UploadFile, session:db_dep):
         if file.size > settings.FILE_SIZE:
             raise HTTPException(status_code=400, detail="file size too large,")
         file_type = Path(file.filename).suffix.lower()
@@ -140,20 +155,4 @@ async def create_new_user_role(
         session.add(db_file)
         session.flush()
 
-    new_application = Role_Request(
-        user_id=data.user_id,
-        request_role=data.requested_role,
-        application=data.application,
-        checking_status=data.checking_status,
-        status_expired_at=None,
-        hash_code=None,
-        reviewed_by=None,
-        reviewed_at=None,
-    )
-    session.add(new_application)
-    session.commit()
 
-    return JSONResponse(
-        status_code=201,
-        content={"message": "Role request submitted successfully."},
-    )

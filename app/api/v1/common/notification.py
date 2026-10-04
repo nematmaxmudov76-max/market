@@ -5,6 +5,7 @@ from app.database import db_dep
 from app.model import User, User_Notification, Notification
 from app.schemas import (
     NotifListResponse,
+    UserListResponse,
     NotifCreateResponse,
     NotifUpdateRequest,
 )
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/notifications", tags=["Notification"])
 
 
 #  bitda notification_id qayssi userlarga send qilingan
-@router.get("/get-users", response_model=list[NotifListResponse])
+@router.get("/get-users", response_model=list[UserListResponse])
 async def get_notifications(session: db_dep, notification_id: int):
     stmt = (
         select(User)
@@ -35,7 +36,8 @@ async def get_notifications(session: db_dep, notification_id: int):
 @router.get("/user-notifications", response_model=list[NotifListResponse])
 async def get_user_notifications(session: db_dep, user_id: int):
     stmt = (
-        select(User_Notification)
+        select(Notification)
+        .join(User_Notification.notification_id == Notification.id)
         .where(User_Notification.user_id == user_id)
         .order_by(User_Notification.id.desc())
     )

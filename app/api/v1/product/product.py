@@ -71,7 +71,7 @@ async def get_product_details(session: db_dep, product: current_product_dep = No
             ).label("users_comments"),
 
             func.coalesce(
-                case(Comment.is_active == True, func.count(Comment.id),
+                case((Comment.is_active == True, func.count(Comment.id)),
                 else_ = 0     
                 )
             ).label("comment_count"),

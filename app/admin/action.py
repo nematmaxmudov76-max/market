@@ -1,7 +1,8 @@
 from typing import Any
 from datetime import datetime, timezone, timedelta
 from starlette.requests import Request
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from app.celery import send_email_message
 
 from app.model import User, Notification, Role_Request
 from app.database import db_dep
@@ -9,7 +10,7 @@ from app.schemas import (
     AdminMarkedRoleRequest,
     AdminMarkedRoleResponse,
     )
-from app.dependense import current_user_dep, current_admin_dep
+from app.dependense import  current_admin_dep, current_active_user_dep
 from app.config import settings
 
 from starlette_admin import action
@@ -18,6 +19,7 @@ from starlette_admin.contrib.sqla import ModelView
 from sqlalchemy import select
 from sqlalchemy.orm import join
 
+from app.utils import RoleRequestStatus
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -43,17 +45,24 @@ async def get_role_aplication_users(session:db_dep):
 
 """
 1)checking_status: pending => waiting va exp_time qo'yildi => 
-2)userga berilgan exp_time ichida qayta email/sms register qiladi (status = "approved")
-3)user login in system => status = "completed"
+2)user_id
 """
+
 @router.post("/marked/role", response_model=AdminMarkedRoleResponse)
-async def marked_role_user(session:db_dep, data:AdminMarkedRoleRequest, admin_data:current_admin_dep):
+async def marked_role_user(session:db_dep, data:AdminMarkedRoleRequest, admin_data:current_admin_dep, user:current_active_user_dep):
     role_request = session.get(Role_Request, data.role_request_id)
     if not role_request:
         raise HTTPException(status_code=404, detail="Role request not found")
 
+
+
+
+    
+
+    # add data to Role_Request table
     exp_time = datetime.now(timezone.utc)+ timedelta(days=settings.EXP_DATETIME_ROLE_REQUEST)
-    role_request.checking_status = data.checking_status
+
+    role_request.checking_status = RoleRequestStatus.WAITING
     role_request.reviewed_by = admin_data.id
     role_request.reviewed_at = datetime.now(tz=timezone.utc)
     role_request.status_expired_at = exp_time

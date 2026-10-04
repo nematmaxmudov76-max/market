@@ -28,9 +28,9 @@ async def create_upload_file(file: UploadFile, db: db_dep):
     with open(res, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    image = Media(url=f"{settings.MEDIA_PATH}/{file.filename}")
+    image = Media(file_url=f"{settings.MEDIA_PATH}/{file.filename}")
     db.add(image)
     db.commit()
     db.refresh(image)
 
-    return {"media_id": image.id, "url": f"{settings.BASE_URL}/{image.url}"}
+    return {"media_id": image.id, "url": f"{settings.BASE_URL}/{image.file_url}"}

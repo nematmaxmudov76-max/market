@@ -85,8 +85,8 @@ def get_current_admin_user(user: User = Depends(get_current_login_user)) -> User
     return user
 
 
-
-current_user_dep = Annotated[User, Depends(get_current_login_user)]
+current_active_user_dep = Annotated[User, Depends(get_current_active_user)]
+current_login_user_dep = Annotated[User, Depends(get_current_login_user)]
 current_courier_dep = Annotated[User, Depends(get_current_courier_user)]
 current_admin_dep = Annotated[User, Depends(get_current_admin_user)]
 current_merchant_dep = Annotated[User, Depends(get_current_merchant_user)]

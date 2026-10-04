@@ -90,3 +90,13 @@ reviewer: Mapped["User"] = relationship(
 
 ### 11* 
 ##  Ma'lumotlar bazasida ustun `nullable=False` (bo'sh bo'lishi mumkin emas) qilib yaratilgan, lekin tashqi kalit harakatiga `ondelete="SET NULL` berilgan. Masalan, biron-bir foydalanuvchi o'chirilganda, PostgreSQL order.user_id ustunini NULL qilishga urinadi, lekin NOT NULL cheklovi tufayli tranzaksiya IntegrityError bilan to'xtaydi.                                                                                     Yechim:Ushbu ustunlar yo `nullable=True`bo'lishi kerak, yoki o'chirish harakati `ondelete="CASCADE"` yoki ondelete="RESTRICT" ga o'zgartirilishi lozim.                                                                                                                                                                                      
+### 12* Shop_Rating jadvalida shop_id ustunining unique=True qilib qo'yilishi 
+
+class Shop_Rating(BaseMain):
+__tablename__ = "shop_rating"
+__table_args__= (UniqueConstraint("user_id", "shop_id", name = "uniq_user_shop_rating"),)
+
+## UniqueConstraint => bu huddi shop_id ga unique=True dek gap lekin table ga qo'yilsa
+## Bu butun do'konga butun baza bo'yicha FAQAT BITTA foydalanuvchi reyting bera oladi degani.
+## Ikkinchi foydalanuvchi reyting berganda ma'lumotlar bazasi UniqueViolation xatosini tashlaydi. 
+

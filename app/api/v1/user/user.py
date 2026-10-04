@@ -29,8 +29,6 @@ async def get_users(session: db_dep, user_id: int, is_active: bool = Query(True)
         .where(User.is_active == is_active, User.id == user_id)
         .order_by(User.created_at.desc())
     )
-    # if is_active is None:
-    #     raise HTTPException(status_code=404, detail="user not found")
 
     res = (session.execute(stmt)).scalars().first()
 
@@ -96,3 +94,5 @@ async def get_active_users(session: db_dep, is_active: bool):
     if not res:
         raise HTTPException(status_code=404, detail="user not found")
     return res
+
+

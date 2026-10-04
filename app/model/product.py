@@ -67,7 +67,6 @@ class Shop_Rating(BaseMain):
     user_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("user.id", ondelete="SET NULL"),
-        unique=True,
         nullable=True,
     )
     shop_id: Mapped[int] = mapped_column(
