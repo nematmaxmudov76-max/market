@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
-    SECURE_DISPATCH:bool = False  # set_cookie(secure = false)
+    SECURE_DISPATCH: bool = False  # set_cookie(secure = false)
 
     # MEDIA
     MEDIA_PATH: str = "media"
@@ -61,32 +61,33 @@ settings = Settings()
 
 
 # ONLY SCAN MANAGER/COURIYER/MERCHANT/ADMIN PATH
-INCLUDE_PATHS_ONLY_LOGIN = []
+# INCLUDE_PATHS_ONLY_LOGIN = []
 
 
-INCLUDE_PREFIXES_USERS = [
-    "/docs",
-    "/redoc",
-    "/openapi.json",
-    "/static/",
-    "/media/",
-]
+# INCLUDE_PREFIXES_USERS = [
+#     "/docs",
+#     "/redoc",
+#     "/openapi.json",
+#     "/static/",
+#     "/media/",
+# ]
 
-INCLUDE_PATH_ACTIVE_USER = [
-    "/api/v1/user/register",
-    "/api/v1/jwt/login",
-    "/api/v1/user/verify",
-    "/api/v1/user/register/role",
-    "/api/v1/home/search-by-name",
-    "/api/v1/home/search-by-category",
-    "/api/v1/home/discount-products",
-    "/api/v1/home/monthly-discount",
-    "/api/v1/home/top-10-products",
-]
+# INCLUDE_PATH_ACTIVE_USER = [
+#     "/api/v1/user/register",
+#     "/api/v1/jwt/login",
+#     "/api/v1/user/verify",
+#     "/api/v1/user/register/role",
+#     "/api/v1/home/search-by-name",
+#     "/api/v1/home/search-by-category",
+#     "/api/v1/home/discount-products",
+#     "/api/v1/home/monthly-discount",
+#     "/api/v1/home/top-10-products",
+#     "/api/v1/user/get_users?is_active=true",
+# ]
 
 
-INCLUDE_PATH_COURIERS = [
-    INCLUDE_PATH_ACTIVE_USER,
-    # courier profile
-    # deliver proccess
-]
+# INCLUDE_PATH_COURIERS = [
+#     INCLUDE_PATH_ACTIVE_USER,
+#     # courier profile
+#     # deliver proccess
+# ]

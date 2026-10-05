@@ -1,34 +1,26 @@
 import time
-from datetime import datetime, timezone
-from fastapi import Request, status, HTTPException
-from fastapi.responses import JSONResponse
+import logging
+from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.database import get_db  # get_db o'rniga SessionLocal
-from app.model import User
-from app.utils import decode_jwt_token, generate_jwt_token
-from app.config import (
-    INCLUDE_PATHS_ONLY_LOGIN,
-    INCLUDE_PATH_ACTIVE_USER,
-    INCLUDE_PREFIXES_USERS,
-    INCLUDE_PATH_ACTIVE_USER,
-)
-from jose import JWTError
+from app.utils import decode_jwt_token
+
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
+logger = logging.getLogger("uvicorn.error")
 
-# THIS MIDDLEWARE SCAN ONLY => MANAGER/COURIYER/MERCHANT/ADMIN
+# this middleware only parsing Request Header !!! check=> user_id | exp_time
 class SessionValidationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start_time = time.perf_counter()
         request.state.user = None
-        path = request.url.path
+        # path = request.url.path
 
         # 2. Authorization Header yoki Cookie'dan tokenni olish
         auth_header = request.headers.get("Authorization")
         token = None
-        token_from_cookie = False
+        # token_from_cookie = False
 
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ", 1)[1]
@@ -50,36 +42,36 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
                     if user_id and exp_time and int(exp_time) > current_timestamp:
                         request.state.user = (
                             token_payload  # faqat login qilgan userlar fazasi!!!
-                        )
-
-            except Exception:
+                                    )
+            except Exception as e:
+                logger.warning(f"Token decode xatosi: {type(e).__name__}: {e}")
                 request.state.user = None
 
-        is_public_path = (path in INCLUDE_PATH_ACTIVE_USER) or (
-            path in INCLUDE_PREFIXES_USERS
-        )
+        # is_public_path = (path in INCLUDE_PATH_ACTIVE_USER) or (
+        #     path in INCLUDE_PREFIXES_USERS
+        # )
 
-        if not is_public_path and request.state.user is None:
-            response = JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={
-                    "detail": "Session is expired or invalid token, please login to system"
-                },
-            )
-            if token_from_cookie:
-                response.delete_cookie("access_token", path="/")
-                response.delete_cookie("refresh_token", path="/")
-            return response
-        # user tizimga kirgan lekin activligini ham teshkirish kerak
-        if request.state.user:
-            active_user = request.state.user.get("is_active", True)
-            if not active_user and not is_public_path:
-                return JSONResponse(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    content={
-                        "message": "your account not active, please register to system"
-                    },
-                )
+        # if not is_public_path and request.state.user is None:
+        #     response = JSONResponse(  
+        #         status_code=status.HTTP_401_UNAUTHORIZED,
+        #         content={
+        #             "detail": "Session is expired or invalid token, please login to system (middleware)"
+        #         },
+        #     )
+        #     if token_from_cookie:
+        #         response.delete_cookie("access_token", path="/")
+        #         response.delete_cookie("refresh_token", path="/")
+        #     return response
+        # # user tizimga kirgan lekin activligini ham teshkirish kerak
+        # if request.state.user:
+        #     active_user = request.state.user.get("is_active", True)
+        #     if not active_user and not is_public_path:
+        #         return JSONResponse(
+        #             status_code=status.HTTP_403_FORBIDDEN,
+        #             content={
+        #                 "message": "your account not active, please register to system"
+        #             },
+        #         )
         # faqat ruxsat berilgan url path bo'yicha action qilgan active userlar uchun call_next ishlaydi!!!
         response = await call_next(request)
 

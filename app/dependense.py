@@ -13,8 +13,7 @@ from app.model import (
     Product,
 )
 from app.config import (
-    settings,
-    INCLUDE_PATH_COURIERS,
+    settings
 )
 from enum import Enum
 
@@ -23,26 +22,26 @@ from enum import Enum
 jwt_securty = HTTPBearer(auto_error=False)
 
 
-router = APIRouter(prefix="/basic_auth", tags=["Auth"])
-
 
 # only active userlar uchun ishlaydi "is_active=true" va "is_deleted=false"
 def get_current_active_user(
-    request: Request, user_id: int, db: Session = Depends(get_db)) -> User:
+    request: Request, user_id: int, db: Session = Depends(get_db)
+) -> User:
     current_user = getattr(request.state, "user", None)
     if not current_user:
         raise HTTPException(status_code=401, detail="user not found or session expired")
 
     user_id = current_user.get("sub")
     if not user_id:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="your not permisssions")
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED, detail="your not permisssions"
+        )
 
     user_obj = db.get(User, int(user_id))
     if user_obj is None or user_obj.is_deleted or not user_obj.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="your not permissions")
 
     return user_obj
-
 
 
 # Role base control for merchant, courier, manager, admin
@@ -53,7 +52,9 @@ def get_current_login_user(
     user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
 ) -> User:
     if not (user.is_admin or user.is_courier or user.is_manager or user.is_merchant):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="your not permission, please login")
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED, detail="your not permission, please login"
+        )
     return user
 
 

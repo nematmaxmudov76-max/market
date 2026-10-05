@@ -33,11 +33,13 @@ class UserRegisterRoleRequest(Base):
     requested_role: ChooseRoleRequest = None
     application: str
 
+
 class UserRegisterRoleResponse(Base):
-    user_id:int
-    requested_role:ChooseRoleRequest
-    application:str
-    created_at:datetime
+    user_id: int
+    requested_role: ChooseRoleRequest
+    application: str
+    created_at: datetime
+
 
 # admin action
 class AdminMarkedRoleRequest(Base):

@@ -94,7 +94,7 @@ class JsonAuthProvider(AuthProvider):
             payload = jwt.decode(
                 token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
             )
-            logger.warning(f">>>>>[auth]3 decode paylaod ->{payload}")
+            logger.warning(f">>>>>[auth]3 decode paylaod ->{payload}")  
             user_id = payload.get("sub")
             logger.warning(f"[auth]4 user_id/sub ->{user_id}")
             if not user_id:
@@ -119,3 +119,18 @@ class JsonAuthProvider(AuthProvider):
                     )
                     return AdminUser(username=db_user.email)
             finally:
+                db.close()
+
+        except Exception as e:
+            logger.warning(
+                f">>>>>>[AUTH DEBUG]7 is_authenticated xatosi: {type(e).__name__}: {e}"
+            )
+            return None
+
+        logger.warning(">>>>>[auth] 7oxiriga yetdi false qaytaradi")
+
+        return None
+
+    async def logout(self, request: Request, response: Response) -> Response:
+        response.delete_cookie("access_token")
+        return RedirectResponse(url=request.url_for("admin:login"), status_code=303)
