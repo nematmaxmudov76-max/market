@@ -9,12 +9,7 @@ router = APIRouter(prefix="/user/wallet", tags=["User Wallet"])
 
 @router.get("/balance/{user_id}")
 async def get_currrnet_balace(session: db_dep, user_id: int):
-    stmt =(
-    select(Wallet)
-    .where(
-        Wallet.user_id == user_id, Wallet.is_blocked == False
-    )
-    )
+    stmt = select(Wallet).where(Wallet.user_id == user_id, Wallet.is_blocked == False)
     res = (session.execute(stmt)).scalar_one_or_none()
     if not res:
         raise HTTPException(status_code=404, detail="wallet not found")

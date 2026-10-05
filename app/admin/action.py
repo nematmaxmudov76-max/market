@@ -9,8 +9,8 @@ from app.database import db_dep
 from app.schemas import (
     AdminMarkedRoleRequest,
     AdminMarkedRoleResponse,
-    )
-from app.dependense import  current_admin_dep, current_active_user_dep
+)
+from app.dependense import current_admin_dep, current_active_user_dep
 from app.config import settings
 
 from starlette_admin import action
@@ -27,8 +27,9 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 get => role_request tabel in users
 """
 
+
 @router.get("/get/role-aplications")
-async def get_role_aplication_users(session:db_dep):
+async def get_role_aplication_users(session: db_dep):
     stmt = (
         select(Role_Request)
         .join(User, User.id == Role_Request.user_id)
@@ -48,19 +49,22 @@ async def get_role_aplication_users(session:db_dep):
 2)user_id
 """
 
+
 @router.post("/marked/role", response_model=AdminMarkedRoleResponse)
-async def marked_role_user(session:db_dep, data:AdminMarkedRoleRequest, admin_data:current_admin_dep, user:current_active_user_dep):
+async def marked_role_user(
+    session: db_dep,
+    data: AdminMarkedRoleRequest,
+    admin_data: current_admin_dep,
+    user: current_active_user_dep,
+):
     role_request = session.get(Role_Request, data.role_request_id)
     if not role_request:
         raise HTTPException(status_code=404, detail="Role request not found")
 
-
-
-
-    
-
     # add data to Role_Request table
-    exp_time = datetime.now(timezone.utc)+ timedelta(days=settings.EXP_DATETIME_ROLE_REQUEST)
+    exp_time = datetime.now(timezone.utc) + timedelta(
+        days=settings.EXP_DATETIME_ROLE_REQUEST
+    )
 
     role_request.checking_status = RoleRequestStatus.WAITING
     role_request.reviewed_by = admin_data.id
@@ -72,12 +76,3 @@ async def marked_role_user(session:db_dep, data:AdminMarkedRoleRequest, admin_da
     session.refresh(role_request)
 
     return role_request
-
-
-
-
-
-
-
-
-

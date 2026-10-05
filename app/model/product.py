@@ -57,7 +57,9 @@ class Shop(BaseMain):
 
 class Shop_Rating(BaseMain):
     __tablename__ = "shop_rating"
-    __table_args__= (UniqueConstraint("user_id", "shop_id", name = "uniq_user_shop_rating"),)
+    __table_args__ = (
+        UniqueConstraint("user_id", "shop_id", name="uniq_user_shop_rating"),
+    )
     """
     UniqueConstraint => bu huddi shop_id ga unique=True dek gap lekin table ga qo'yilsa
     Bu butun do'konga butun baza bo'yicha FAQAT BITTA foydalanuvchi reyting bera oladi degani.

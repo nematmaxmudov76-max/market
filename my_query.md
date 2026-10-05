@@ -57,7 +57,7 @@ this type products in category
 ### when is_active = false
 ## => look at home page only (by select product)
 
-### when is_active = true going to
+### when is_active = true + register with jwt token
 ## views => home page, bucker, liked product, product detail, accoutn page, order items page, shops page, her transaction logs
 ## doing => create wallet, create order, add locations
 

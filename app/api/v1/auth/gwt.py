@@ -31,7 +31,7 @@ async def jwt_login(session: db_dep, data: UserLoginRequest):
 
 @router.post("/update_access_token")
 async def update_refresh_or_access_token(session: db_dep, data: RefreshTokenRequest):
-    catch_refresh_token = decode_jwt_token(data.refresh_token )
+    catch_refresh_token = decode_jwt_token(data.refresh_token)
     exp_time = datetime.fromtimestamp(catch_refresh_token["exp"], tz=timezone.utc)
 
     if exp_time < datetime.now(timezone.utc):

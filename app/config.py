@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # for auth
     REFRESH_TOKEN_EXPIRE_DAYS: int = 1
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    EXP_DATETIME_ROLE_REQUEST: int = 1 # user(active user) tanlagan rolni-> active qilish uchun registerga ulgurish vaqti
+    EXP_DATETIME_ROLE_REQUEST: int = 1  # user(active user) tanlagan rolni-> active qilish uchun registerga ulgurish vaqti
     ALGORITHM: str = "HS256"
     SECRET_KEY: str
 
@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
+    SECURE_DISPATCH:bool = False  # set_cookie(secure = false)
 
     # MEDIA
     MEDIA_PATH: str = "media"
@@ -72,8 +73,8 @@ INCLUDE_PREFIXES_USERS = [
 ]
 
 INCLUDE_PATH_ACTIVE_USER = [
-    "/api/v1/user/register",                                                                                                                                                                                                                                                                                                     
-    "/api/v1/jwt/login",                                                                                                                                                                                                                                                                                                         
+    "/api/v1/user/register",
+    "/api/v1/jwt/login",
     "/api/v1/user/verify",
     "/api/v1/user/register/role",
     "/api/v1/home/search-by-name",
@@ -86,6 +87,6 @@ INCLUDE_PATH_ACTIVE_USER = [
 
 INCLUDE_PATH_COURIERS = [
     INCLUDE_PATH_ACTIVE_USER,
-    #courier profile
+    # courier profile
     # deliver proccess
 ]

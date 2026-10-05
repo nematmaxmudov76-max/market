@@ -37,10 +37,10 @@ app = FastAPI(
 )
 
 app.include_router(auth_router)
+app.include_router(admin_router)
 app.include_router(user_router)
 app.include_router(common_router)
 app.include_router(product_router)
-app.include_router(admin_router)
 
 admin.mount_to(app=app)
 

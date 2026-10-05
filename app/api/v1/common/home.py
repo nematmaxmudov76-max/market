@@ -16,7 +16,7 @@ from enum import Enum
 from app.schemas import ProductListResponse
 from app.middleware import limiter
 from app.dependense import (
-    get_current_active_user, # is_active=true
+    get_current_active_user,  # is_active=true
     get_pagination,
     current_discount_date,
 )
@@ -75,7 +75,7 @@ async def search_by_name(request: Request, session: db_dep, search: str):
 # (query) productni category bo'yicha search qilish
 @limiter.limit("20/minute")
 @router.get("/search-by-category", response_model=list[ProductListResponse])
-async def search_by_category(request: Request, session: db_dep, category_id:int):
+async def search_by_category(request: Request, session: db_dep, category_id: int):
     stmt = (
         select(Product)
         .join(Category, Category.id == Product.category_id)

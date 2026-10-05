@@ -80,7 +80,7 @@ class JsonAuthProvider(AuthProvider):
             is_manager = getattr(user, "is_manager", False)
             is_deleted = getattr(user, "is_deleted", False)
 
-            if (is_admin or is_manager ) and not is_deleted:
+            if (is_admin or is_manager) and not is_deleted:
                 return AdminUser(username=user.email)
 
         # 2. Agar state'da user bo'lmasa, cookie'dan 'access_token'ni o'zi oladi
@@ -119,18 +119,3 @@ class JsonAuthProvider(AuthProvider):
                     )
                     return AdminUser(username=db_user.email)
             finally:
-                db.close()
-
-        except Exception as e:
-            logger.warning(
-                f">>>>>>[AUTH DEBUG]7 is_authenticated xatosi: {type(e).__name__}: {e}"
-            )
-            return None
-
-        logger.warning(">>>>>[auth] 7oxiriga yetdi false qaytaradi")
-
-        return None
-
-    async def logout(self, request: Request, response: Response) -> Response:
-        response.delete_cookie("access_token")
-        return RedirectResponse(url=request.url_for("admin:login"), status_code=303)

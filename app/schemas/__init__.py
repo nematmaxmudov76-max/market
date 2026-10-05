@@ -19,6 +19,7 @@ from .auth import (
     UserLoginRequest,
     RefreshTokenRequest,
     UserRegisterRoleRequest,
+    UserRegisterRoleResponse,
     AdminMarkedRoleRequest,
     AdminMarkedRoleResponse,
 )
@@ -46,4 +47,5 @@ __all__ = [
     "OneProductDetailsRespones",
     "AdminMarkedRoleRequest",
     "AdminMarkedRoleResponse",
+    "UserRegisterRoleResponse",
 ]

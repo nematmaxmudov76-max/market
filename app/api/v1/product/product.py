@@ -27,22 +27,25 @@ ONE PRODUCT DETAIL => views ->  ACTIVE USERS
 3)this types products
 """
 
+
 # TODO 1* name, descriptions, price, current_quantity, size,
 @router.get("/details/{product_id}", response_model=OneProductDetailsRespones)
-async def get_product_details(session: db_dep, product: current_product_dep = None, user:User = Depends(get_current_active_user)):
+async def get_product_details(
+    session: db_dep,
+    product: current_product_dep = None,
+    user: User = Depends(get_current_active_user),
+):
     product_id = product.get("product_id")
-    
+
     if not product or product is None:
         raise HTTPException(status_code=404, detail="current product not found")
-    
+
     is_liked_product = (
         exists()
-        .where(
-            Like.product_id == Product.id,
-            Like.user_id == user.id
-        )
+        .where(Like.product_id == Product.id, Like.user_id == user.id)
         .correlate(Product)
-        if user else False
+        if user
+        else False
     )
 
     # 2. Asosiy So'rov (Query)
@@ -53,70 +56,64 @@ async def get_product_details(session: db_dep, product: current_product_dep = No
             Product.description.label("description"),
             Product.size.label("product_size"),
             Product.category_id.label("category_id"),
-            func.coalesce(Product.current_quantity, 0).label("product_current_count_in_store"),
-            
+            func.coalesce(Product.current_quantity, 0).label(
+                "product_current_count_in_store"
+            ),
             # Rating
             func.coalesce(func.avg(User_Rating.ball), 0.0).label("product_rating_avg"),
             func.coalesce(func.count(User_Rating.id), 0).label("product_rating_counts"),
-
             # Media ID (Array or First ID)
             Product_Media.media_id.label("media_id"),
-
             # Comment (Faqat active bo'lgan birinchi yoki oxirgi comment sarlavhasi)
             func.coalesce(
-                case(
-                    (Comment.is_active == True, Comment.title),
-                    else_=None
-                )
+                case((Comment.is_active == True, Comment.title), else_=None)
             ).label("users_comments"),
-
             func.coalesce(
-                case((Comment.is_active == True, func.count(Comment.id)),
-                else_ = 0     
-                )
+                case((Comment.is_active == True, func.count(Comment.id)), else_=0)
             ).label("comment_count"),
             # Discount va Hisoblangan Joriy Narx
             func.coalesce(
                 case(
-                    (Discount.is_active == True, Product.price - (Product.price * Discount.percent / 100)),
-                    else_=Product.price
+                    (
+                        Discount.is_active == True,
+                        Product.price - (Product.price * Discount.percent / 100),
+                    ),
+                    else_=Product.price,
                 ),
-                Product.price
+                Product.price,
             ).label("price"),
-
             case(
-                (Discount.is_active == True, 
-                func.coalesce(Discount.title, Discount.category)
+                (
+                    Discount.is_active == True,
+                    func.coalesce(Discount.title, Discount.category),
                 ),
-                else_=None
+                else_=None,
             ).label("discount_title"),
-
             # Is Liked
-            is_liked_product.label("is_liked")
+            is_liked_product.label("is_liked"),
         )
         .outerjoin(User_Rating, User_Rating.product_id == Product.id)
         .outerjoin(Product_Media, Product_Media.product_id == Product.id)
         .outerjoin(Category, Category.id == Product.category_id)
-        .outerjoin(Comment, and_(Comment.product_id == Product.id, Comment.is_active == True))
+        .outerjoin(
+            Comment, and_(Comment.product_id == Product.id, Comment.is_active == True)
+        )
         .outerjoin(Discount, Discount.id == Product.discount_id)
         .where(Product.is_active == True, Product.id == product_id)
         .group_by(
-            Product.id, 
-            Product_Media.media_id, 
-            Discount.is_active, 
-            Discount.percent, 
-            Discount.title, 
-            Discount.category
+            Product.id,
+            Product_Media.media_id,
+            Discount.is_active,
+            Discount.percent,
+            Discount.title,
+            Discount.category,
         )
     )
 
     result = session.execute(stmt).mappings().first()
 
     if not result:
-        raise HTTPException(
-            status_code=404, 
-            detail="Product not found"
-        )
+        raise HTTPException(status_code=404, detail="Product not found")
 
     return result
 

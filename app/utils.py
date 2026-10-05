@@ -99,8 +99,8 @@ class ChooseRoleRequest(Enum):
 
 
 class RoleRequestStatus(str, Enum):
-    PENDING = "pending" # user aplicationni send qilingandagi va admin tomonidan ko'rib chiqilish vaqti
-    WAITING = "waiting" # admin ko'rib chiqdi va register(email/sms) qilish uchun ochiq
-    APPROVED = "approved" # user login qilish uchun ochiq
-    REJECTED = "rejected" # raq qilindi
-    COMPLETED = "completed" # to'liq login qilingandan keyingi status
+    PENDING = "pending"  # user aplicationni send qilingandagi va admin tomonidan ko'rib chiqilish vaqti
+    WAITING = "waiting"  # admin ko'rib chiqdi va register(email/sms) qilish uchun ochiq
+    APPROVED = "approved"  # user login qilish uchun ochiq
+    REJECTED = "rejected"  # raq qilindi
+    COMPLETED = "completed"  # to'liq login qilingandan keyingi status

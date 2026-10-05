@@ -30,32 +30,29 @@ class UserRegisterResponse(Base):
 
 
 class UserRegisterRoleRequest(Base):
-    user_id: int
     requested_role: ChooseRoleRequest = None
     application: str
-    checking_status: RoleRequestStatus
-    status_expires_at: datetime
-    hash_code: str | None = None
-    reviewed_by: int | None = None
-    reviewed_at: datetime | None = None
-    attempt_count: int = 0
 
-
+class UserRegisterRoleResponse(Base):
+    user_id:int
+    requested_role:ChooseRoleRequest
+    application:str
+    created_at:datetime
 
 # admin action
 class AdminMarkedRoleRequest(Base):
-    role_request_id:int
-    reviewed_at:datetime
-    status_expired_at:datetime
+    role_request_id: int
+    reviewed_at: datetime
+    status_expired_at: datetime
+
 
 class AdminMarkedRoleResponse(Base):
-    user_id:int
-    request_role:ChooseRoleRequest = None
-    checking_status:RoleRequestStatus
-    reviewed_by:int
-    reviewed_at:datetime
-    status_expired_at:datetime
-
+    user_id: int
+    request_role: ChooseRoleRequest = None
+    checking_status: RoleRequestStatus
+    reviewed_by: int
+    reviewed_at: datetime
+    status_expired_at: datetime
 
 
 # SESSION AUTH
@@ -66,5 +63,4 @@ class UserLoginRequest(Base):
 
 class RefreshTokenRequest(Base):
     access_token: str
-    refresh_token:str
-
+    refresh_token: str

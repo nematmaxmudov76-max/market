@@ -1,7 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.database import db_dep, get_db
@@ -15,7 +15,6 @@ from app.model import (
 from app.config import (
     settings,
     INCLUDE_PATH_COURIERS,
-
 )
 from enum import Enum
 
@@ -27,35 +26,38 @@ jwt_securty = HTTPBearer(auto_error=False)
 router = APIRouter(prefix="/basic_auth", tags=["Auth"])
 
 
-# only active userlar uchun ishlaydi "is_active=true" va "is_deleted=false" 
-def get_current_active_user(request: Request, user_id:int , db:Session = Depends(get_db)) -> User:
-    user = getattr(request.state, "user", None)
-    if user is None:
-        user_obj = db.get(User, int(user_id))
-        if not user_obj.is_active and  user_obj.is_deleted:
-            raise HTTPException(status_code=401, detail="your not permission, please register the system")
-        return user_obj
-    else:
-        return user
+# only active userlar uchun ishlaydi "is_active=true" va "is_deleted=false"
+def get_current_active_user(
+    request: Request, user_id: int, db: Session = Depends(get_db)) -> User:
+    current_user = getattr(request.state, "user", None)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="user not found or session expired")
+
+    user_id = current_user.get("sub")
+    if not user_id:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="your not permisssions")
+
+    user_obj = db.get(User, int(user_id))
+    if user_obj is None or user_obj.is_deleted or not user_obj.is_active:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="your not permissions")
+
+    return user_obj
 
 
 
 # Role base control for merchant, courier, manager, admin
 
-#logins user
-def get_current_login_user(user:User = Depends(get_current_active_user), db: Session = Depends(get_db)) -> User:
 
-    user_id = user.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Token noto'g'ri")
+# logins user
+def get_current_login_user(
+    user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+) -> User:
+    if not (user.is_admin or user.is_courier or user.is_manager or user.is_merchant):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="your not permission, please login")
+    return user
 
-    user_obj = db.get(User, int(user_id))
-    if user_obj is None or user_obj.is_deleted or not user_obj.is_active:
-        raise HTTPException(status_code=401, detail="Foydalanuvchi topilmadi yoki faol emas")
 
-    return user_obj
-
-#couriers
+# couriers
 def get_current_courier_user(user: User = Depends(get_current_login_user)) -> User:
     if not user.is_courier:
         raise HTTPException(status_code=403, detail="only couriers")
@@ -63,22 +65,21 @@ def get_current_courier_user(user: User = Depends(get_current_login_user)) -> Us
 
 
 # merchants
-def get_current_merchant_user(user:User = Depends(get_current_login_user)):
-
+def get_current_merchant_user(user: User = Depends(get_current_login_user)):
     if not user.is_merchant:
         raise HTTPException(status_code=403, detail="only for merchants")
     return user
 
-#managers
-def get_current_manager_user(user: User = Depends(get_current_login_user)):
 
+# managers
+def get_current_manager_user(user: User = Depends(get_current_login_user)):
     if not user.is_manager:
         raise HTTPException(status_code=403, detail="only managers")
 
     return user
 
 
-#admins
+# admins
 def get_current_admin_user(user: User = Depends(get_current_login_user)) -> User:
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="only admins")
@@ -93,9 +94,8 @@ current_merchant_dep = Annotated[User, Depends(get_current_merchant_user)]
 currnet_manager_user_dep = Annotated[User, Depends(get_current_manager_user)]
 
 
-
-
 # home page dependency
+
 
 def get_pagination(min: int = 0, max: int = settings.MAX_LIKED_PRODUCT) -> dict:
     return {"min": min, "max": max}
@@ -112,16 +112,10 @@ def get_current_product(session: db_dep, request: Request, product_id: int):
     if not product:
         raise HTTPException(status_code=404, detail="product not found")
 
-    return {"product_id":product_id} 
+    return {"product_id": product_id}
+
 
 current_product_dep = Annotated[dict, Depends(get_current_product)]
-
-
-
-
-
-
-
 
 
 def get_current_user_jwt(
@@ -153,15 +147,13 @@ def get_current_user_jwt(
 current_user_jwt_dep = Annotated[User, Depends(get_current_user_jwt)]
 
 
-
-
 # async def get_current_courier_user(request: Request) -> User[object] | None:
 #     get_user: User | None = getattr(request.state, "user", None)
 
 #     if not get_user or get_user is None:
 #         raise HTTPException(status_code=401, detail="user not found or session expired")
 
-    
+
 #     try:
 #         user_id = int(get_user.get("sub"))
 #         exp_timestamp = get_user.get("exp")
@@ -173,7 +165,7 @@ current_user_jwt_dep = Annotated[User, Depends(get_current_user_jwt)]
 #             raise HTTPException(status_code=401, detail="time expires")
 
 #         db = next(get_db())
-#         try: 
+#         try:
 #             current_user = db.query(User).filter(User.id == user_id).first()
 
 #             if (current_user and current_user.is_courier):
@@ -186,10 +178,3 @@ current_user_jwt_dep = Annotated[User, Depends(get_current_user_jwt)]
 #         return None
 
 # current_courier_dep = Annotated[User, Depends(get_current_courier_user)]
-
-
-
-
-
-
-

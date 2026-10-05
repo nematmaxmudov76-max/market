@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 # from .basic import router as basic_auth
 from .register import router as register_auth
+
 # from .session import router as ssession_auth
 from .gwt import router as jwt_auth
 

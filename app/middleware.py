@@ -1,11 +1,12 @@
 import time
+from datetime import datetime, timezone
 from fastapi import Request, status, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.database import get_db  # get_db o'rniga SessionLocal
 from app.model import User
-from app.utils import decode_jwt_token
+from app.utils import decode_jwt_token, generate_jwt_token
 from app.config import (
     INCLUDE_PATHS_ONLY_LOGIN,
     INCLUDE_PATH_ACTIVE_USER,
@@ -24,7 +25,6 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
         request.state.user = None
         path = request.url.path
 
-     
         # 2. Authorization Header yoki Cookie'dan tokenni olish
         auth_header = request.headers.get("Authorization")
         token = None
@@ -33,9 +33,7 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ", 1)[1]
         else:
-            token = request.cookies.get("access_token") or request.cookies.get(
-                "refresh_token"
-            )
+            token = request.cookies.get("access_token")
             if token:
                 token_from_cookie = True
 
@@ -50,18 +48,23 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
                     # Unix timestamp orqali vaqtni tekshirish
                     current_timestamp = int(time.time())
                     if user_id and exp_time and int(exp_time) > current_timestamp:
-                        request.state.user = token_payload# faqat login qilgan userlar fazasi!!!
+                        request.state.user = (
+                            token_payload  # faqat login qilgan userlar fazasi!!!
+                        )
 
             except Exception:
                 request.state.user = None
 
-
-        is_public_path = (path in INCLUDE_PATH_ACTIVE_USER) or (path in INCLUDE_PREFIXES_USERS)
+        is_public_path = (path in INCLUDE_PATH_ACTIVE_USER) or (
+            path in INCLUDE_PREFIXES_USERS
+        )
 
         if not is_public_path and request.state.user is None:
             response = JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "Session is expired or invalid token, please login to system"},
+                content={
+                    "detail": "Session is expired or invalid token, please login to system"
+                },
             )
             if token_from_cookie:
                 response.delete_cookie("access_token", path="/")
@@ -73,12 +76,14 @@ class SessionValidationMiddleware(BaseHTTPMiddleware):
             if not active_user and not is_public_path:
                 return JSONResponse(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    content={"message":"your account not active, please register to system"}
+                    content={
+                        "message": "your account not active, please register to system"
+                    },
                 )
         # faqat ruxsat berilgan url path bo'yicha action qilgan active userlar uchun call_next ishlaydi!!!
         response = await call_next(request)
 
-        proccess_time=time.perf_counter() - start_time
+        proccess_time = time.perf_counter() - start_time
         response.headers["X-Middleware-time"] = f"{proccess_time}"
 
         return response
@@ -94,9 +99,6 @@ class TimeCounter(BaseHTTPMiddleware):
 
 
 limiter = Limiter(key_func=get_remote_address)
-
-
-
 
 
 # class ActiveUserPermissions(BaseHTTPMiddleware):
@@ -121,7 +123,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 #         if path in INCLUDE_PATH_ACTIVE_USER and path.startswith(tuple(INCLUDE_PATH_ACTIVE_USER)):
 #             return await call_next(request)
-    
+
 #         auth_header = request.headers.get("Authorization")
 
 #         if not auth_header or not auth_header.startswith("Bearer "):
@@ -144,7 +146,5 @@ limiter = Limiter(key_func=get_remote_address)
 #         if path not in INCLUDE_ADMIN_PATH:
 #             return call_next(request)
 
-        
-#         auth_header = request.headers.get("Authorization")
 
-        
+#         auth_header = request.headers.get("Authorization")
