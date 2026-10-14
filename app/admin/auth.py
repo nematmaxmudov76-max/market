@@ -32,7 +32,7 @@ class JsonAuthProvider(AuthProvider):
             if not user or user.is_deleted or not user.is_active:
                 raise LoginFailed("Invalid email or password.")
 
-            if not (user.is_admin or user.is_manager):
+            if not (user.is_admin or user.is_manager or user.is_merchant):
                 raise LoginFailed("You do not have permission to access admin panel.")
 
             try:
@@ -83,9 +83,10 @@ class JsonAuthProvider(AuthProvider):
         if user and isinstance(user, User):
             is_admin = getattr(user, "is_admin", False)
             is_manager = getattr(user, "is_manager", False)
+            is_merchant = getattr(user, "is_merchant", False)
             is_deleted = getattr(user, "is_deleted", False)
 
-            if (is_admin or is_manager) and not is_deleted:
+            if (is_admin or is_manager or is_merchant) and not is_deleted:
                 return AdminUser(username=user.email)
 
         # 2. Agar state'da user bo'lmasa, cookie'dan 'access_token'ni o'zi oladi
@@ -110,11 +111,11 @@ class JsonAuthProvider(AuthProvider):
             try:
                 db_user = db.query(User).filter(User.id == int(user_id)).first()
                 logger.warning(
-                    f">>>>>[auth]5 db_user -> {db_user}, is_admin ->{getattr(db_user, 'is_admin', None)}, is_manager ->{getattr(db_user, 'is_manager', None)}, is_deleted ->{getattr(db_user, 'is_deleted', None)}"
+                    f">>>>>[auth]5 db_user -> {db_user}, is_admin ->{getattr(db_user, 'is_admin', None)}, is_mahager ->{getattr(db_user, 'is_managerre', None)}, is_deleted ->{getattr(db_user, 'is_deleted', None)}"
                 )
                 if (
                     db_user
-                    and (db_user.is_admin or db_user.is_manager)
+                    and (db_user.is_admin or db_user.is_manager or db_user.is_merchant)
                     and not db_user.is_deleted
                 ):
                     # Keyingi requestlar uchun state ga ham yozib qo'yamiz
@@ -136,6 +137,10 @@ class JsonAuthProvider(AuthProvider):
 
         return None
 
-    async def logout(self, request: Request, response: Response) -> Response:
-        response.delete_cookie("access_token")
-        return RedirectResponse(url=request.url_for("admin:login"), status_code=303)
+    async def logout(self, request: Request) -> Response:
+        if "session" in request.scope:
+            request.session.clear()
+        response = RedirectResponse(url=request.url_for("admin:login"), status_code=303)
+        response.delete_cookie("access_token", path="/")
+        response.delete_cookie("refresh_token", path="/")
+        return response

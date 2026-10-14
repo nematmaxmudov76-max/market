@@ -54,7 +54,10 @@ class UserAdminView(ModelView):
             data["password_hash"] = hash_password(data["password_hash"])
         elif "password_hash" in data:
             del data["password_hash"]
-
+    # faqat admin va manager lar barcha userlarni ko'rish mumink
+    async def is_accessible(self, request):
+        user = getattr(request.state, "user", None)
+        return bool(user and getattr(user, "is_admin", False) or getattr(user, "is_manager", False))
 
 class NotificationAdminView(ModelView):
     icon = "fa fa-bell"
@@ -65,6 +68,9 @@ class NotificationAdminView(ModelView):
         "target_role",
     ]
 
+    async def is_accessible(self, request):
+        user = getattr(request.state, "user", None)
+        return bool(user and getattr(user, "is_admin", False) or getattr(user, "is_manager", False))
 
 class RoleRequestView(ModelView):
     key = "role_request"
@@ -102,3 +108,7 @@ class RoleRequestView(ModelView):
         "hash_code",
         "created_at",
     ]
+
+    async def is_accessible(self, request):
+        user = getattr(request.state, "user", None)
+        return bool(user and getattr(user, "is_admin", False) or getattr(user, "is_manager", False))

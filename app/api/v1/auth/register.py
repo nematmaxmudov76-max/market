@@ -2,8 +2,12 @@ import json
 import shutil
 import secrets
 import uuid
+import logging
+import urllib.parse
+
+logger = logging.getLogger("uvicorn.error")
 from datetime import datetime, timezone
-from fastapi import HTTPException, APIRouter, UploadFile, Request, status
+from fastapi import HTTPException, APIRouter, UploadFile, Request, status, Form, File
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from app.database import db_dep
@@ -23,6 +27,7 @@ from app.utils import (
     redis_url,
     ManageNotificationCreate,
     RoleRequestStatus,
+    ChooseRoleRequest,
 )
 from app.celery import send_email_message
 from app.config import settings
@@ -36,7 +41,7 @@ router = APIRouter(prefix="/user/auth", tags=["Auth"])
 
 
 # active user => get access_token
-@router.post("/register", response_model=UserRegisterResponse)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def create_new_user(session: db_dep, data: UserRegisterRequest, request: Request):
     stmt = select(User).where(User.email == data.email)
     res = (session.execute(stmt)).scalar_one_or_none()
@@ -52,13 +57,12 @@ async def create_new_user(session: db_dep, data: UserRegisterRequest, request: R
 
     secret_kod = secrets.token_hex(10)
     redis_url.setex(
-        secret_kod, 120, json.dumps(user_temp)
-    )  # redis kodni 120 sekund saqlab turadi
+        secret_kod, 300, json.dumps(user_temp)
+    )  # redis kodni 300 sekund (5 daqiqa) saqlab turadi
 
     # send to email kod
-
     send_email_message.delay(
-        data.email, "Eamil confirmation proccessing", f"your verifay kod:  {secret_kod}"
+        data.email, "Email confirmation processing", f"your verify code: {secret_kod}"
     )
 
     return JSONResponse(
@@ -69,28 +73,58 @@ async def create_new_user(session: db_dep, data: UserRegisterRequest, request: R
 
 # get access tokent
 @router.post("/verify/{secret_code}", response_model=UserRegisterResponse)
-async def verifiy_code(session: db_dep, secret_code: str, request: Request):
-    decode_data = redis_url.get(secret_code)
+async def verifiy_code(
+    session: db_dep,
+    secret_code: str,
+    request: Request,
+    response: Response,
+):
+    clean_code = urllib.parse.unquote(secret_code).strip()
+    logger.warning(f"verifying code: '{clean_code}'")
+
+    decode_data = redis_url.get(clean_code)
 
     if not decode_data:
         raise HTTPException(status_code=400, detail="invalid code, your code expired")
 
     user_data = json.loads(decode_data.decode("utf-8"))
 
-    print(f"decoded data:>>>>>>>> {user_data}")
+    logger.warning(f"decoded data:>>>>>>>> {user_data}")
 
     stmt = select(User).where(
         User.email == user_data["email"], User.is_deleted == False
     )
     user = (session.execute(stmt)).scalar_one_or_none()
 
-    if user:
-        raise HTTPException(status_code=404, detail="user alredy exist")
+    if user and user.is_active:
+        raise HTTPException(status_code=400, detail="user already exist")
 
-    access_token, refresh_token = generate_jwt_token(user.id)
+    if user and not user.is_active:
+        user.password_hash = user_data["password_hash"]
+        user.is_active = True
+        new_user = user
+    else:
+        new_user = User(
+            email=user_data["email"],
+            password_hash=user_data["password_hash"],
+            created_at=datetime.now(tz=timezone.utc),
+            is_active=True,
+            is_deleted=False,
+        )
 
-    # Muvaffaqiyatli kirgach Admin panel bosh sahifasiga yo'naltirish
-    response = RedirectResponse(url=request.url_for("admin:index"), status_code=201)
+        stmt = select(User.id).where(User.is_deleted.is_(False)).limit(1)
+        existing_user = session.execute(stmt).scalar_one_or_none()
+
+        if existing_user is None:
+            new_user.is_admin = True
+            new_user.is_manager = True
+
+        session.add(new_user)
+
+    session.commit()
+    session.refresh(new_user)
+
+    access_token, refresh_token = generate_jwt_token(new_user.id)
 
     # Cookieni butun domenga biriktirish (path="/")
     response.set_cookie(
@@ -113,25 +147,7 @@ async def verifiy_code(session: db_dep, secret_code: str, request: Request):
         path="/",  # Juda muhim: cookie butun loyiha bo'yicha ko'rinishi kerak
     )
 
-    new_user = User(
-        email=user_data["email"],
-        password_hash=user_data["password_hash"],
-        created_at=datetime.now(tz=timezone.utc),
-        is_active=True,
-        is_deleted=False,
-    )
-
-    stmt = select(User.id).where(User.is_deleted.is_(False)).limit(1)
-    existing_user = session.execute(stmt).scalar_one_or_none()
-
-    if existing_user is None:
-        new_user.is_admin = True
-        new_user.is_manager = True
-
-    session.add(new_user)
-    session.commit()
-
-    redis_url.delete(secret_code)
+    redis_url.delete(clean_code)
 
     return new_user
 
@@ -140,10 +156,34 @@ async def verifiy_code(session: db_dep, secret_code: str, request: Request):
 @router.post("/register/role", response_model=UserRegisterRoleResponse)
 async def create_new_user_role(
     session: db_dep,
-    data: UserRegisterRoleRequest,
-    file: UploadFile | None,
     current_user: current_active_user_dep,
+    requested_role: ChooseRoleRequest | None = Form(None),
+    application: str | None = Form(None),
+    data: str | None = Form(None),
+    file: UploadFile | None = File(None),
 ):
+    req_role = requested_role
+    app_text = application
+
+    if data:
+        try:
+            parsed = json.loads(data)
+            if not req_role and "requested_role" in parsed:
+                req_role = ChooseRoleRequest(parsed["requested_role"])
+            if not app_text and "application" in parsed:
+                app_text = parsed["application"]
+        except Exception as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid data JSON format: {e}",
+            )
+
+    if not req_role or not app_text:
+        raise HTTPException(
+            status_code=422,
+            detail="requested_role and application are required fields",
+        )
+
     stmt = select(User).where(User.id == current_user.id, User.is_deleted.is_(False))
     res = (session.execute(stmt)).scalar_one_or_none()
 
@@ -152,15 +192,15 @@ async def create_new_user_role(
 
     stmt = select(Role_Request).where(
         Role_Request.user_id == current_user.id,
-        Role_Request.request_role == data.requested_role,
+        Role_Request.request_role == req_role,
     )
     res = (session.execute(stmt)).scalar_one_or_none()
     if res:
         raise HTTPException(status_code=403, detail="user already registered before")
 
     resume_url = None
-    if file is not None:
-        if file.size > settings.FILE_SIZE:
+    if file is not None and file.filename:
+        if file.size and file.size > settings.FILE_SIZE:
             raise HTTPException(status_code=400, detail="file size too large,")
         file_type = Path(file.filename).suffix.lower()
         if file_type not in settings.FILE_TYPE:
@@ -178,14 +218,15 @@ async def create_new_user_role(
 
     new_application = Role_Request(
         user_id=current_user.id,
-        request_role=data.requested_role,
-        application=data.application,
+        request_role=req_role,
+        application=app_text,
         resume_url=resume_url,
         checking_status=RoleRequestStatus.PENDING,
         created_at=datetime.now(tz=timezone.utc),
     )
     session.add(new_application)
     session.commit()
+    session.refresh(new_application)
 
     return new_application
 

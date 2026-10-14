@@ -91,7 +91,7 @@ class ManageNotificationCreate(Enum):
     MANAGERS = "managers"
 
 
-class ChooseRoleRequest(Enum):
+class ChooseRoleRequest(str, Enum):
     MERCHANT = "merchant"
     COURIER = "courier"
     MANAGER = "manager"

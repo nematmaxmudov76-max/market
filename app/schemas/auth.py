@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import EmailStr, model_validator
+from pydantic import EmailStr, model_validator, Field, AliasChoices
 from zxcvbn import zxcvbn
 from .base import Base
 from app.utils import ManageNotificationCreate, RoleRequestStatus, ChooseRoleRequest
@@ -36,7 +36,9 @@ class UserRegisterRoleRequest(Base):
 
 class UserRegisterRoleResponse(Base):
     user_id: int
-    requested_role: ChooseRoleRequest
+    requested_role: ChooseRoleRequest = Field(
+        validation_alias=AliasChoices("requested_role", "request_role")
+    )
     application: str
     created_at: datetime
 
