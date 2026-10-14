@@ -44,8 +44,8 @@ class UserRegisterRoleResponse(Base):
 # admin action
 class AdminMarkedRoleRequest(Base):
     role_request_id: int
-    reviewed_at: datetime
-    status_expired_at: datetime
+    reviewed_at: datetime | None = None
+    status_expired_at: datetime | None = None
 
 
 class AdminMarkedRoleResponse(Base):

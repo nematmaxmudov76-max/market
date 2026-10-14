@@ -7,3 +7,11 @@ from app.model import (
     Bucket_Product,
     Product,
 )
+from app.dependense import current_active_user_dep, get_current_product
+
+router = APIRouter(prefix="/bucked", tags=["Bucked"])
+
+
+# #post method orqali productni buckedga qo'shish
+# @router.post("/push-product")
+# async def push_product_bucked(session:db_dep, )

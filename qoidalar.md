@@ -100,3 +100,4 @@ __table_args__= (UniqueConstraint("user_id", "shop_id", name = "uniq_user_shop_r
 ## Bu butun do'konga butun baza bo'yicha FAQAT BITTA foydalanuvchi reyting bera oladi degani.
 ## Ikkinchi foydalanuvchi reyting berganda ma'lumotlar bazasi UniqueViolation xatosini tashlaydi. 
 
+### 13* group_by blan birga amalda count, avg amallari qatnashsagina ishlatiladi!!

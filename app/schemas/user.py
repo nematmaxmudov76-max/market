@@ -45,7 +45,7 @@ class UserListResponse(Base):
                     "is_active": True,
                     "is_admin": False,
                     "is_manager": False,
-                    "created_at": "2026-19-01T13:01:18.001Z",
+                    "created_at": "2026-01-19T13:01:18.001Z",
                 }
             ]
         }

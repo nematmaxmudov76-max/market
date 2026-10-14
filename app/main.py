@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from app.config import settings
-from app.admin.settings import admin
 from .middleware import SessionValidationMiddleware, TimeCounter, limiter
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.cors import CORSMiddleware
@@ -19,7 +18,6 @@ if not hasattr(sqlalchemy.orm.attributes, "ScalarObjectAttributeImpl"):
 
 # Qolgan barcha importlaringiz shu yerdan pastda davom etadi:
 from app.admin.settings import admin
-from fastapi import FastAPI
 
 from app.admin import admin_router
 from app.api.v1 import (

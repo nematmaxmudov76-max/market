@@ -126,7 +126,7 @@ async def verifiy_code(session: db_dep, secret_code: str, request: Request):
 
     if existing_user is None:
         new_user.is_admin = True
-        new_user.is_staff = True
+        new_user.is_manager = True
 
     session.add(new_user)
     session.commit()
@@ -151,13 +151,14 @@ async def create_new_user_role(
         raise HTTPException(status_code=404, detail="user not found")
 
     stmt = select(Role_Request).where(
-        Role_Request.user_id == data.user_id,
+        Role_Request.user_id == current_user.id,
         Role_Request.request_role == data.requested_role,
     )
     res = (session.execute(stmt)).scalar_one_or_none()
     if res:
         raise HTTPException(status_code=403, detail="user already registered before")
 
+    resume_url = None
     if file is not None:
         if file.size > settings.FILE_SIZE:
             raise HTTPException(status_code=400, detail="file size too large,")
@@ -173,13 +174,13 @@ async def create_new_user_role(
         with open(media_path, "wb") as pth:
             shutil.copyfileobj(file.file, pth)
 
-        db_file = Role_Request(resume_url=f"{settings.MEDIA_PATH}/{file.filename}")
+        resume_url = f"{settings.MEDIA_PATH}/{file.filename}"
 
     new_application = Role_Request(
-        user_id=data.user_id,
+        user_id=current_user.id,
         request_role=data.requested_role,
         application=data.application,
-        resume_url=db_file,
+        resume_url=resume_url,
         checking_status=RoleRequestStatus.PENDING,
         created_at=datetime.now(tz=timezone.utc),
     )

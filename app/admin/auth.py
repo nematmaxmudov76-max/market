@@ -29,14 +29,19 @@ class JsonAuthProvider(AuthProvider):
         try:
             user = db.query(User).filter(User.email == username).first()
 
-            if not user or user.is_deleted:
-                raise LoginFailed("User not found or deleted.")
+            if not user or user.is_deleted or not user.is_active:
+                raise LoginFailed("Invalid email or password.")
 
-            if not (user.is_admin or user.is_manager or user.is_merchant):
-                raise LoginFailed("You not permission to access admin panel.")
+            if not (user.is_admin or user.is_manager):
+                raise LoginFailed("You do not have permission to access admin panel.")
 
-            if not verify_password(password, user.password_hash):
-                raise LoginFailed("Password is incorrect.")
+            try:
+                is_valid_pw = verify_password(password, user.password_hash)
+            except Exception:
+                is_valid_pw = False
+
+            if not is_valid_pw:
+                raise LoginFailed("Invalid email or password.")
 
             # Tokenlarni generatsiya qilish
             access_token, refresh_token = generate_jwt_token(user.id)
@@ -75,7 +80,7 @@ class JsonAuthProvider(AuthProvider):
 
         logger.warning(f"[auth]1 state.user ->{user}")
 
-        if user:
+        if user and isinstance(user, User):
             is_admin = getattr(user, "is_admin", False)
             is_manager = getattr(user, "is_manager", False)
             is_deleted = getattr(user, "is_deleted", False)
@@ -105,11 +110,11 @@ class JsonAuthProvider(AuthProvider):
             try:
                 db_user = db.query(User).filter(User.id == int(user_id)).first()
                 logger.warning(
-                    f">>>>>[auth]5 db_user -> {db_user}, is_admin ->{getattr(db_user, 'is_admin', None)}, is_mahager ->{getattr(db_user, 'is_managerre', None)}, is_deleted ->{getattr(db_user, 'is_deleted', None)}"
+                    f">>>>>[auth]5 db_user -> {db_user}, is_admin ->{getattr(db_user, 'is_admin', None)}, is_manager ->{getattr(db_user, 'is_manager', None)}, is_deleted ->{getattr(db_user, 'is_deleted', None)}"
                 )
                 if (
                     db_user
-                    and (db_user.is_admin or db_user.is_manager or db_user.is_merchant)
+                    and (db_user.is_admin or db_user.is_manager)
                     and not db_user.is_deleted
                 ):
                     # Keyingi requestlar uchun state ga ham yozib qo'yamiz

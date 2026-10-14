@@ -26,71 +26,8 @@ from typing import Annotated
 router = APIRouter(prefix="/home", tags=["Home"])
 
 
-# ["/user_id?q=is_active=True"] barcha like bosilgan productlar
-@limiter.limit("10/minute")
-@router.get("/liked-products", response_model=list[ProductListResponse])
-async def get_liked_product(
-    request: Request,
-    session: db_dep,
-    current_user: Annotated[User, Depends(get_current_active_user)],
-    pagination: Annotated[dict, Depends(get_pagination)],
-):
-    stmt = (
-        select(Product)
-        .join(Like, Like.product_id == Product.id)
-        .join(User, User.id == Like.user_id)
-        .where(User.is_active == True, Like.user_id == current_user.id)
-        .order_by(Like.created_at.desc())
-        .offset(pagination["min"])
-        .limit(pagination["max"])
-    )
-
-    item = session.execute(stmt)
-    res = item.scalars().all()
-
-    if not res:
-        raise HTTPException(status_code=404, detail="liked product not found")
-
-    return res
 
 
-# (query param) product ni name bo'yicha search qilish
-@limiter.limit("15/minute")
-@router.get("/search-by-name", response_model=list[ProductListResponse])
-async def search_by_name(request: Request, session: db_dep, search: str):
-    stmt = (
-        select(Product)
-        .where(Product.name.like(f"%{search}%"))
-        .order_by(Product.id.desc())
-    )
-    name = session.execute(stmt)
-    res = name.scalars().all()
-
-    if not res:
-        raise HTTPException(status_code=404, detail="product not found")
-
-    return res
-
-
-# (query) productni category bo'yicha search qilish
-@limiter.limit("20/minute")
-@router.get("/search-by-category", response_model=list[ProductListResponse])
-async def search_by_category(request: Request, session: db_dep, category_id: int):
-    stmt = (
-        select(Product)
-        .join(Category, Category.id == Product.category_id)
-        .where(Product.is_active == True, Product.category_id == category_id)
-        .order_by(Product.created_at.desc())
-        .options(selectinload(Product.category))
-    )
-
-    product = session.execute(stmt)
-    res = product.scalars().all()
-
-    if not res:
-        raise HTTPException(status_code=404, detail="product not found")
-
-    return res
 
 
 """
@@ -98,7 +35,7 @@ async def search_by_category(request: Request, session: db_dep, category_id: int
 tugamagan chegirmalarga ega mahsulotlarni tortib kelish
 """
 
-
+# guest + active user will used
 @router.get("/discount-products", response_model=list[ProductListResponse])
 async def get_discount_products(
     request: Request,
@@ -189,11 +126,9 @@ async def get_top_10_products(
 """
 - 6* user oxirgi hafta ichida eng ko'p qidirgan va ratingi baland productlar
 """
-
-
 @limiter.limit("10/minute")
 @router.get("/user-top-products", response_model=list[ProductListResponse])
-async def get_user_top_products(request: Request, session: db_dep, user_id: int):
+async def get_user_top_products(request: Request, session: db_dep, current_user:Annotated[User, Depends(get_current_active_user)]):
     last_one_week = datetime.now() - timedelta(days=7)
     stmt = (
         select(Product)
@@ -203,7 +138,7 @@ async def get_user_top_products(request: Request, session: db_dep, user_id: int)
         )  # oldin ratingi borlari keyin yo'qlari
         .where(
             Product.is_active == True,
-            User_Search.user_id == user_id,
+            User_Search.user_id == current_user.id,
             User_Search.created_at >= last_one_week,
         )
         .group_by(Product.id)
@@ -219,6 +154,40 @@ async def get_user_top_products(request: Request, session: db_dep, user_id: int)
         raise HTTPException(status_code=404, detail="product not found")
 
     return res
+
+
+"""
+userni like bosga productlari
+"""
+
+
+# ["/user_id?q=is_active=True"] barcha like bosilgan productlar
+@limiter.limit("10/minute")
+@router.get("/liked-products", response_model=list[ProductListResponse])
+async def get_liked_product(
+    request: Request,
+    session: db_dep,
+    current_user: Annotated[User, Depends(get_current_active_user)], #login user
+    pagination: Annotated[dict, Depends(get_pagination)],
+):
+    stmt = (
+        select(Product)
+        .join(Like, Like.product_id == Product.id)
+        .join(User, User.id == Like.user_id)
+        .where(User.is_active == True, Like.user_id == current_user.id)
+        .order_by(Like.created_at.desc())
+        .offset(pagination["min"])
+        .limit(pagination["max"])
+    )
+
+    item = session.execute(stmt)
+    res = item.scalars().all()
+
+    if not res:
+        raise HTTPException(status_code=404, detail="liked product not found")
+
+    return res
+
 
 
 fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]

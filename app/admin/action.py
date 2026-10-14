@@ -55,7 +55,6 @@ async def marked_role_user(
     session: db_dep,
     data: AdminMarkedRoleRequest,
     admin_data: current_admin_dep,
-    user: current_active_user_dep,
 ):
     role_request = session.get(Role_Request, data.role_request_id)
     if not role_request:

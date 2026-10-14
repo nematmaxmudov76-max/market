@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import APIRouter, HTTPException, Depends, Request, status
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 from app.database import db_dep, get_db
 from typing import Annotated
@@ -25,21 +25,31 @@ jwt_securty = HTTPBearer(auto_error=False)
 
 # only active userlar uchun ishlaydi "is_active=true" va "is_deleted=false"
 def get_current_active_user(
-    request: Request, user_id: int, db: Session = Depends(get_db)
+    request: Request,
+    credential: HTTPAuthorizationCredentials | None = Depends(jwt_securty),
+    db: Session = Depends(get_db),
 ) -> User:
     current_user = getattr(request.state, "user", None)
-    if not current_user:
-        raise HTTPException(status_code=401, detail="user not found or session expired")
+    user_id = None
+    if current_user and isinstance(current_user, dict):
+        user_id = current_user.get("sub")
+    elif credential and credential.credentials:
+        payload = decode_jwt_token(credential.credentials)
+        if payload:
+            user_id = payload.get("sub")
 
-    user_id = current_user.get("sub")
     if not user_id:
         raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED, detail="your not permisssions"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="user not found or session expired",
         )
 
     user_obj = db.get(User, int(user_id))
     if user_obj is None or user_obj.is_deleted or not user_obj.is_active:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="your not permissions")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="your not permissions",
+        )
 
     return user_obj
 
@@ -93,6 +103,7 @@ current_courier_dep = Annotated[User, Depends(get_current_courier_user)]
 current_admin_dep = Annotated[User, Depends(get_current_admin_user)]
 current_merchant_dep = Annotated[User, Depends(get_current_merchant_user)]
 currnet_manager_user_dep = Annotated[User, Depends(get_current_manager_user)]
+current_manager_user_dep = currnet_manager_user_dep
 
 
 # home page dependency
@@ -115,6 +126,14 @@ def get_current_product(session: db_dep, request: Request, product_id: int):
 
     return {"product_id": product_id}
 
+def get_current_products(session:db_dep, request:Request):
+    stmt = select(Product).where(
+        Product.is_active == True, 
+        Product.current_quantity > 0, 
+        func.coal(( Product.expiration_date<datetime.now(tz=timezone.utc)), else_= None ).label("product exp_date")
+        )
+    res = (session.execute(stmt)).scalars().all()
+    return res
 
 current_product_dep = Annotated[dict, Depends(get_current_product)]
 

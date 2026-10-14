@@ -9,11 +9,14 @@ class OneProductDetailsRespones(BaseModel):
     product_size: Decimal
     category_id: int = Field(ge=0)
     product_current_count_in_store: int = Field(default=0, ge=0)
-    product_rating_avg: Decimal = Field(default=0.0, ge=0.0, le=5.0)
+    product_rating_avg: Decimal = Field(default=Decimal("0.0"), ge=0.0, le=5.0)
     product_rating_counts: int = Field(default=0, ge=0)
     media_id: int | None = None
     users_comments: str | None = None
     comment_count: int = Field(default=0)
     price: Decimal = Field(ge=0)  # 0 dan katta yoki tengmi?
-    discount_title: str = Field(None)
+    discount_title: str | None = Field(default=None)
     is_liked: bool = Field(default=False)
+
+
+OneProductDetailsResponse = OneProductDetailsRespones

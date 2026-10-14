@@ -1,5 +1,8 @@
+from typing import Any
+from starlette.requests import Request
 from starlette_admin.contrib.sqla import ModelView
 from starlette_admin import IntegerField
+from app.utils import hash_password
 
 
 class UserAdminView(ModelView):
@@ -42,8 +45,19 @@ class UserAdminView(ModelView):
         "last_login",
     ]
 
+    async def before_create(self, request: Request, data: dict[str, Any]) -> None:
+        if "password_hash" in data and data["password_hash"]:
+            data["password_hash"] = hash_password(data["password_hash"])
+
+    async def before_edit(self, request: Request, data: dict[str, Any], obj: Any) -> None:
+        if "password_hash" in data and data["password_hash"]:
+            data["password_hash"] = hash_password(data["password_hash"])
+        elif "password_hash" in data:
+            del data["password_hash"]
+
 
 class NotificationAdminView(ModelView):
+    icon = "fa fa-bell"
     fields = [
         "title",
         "type",
@@ -53,6 +67,10 @@ class NotificationAdminView(ModelView):
 
 
 class RoleRequestView(ModelView):
+    key = "role_request"
+    name = "Role Request"
+    label = "Role Requests"
+    icon = "fa fa-id-card"
     fields = [
         "user_id",
         "request_role",

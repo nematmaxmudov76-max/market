@@ -9,17 +9,17 @@ from app.schemas import (
     NotifCreateResponse,
     NotifUpdateRequest,
 )
-
+from app.dependense import current_active_user_dep
 router = APIRouter(prefix="/notifications", tags=["Notification"])
 
 
 #  bitda notification_id qayssi userlarga send qilingan
 @router.get("/get-users", response_model=list[UserListResponse])
-async def get_notifications(session: db_dep, notification_id: int):
+async def get_notifications(session: db_dep, notification_id: int, current_user:current_active_user_dep):
     stmt = (
         select(User)
         .join(User_Notification, User_Notification.notification_id == notification_id)
-        .where(User.is_active == True)
+        .where(User.is_active == True, User_Notification.user_id == current_user.id)
         .order_by(User_Notification.id.desc())
     )
     res = (session.execute(stmt)).scalars().all()
@@ -34,11 +34,11 @@ async def get_notifications(session: db_dep, notification_id: int):
 
 
 @router.get("/user-notifications", response_model=list[NotifListResponse])
-async def get_user_notifications(session: db_dep, user_id: int):
+async def get_user_notifications(session: db_dep, current_user:current_active_user_dep):
     stmt = (
         select(Notification)
         .join(User_Notification.notification_id == Notification.id)
-        .where(User_Notification.user_id == user_id)
+        .where(User_Notification.user_id == current_user.id)
         .order_by(User_Notification.id.desc())
     )
     res = (session.execute(stmt)).scalars().all()

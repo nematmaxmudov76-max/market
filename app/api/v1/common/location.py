@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload, selectinload
 from app.database import db_dep
@@ -10,10 +10,9 @@ from app.schemas import (
     CountryListResponse,
     CountryUpdateRequest,
 )
+from app.dependense import current_active_user_dep
 
-router = APIRouter(prefix="/location", tags=["Location"])
-
-# CRUD
+router = APIRouter(prefix="/location", tags=["Location"], dependencies=[Depends(current_active_user_dep)])
 
 
 @router.get("/get-region/{region_id}", response_model=RegionListResponse)

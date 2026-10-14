@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy import select, func, exists, null, case, and_
 from sqlalchemy.orm import joinedload, selectinload, join, outerjoin
 from app.database import db_dep
@@ -15,6 +15,9 @@ from app.model import (
 )
 from app.schemas import OneProductDetailsRespones
 from app.dependense import current_product_dep, get_current_active_user
+from app.middleware import limiter
+from app.schemas import ProductListResponse
+
 
 router = APIRouter(prefix="/product", tags=["Product"])
 
@@ -118,4 +121,41 @@ async def get_product_details(
     return result
 
 
-# @router.get("/shop-about/{}")
+# (query) productni category bo'yicha search qilish
+@limiter.limit("20/minute")
+@router.get("/search-by-category", response_model=list[ProductListResponse])
+async def search_by_category(request: Request, session: db_dep, category_id: int):
+    stmt = (
+        select(Product)
+        .join(Category, Category.id == Product.category_id)
+        .where(Product.is_active == True, Product.category_id == category_id)
+        .order_by(Product.created_at.desc())
+        .options(selectinload(Product.category))
+    )
+
+    product = session.execute(stmt)
+    res = product.scalars().all()
+
+    if not res:
+        raise HTTPException(status_code=404, detail="product not found")
+
+    return res
+
+
+
+# (query param) product ni name bo'yicha search qilish
+@limiter.limit("15/minute")
+@router.get("/search-by-name", response_model=list[ProductListResponse])
+async def search_by_name(request: Request, session: db_dep, search: str):
+    stmt = (
+        select(Product)
+        .where(Product.name.like(f"%{search}%"))
+        .order_by(Product.id.desc())
+    )
+    name = session.execute(stmt)
+    res = name.scalars().all()
+
+    if not res:
+        raise HTTPException(status_code=404, detail="product not found")
+
+    return res
