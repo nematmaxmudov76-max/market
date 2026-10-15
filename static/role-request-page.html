@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hamkorlik va Ariza Topshirish — Market (Role Request)</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .role-card-select {
+      border: 2px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      cursor: pointer;
+      background: white;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .role-card-select.selected {
+      border-color: var(--primary);
+      background: #faf7ff;
+      box-shadow: 0 4px 14px rgba(112, 0, 255, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <a href="account-page.html" class="badge-link">👤 Kabinet</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+        <a href="http://127.0.0.1:8000/admin/merchant/me" target="_blank" class="badge-link">🏪 Do'kon boshqaruvi</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          💼 Market bilan hamkorlik qiling va daromad oling
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px; max-width: 900px;">
+
+    <div style="background: white; border-radius: 16px; padding: 28px; border: 1px solid var(--border-color); margin-bottom: 24px;">
+      <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">
+        Hamkorlik va Rol so'rash arizasi (Role Request)
+      </h1>
+      <p style="font-size: 14px; color: var(--text-muted);">
+        O'z do'koningizni oching yoki kuryerlik faoliyatini boshlang. Administrator tekshiruvidan so'ng huquqlaringiz faollashadi.
+      </p>
+    </div>
+
+    <!-- ROL TANLASH (Model: ChooseRoleRequest enum) -->
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px;">
+      
+      <!-- 1. Sotuvchi (Merchant) -->
+      <div class="role-card-select selected" id="card-merchant" onclick="selectRole('merchant')">
+        <div style="font-size: 32px;">🏪</div>
+        <h3 style="font-size: 18px; font-weight: 800;">Sotuvchi (Merchant)</h3>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          Market platformasida o'z do'koningizni oching, mahsulotlaringizni O'zbekiston bo'ylab millionlab xaridorlarga soting.
+        </p>
+      </div>
+
+      <!-- 2. Kuryer (Courier) -->
+      <div class="role-card-select" id="card-courier" onclick="selectRole('courier')">
+        <div style="font-size: 32px;">🚴‍♂️</div>
+        <h3 style="font-size: 18px; font-weight: 800;">Kuryer (Courier)</h3>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          Erkin grafik asosida buyurtmalarni yetkazib bering, kunlik kafolatlangan to'lov va bonuslarga ega bo'ling.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- ARIZA FORMASI (Model: Role_Request -> application, resume_url) -->
+    <!-- BACKEND: POST /api/v1/user/role-request -->
+    <div style="background: white; border-radius: 16px; padding: 28px; border: 1px solid var(--border-color); margin-bottom: 28px;">
+      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">
+        Ariza ma'lumotlarini to'ldiring
+      </h2>
+
+      <form onsubmit="handleRoleSubmit(event)" style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">
+            Ariza va faoliyat tavsifi (application):
+          </label>
+          <textarea id="role-application-text" rows="4" required class="search-input" style="padding: 12px; border-radius: 8px; width: 100%;" placeholder="Masalan: 3 yildan beri elektronika savdosi bilan shug'ullanaman, 50 dan ortiq mahsulot turlarim bor..."></textarea>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">
+            Hujjat yoki Rezyume havolasi (resume_url):
+          </label>
+          <input type="url" id="role-resume-input" class="search-input" style="padding: 10px 14px;" placeholder="https://example.com/hujjatlarim.pdf" value="https://example.com/hujjatlarim.pdf">
+        </div>
+
+        <button type="submit" class="btn-primary-block" style="padding: 14px; font-size: 15px; margin-top: 8px;">
+          Arizani yuborish (Submit Request) →
+        </button>
+      </form>
+    </div>
+
+    <!-- YUBORILGAN ARIZALAR HOLATI (checking_status) -->
+    <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); margin-bottom: 40px;">
+      <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 14px;">Mening yuborilgan arizalarim</h3>
+      <div id="role-requests-history">
+        <!-- JS orqali generatsiya qilinadi -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let currentSelectedRole = 'merchant';
+
+    function selectRole(role) {
+      currentSelectedRole = role;
+      document.getElementById('card-merchant').classList.toggle('selected', role === 'merchant');
+      document.getElementById('card-courier').classList.toggle('selected', role === 'courier');
+    }
+
+    function renderRoleRequests() {
+      const container = document.getElementById('role-requests-history');
+      const list = MOCK_DATA.roleRequests || [];
+
+      if (list.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 13px;">Siz hali hech qanday ariza topshirmagansiz</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(r => `
+        <div style="border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 700; font-size: 15px;">${r.roleTitle}</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">"${r.application}"</div>
+            <small style="color: var(--text-light); font-size: 11px;">Yuborilgan sana: ${r.appliedAt}</small>
+          </div>
+          <div>
+            <span class="status-badge success">
+              ✓ ${r.statusText || "Tasdiqlangan"}
+            </span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function handleRoleSubmit(e) {
+      e.preventDefault();
+      const appText = document.getElementById('role-application-text').value.trim();
+      const resumeUrl = document.getElementById('role-resume-input').value.trim();
+
+      const newReq = await window.marketAPI.submitRoleRequest(currentSelectedRole, appText, resumeUrl);
+      showToast("Arizangiz qabul qilindi va tekshiruvga yuborildi!", 'success');
+      document.getElementById('role-application-text').value = '';
+      renderRoleRequests();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderRoleRequests);
+  </script>
+</body>
+</html>

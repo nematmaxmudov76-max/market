@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mening Hamyonim — Market (Wallet & To'lovlar)</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .wallet-hero {
+      background: linear-gradient(135deg, #1f2026, #3b3d4a);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .cards-carousel {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 10px 0 20px;
+      scrollbar-width: none;
+    }
+    .bank-card {
+      min-width: 280px;
+      height: 160px;
+      border-radius: 16px;
+      padding: 20px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+    .txn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+    .txn-row:hover { background: #fafafa; }
+    .txn-badge-in { color: var(--success); font-weight: 700; }
+    .txn-badge-out { color: var(--text-main); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <a href="account-page.html" class="badge-link">👤 Kabinet</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="ordered-product-page.html" class="badge-link">📦 Buyurtmalar</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          🔒 Barcha tranzaksiyalar markaziy protsessing orqali himoyalangan
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <!-- WALLET HERO (Model: Wallet -> balance, currency) -->
+    <!-- BACKEND: GET /api/v1/payment/wallet -->
+    <div class="wallet-hero">
+      <div>
+        <span style="font-size: 13px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Market Hamyoni</span>
+        <div style="font-size: 36px; font-weight: 800; margin-top: 4px;" id="wallet-balance-val">
+          1 450 000 so'm
+        </div>
+        <p style="font-size: 13px; opacity: 0.8; margin-top: 4px;">
+          Valyuta: <strong>UZS (O'zbekiston so'mi)</strong> | Holati: <span style="color: #4ade80;">● Faol</span>
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <button class="badge-link active" onclick="openTopUpModal()" style="padding: 14px 24px; font-size: 15px;">
+          💳 Balansni to'ldirish
+        </button>
+      </div>
+    </div>
+
+    <!-- ULANGAN KARTALAR (Cards list) -->
+    <section class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Ulangan Bank Kartalari</h2>
+          <span class="section-tag">Uzcard / Humo / Visa</span>
+        </div>
+        <button class="badge-link" onclick="openAddCardModal()">+ Yangi karta ulash</button>
+      </div>
+
+      <div class="cards-carousel" id="cards-container">
+        <!-- JS orqali kartalar generatsiya qilinadi -->
+      </div>
+    </section>
+
+    <!-- TRANZAKSIYALAR TARIXI (Model: Transaction_Log) -->
+    <!-- BACKEND: GET /api/v1/payment/transactions -->
+    <section class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Tranzaksiyalar Tarixi</h2>
+          <span class="section-tag">To'lovlar jurnali</span>
+        </div>
+      </div>
+
+      <div style="background: white; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden;" id="transactions-list">
+        <!-- JS orqali tranzaksiyalar chiqadi -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BALANSNI TO'LDIRISH MODALI -->
+  <div id="topup-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px;">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Hamyon balansini to'ldirish</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">To'ldirmoqchi bo'lgan summani kiriting</p>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 13px; font-weight: 600;">Summa (so'm):</label>
+        <input type="number" id="topup-amount-input" value="100000" class="search-input" style="padding: 10px; margin-top: 6px;">
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+        <button class="badge-link" onclick="setTopUpAmount(50000)">+50 000</button>
+        <button class="badge-link" onclick="setTopUpAmount(100000)">+100 000</button>
+        <button class="badge-link" onclick="setTopUpAmount(500000)">+500 000</button>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="badge-link" onclick="closeTopUpModal()">Bekor qilish</button>
+        <button class="badge-link active" onclick="submitTopUp()">To'lash (Payme / Click)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- YANGI KARTA ULASH MODALI -->
+  <div id="add-card-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px;">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Bank kartasini ulash</h3>
+      
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 13px; font-weight: 600;">Karta raqami (16 xona):</label>
+        <input type="text" id="card-pan-input" placeholder="8600 0000 0000 0000" maxlength="19" class="search-input" style="padding: 10px; margin-top: 4px;">
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-bottom: 14px;">
+        <div style="flex: 1;">
+          <label style="font-size: 13px; font-weight: 600;">Amal qilish muddati:</label>
+          <input type="text" id="card-exp-input" placeholder="MM/YY" maxlength="5" class="search-input" style="padding: 10px; margin-top: 4px;">
+        </div>
+        <div style="flex: 1;">
+          <label style="font-size: 13px; font-weight: 600;">Karta turi:</label>
+          <select id="card-type-select" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 4px;">
+            <option value="Uzcard">Uzcard</option>
+            <option value="Humo">Humo</option>
+            <option value="Visa">Visa</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="badge-link" onclick="closeAddCardModal()">Bekor qilish</button>
+        <button class="badge-link active" onclick="submitAddCard()">Ulanganini tasdiqlash</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    async function loadWalletPage() {
+      const wallet = await window.marketAPI.getWalletData();
+
+      document.getElementById('wallet-balance-val').textContent = formatPrice(wallet.balance);
+
+      // Kartalar karuseli
+      const cardsBox = document.getElementById('cards-container');
+      cardsBox.innerHTML = wallet.cards.map(c => `
+        <div class="bank-card" style="background: ${c.color};">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 16px; letter-spacing: 1px;">${c.type}</strong>
+            ${c.isDefault ? '<span style="font-size: 11px; background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 4px;">Asosiy</span>' : ''}
+          </div>
+          <div style="font-family: monospace; font-size: 18px; letter-spacing: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+            ${c.pan}
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.9;">
+            <span>${c.holder}</span>
+            <span>12/28</span>
+          </div>
+        </div>
+      `).join('');
+
+      // Tranzaksiyalar ro'yxati
+      const txnsBox = document.getElementById('transactions-list');
+      if (!wallet.transactionLogs || wallet.transactionLogs.length === 0) {
+        txnsBox.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-muted);">Tranzaksiyalar mavjud emas</div>';
+        return;
+      }
+
+      txnsBox.innerHTML = wallet.transactionLogs.map(t => {
+        const isIncome = t.type === 'in';
+        return `
+          <div class="txn-row">
+            <div>
+              <strong style="font-size: 14px; color: var(--text-main);">${t.title}</strong>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                🗓 ${t.date} | ID: #${t.paymentId} | Status: <span style="color: var(--success);">${t.statusText}</span>
+              </div>
+            </div>
+            <div class="${isIncome ? 'txn-badge-in' : 'txn-badge-out'}" style="font-size: 16px;">
+              ${isIncome ? '+' : '-'} ${formatPrice(t.amount)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openTopUpModal() {
+      document.getElementById('topup-modal').style.display = 'flex';
+    }
+    function closeTopUpModal() {
+      document.getElementById('topup-modal').style.display = 'none';
+    }
+    function setTopUpAmount(val) {
+      document.getElementById('topup-amount-input').value = val;
+    }
+    async function submitTopUp() {
+      const amount = Number(document.getElementById('topup-amount-input').value);
+      if (amount <= 0) return;
+      await window.marketAPI.topUpWallet(amount);
+      closeTopUpModal();
+      showToast(`Hamyoningiz +${formatPrice(amount)} ga muvaffaqiyatli to'ldirildi!`, 'success');
+      loadWalletPage();
+    }
+
+    function openAddCardModal() {
+      document.getElementById('add-card-modal').style.display = 'flex';
+    }
+    function closeAddCardModal() {
+      document.getElementById('add-card-modal').style.display = 'none';
+    }
+    async function submitAddCard() {
+      const pan = document.getElementById('card-pan-input').value.trim();
+      const type = document.getElementById('card-type-select').value;
+      if (!pan || pan.length < 16) {
+        showToast("Iltimos, to'liq karta raqamini kiriting", 'warning');
+        return;
+      }
+      await window.marketAPI.addCard({ pan, type });
+      closeAddCardModal();
+      showToast("Yangi karta muvaffaqiyatli ulandi!", 'success');
+      loadWalletPage();
+    }
+
+    document.addEventListener('DOMContentLoaded', loadWalletPage);
+  </script>
+</body>
+</html>

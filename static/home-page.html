@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market — Zamonaviy Internet Do'kon (Uzum / Ozon Analog)</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="container top-bar-inner">
+      <div class="top-bar-left">
+        <span>📍 Shahar: <strong>Toshkent</strong></span>
+        <span>Yetkazib berish punktlari (PVZ)</span>
+        <a href="courier-page.html" class="top-link" style="color: #ff7700; font-weight: 600;">🚴 Kuryer bo'lib ishlash</a>
+      </div>
+      <div class="top-bar-right">
+        <a href="http://127.0.0.1:8000/admin/merchant/me" target="_blank" class="top-link">🏪 Do'kon ochish / Sotuvchi kabineti</a>
+        <a href="ordered-product-page.html" class="top-link">📦 Buyurtmalarim</a>
+        <span>Til: <strong>O'zbekcha</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN HEADER -->
+  <header class="header">
+    <div class="container header-inner">
+      <!-- Logo -->
+      <a href="home-page.html" class="logo-brand">
+        <div class="logo-icon">M</div>
+        <span>Market</span>
+      </a>
+
+      <!-- Katalog / Category button -->
+      <a href="category-page.html" class="btn-catalog">
+        <div class="burger-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <span>Katalog</span>
+      </a>
+
+      <!-- Qidiruv / Search form -->
+      <form class="search-form" id="search-form">
+        <input type="text" class="search-input" id="search-input" placeholder="Mahsulotlar va toifalardan qidirish...">
+        <button type="submit" class="search-btn" title="Qidirish">🔍</button>
+      </form>
+
+      <!-- Navigatsiya / Links row (Chizmadagi Category, Bucket, Liked, Account) -->
+      <div class="header-actions">
+        <!-- LIKED LINK -->
+        <a href="liked-page.html" class="header-action-item" title="Sevimlilar">
+          <div class="header-action-icon">
+            ♥
+            <span class="badge-count" id="header-likes-count" style="display: none;">0</span>
+          </div>
+          <span>Sevimlilar</span>
+        </a>
+
+        <!-- NOTIFICATIONS LINK -->
+        <a href="notifications-page.html" class="header-action-item" title="Xabarnomalar">
+          <div class="header-action-icon">
+            🔔
+            <span class="badge-count" style="background: var(--primary);">2</span>
+          </div>
+          <span>Xabarlar</span>
+        </a>
+
+        <!-- WALLET LINK -->
+        <a href="wallet-page.html" class="header-action-item" title="Hamyon">
+          <div class="header-action-icon">💳</div>
+          <span>Hamyon</span>
+        </a>
+
+        <!-- BUCKET / SAVAT LINK -->
+        <a href="bucket-page.html" class="header-action-item" title="Savatcha">
+          <div class="header-action-icon">
+            🛒
+            <span class="badge-count" id="header-cart-count" style="display: none;">0</span>
+          </div>
+          <span>Savat</span>
+        </a>
+
+        <!-- ACCOUNT LINK -->
+        <a href="account-page.html" class="header-action-item" title="Foydalanuvchi kabineti">
+          <div class="header-action-icon">👤</div>
+          <span>Kabinet</span>
+        </a>
+
+        <!-- LOGIN / SIGNUP MODAL BUTTON -->
+        <button class="badge-link active" onclick="openAuthModal()" style="margin-left: 8px;">
+          Kirish | Ro'yxatdan o'tish
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- QUICK NAVIGATION BAR -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link active">🏠 Bosh sahifa</a>
+        <a href="category-page.html" class="badge-link">📂 Katalog</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="liked-page.html" class="badge-link">❤️ Saralanganlar</a>
+        <a href="ordered-product-page.html" class="badge-link">📦 Buyurtmalar</a>
+        <a href="order-tracking-page.html" class="badge-link">📍 Buyurtmani kuzatish</a>
+        <a href="wallet-page.html" class="badge-link">💳 Hamyon</a>
+        <a href="notifications-page.html" class="badge-link">🔔 Xabarlar</a>
+        <a href="role-request-page.html" class="badge-link">💼 Hamkorlik</a>
+        <a href="account-page.html" class="badge-link">👤 Kabinet</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div style="font-size: 13px; color: var(--text-muted);">
+        ✨ 1 kunda bepul yetkazib beramiz!
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN BODY -->
+  <main class="container" style="flex: 1;">
+
+    <!-- 1. MAVSUMIY CHEGIRMALAR (SEASONAL DISCOUNTS) -->
+    <!-- BACKEND: GET /api/v1/product/seasonal/ -->
+    <section class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Mavsumiy Chegirmalar</h2>
+          <span class="section-tag">Super Narxlar 🔥</span>
+        </div>
+        <div class="slider-controls">
+          <button class="slider-btn" onclick="slideRow('seasonal-slider', 'left')" title="Oldingisi">❮</button>
+          <button class="slider-btn" onclick="slideRow('seasonal-slider', 'right')" title="Keyingisi">❯</button>
+        </div>
+      </div>
+
+      <div class="slider-container" id="seasonal-slider">
+        <!-- JS orqali dinamik kartalar yuklanadi -->
+      </div>
+    </section>
+
+    <!-- 2. HAFTALIK CHEGIRMALAR (WEEKLY DISCOUNTS) -->
+    <!-- BACKEND: GET /api/v1/product/weekly/ -->
+    <section class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Haftalik Chegirmalar</h2>
+          <span class="section-tag" style="background: #e1f5fe; color: #0288d1;">Faqat bu hafta ⚡</span>
+        </div>
+        <div class="slider-controls">
+          <button class="slider-btn" onclick="slideRow('weekly-slider', 'left')" title="Oldingisi">❮</button>
+          <button class="slider-btn" onclick="slideRow('weekly-slider', 'right')" title="Keyingisi">❯</button>
+        </div>
+      </div>
+
+      <div class="slider-container" id="weekly-slider">
+        <!-- JS orqali dinamik kartalar yuklanadi -->
+      </div>
+    </section>
+
+    <!-- 3. ASOSIY MAHSULOTLAR GRID / LANDING PAGE -->
+    <!-- BACKEND: GET /api/v1/product/list?page=1 -->
+    <section class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Ommabop Mahsulotlar</h2>
+          <span class="section-tag">Siz uchun tavsiyalar</span>
+        </div>
+      </div>
+
+      <div class="products-grid" id="main-products-grid">
+        <!-- JS orqali 4 ta ustunli zamonaviy kartalar joylashadi -->
+      </div>
+
+      <!-- PASTGA STRELKA / LANDING PAGE LOAD MORE [ ↓ ] -->
+      <div class="landing-bottom-bar">
+        <button class="btn-landing-down" id="btn-load-more" onclick="loadMoreLandingProducts()">
+          <div class="down-arrow-circle">↓</div>
+          <span>Yana ko'rsatish (Landing page pastga qarab)</span>
+          <small style="color: var(--text-muted); font-weight: 500;">Ko'proq ommabop mahsulotlarni yuklash</small>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- AUTH MODAL (LOGIN | SIGNUP) -->
+  <div id="auth-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); position: relative;">
+      <button onclick="closeAuthModal()" style="position: absolute; right: 20px; top: 20px; font-size: 20px; color: #999;">✕</button>
+      <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Tizimga kirish</h3>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Telefon raqamingiz orqali kiring yoki yangi hisob oching</p>
+      
+      <!-- BACKEND: POST /api/v1/auth/login -->
+      <form onsubmit="handleAuthSubmit(event)">
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Telefon raqam</label>
+          <input type="tel" value="+998 90 123 45 67" required style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">SMS tasdiqlash kodi yoki parol</label>
+          <input type="password" value="123456" required style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+        </div>
+        <button type="submit" class="btn-primary-block">Kirish</button>
+      </form>
+      <p style="font-size: 12px; color: var(--text-light); text-align: center; margin-top: 16px;">
+        Davom etish orqali siz maxfiylik siyosatiga rozilik bildirasiz
+      </p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4 class="footer-col-title">Biz haqimizda</h4>
+          <ul class="footer-links">
+            <li><a href="category-page.html">Topshirish punktlari</a></li>
+            <li><a href="courier-page.html">Vakansiyalar (Kuryerlik)</a></li>
+            <li><a href="account-page.html">Foydalanuvchi qoidalari</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Foydalanuvchilarga</h4>
+          <ul class="footer-links">
+            <li><a href="chatting-with-buyer.html">Biz bilan bog'lanish</a></li>
+            <li><a href="ordered-product-page.html">Savol-Javoblar</a></li>
+            <li><a href="bucket-page.html">Buyurtmani qaytarish</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Tadbirkorlarga</h4>
+          <ul class="footer-links">
+            <li><a href="http://127.0.0.1:8000/admin/merchant/me" target="_blank">Marketda soting</a></li>
+            <li><a href="http://127.0.0.1:8000/admin/merchant/me" target="_blank">Sotuvchi kabineti</a></li>
+            <li><a href="courier-page.html">Kuryerlik xizmati</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Ilovani yuklab oling</h4>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">Tez va qulay xaridlar uchun mobil ilovamiz</p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span class="badge-link">📱 App Store</span>
+            <span class="badge-link">🤖 Google Play</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 Market MCHJ. Barcha huquqlar himoyalangan.</div>
+        <div>To'lov tizimlari: <strong>Uzcard | Humo | Visa | Mastercard</strong></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Sahifa yuklanganda mahsulotlarni API dan olib joylash
+    document.addEventListener('DOMContentLoaded', async () => {
+      const cart = window.marketAPI.getCart();
+
+      // 1. Mavsumiy chegirmalar
+      const seasonalProducts = await window.marketAPI.getSeasonalProducts();
+      const seasonalSlider = document.getElementById('seasonal-slider');
+      if (seasonalSlider) {
+        seasonalSlider.innerHTML = seasonalProducts.map(p => {
+          const inCart = cart.find(i => i.product.id === p.id);
+          return renderProductCard(p, inCart ? inCart.quantity : 0);
+        }).join('');
+      }
+
+      // 2. Haftalik chegirmalar
+      const weeklyProducts = await window.marketAPI.getWeeklyProducts();
+      const weeklySlider = document.getElementById('weekly-slider');
+      if (weeklySlider) {
+        weeklySlider.innerHTML = weeklyProducts.map(p => {
+          const inCart = cart.find(i => i.product.id === p.id);
+          return renderProductCard(p, inCart ? inCart.quantity : 0);
+        }).join('');
+      }
+
+      // 3. Asosiy mahsulotlar (Landing grid)
+      const landingRes = await window.marketAPI.getLandingProducts(1);
+      const mainGrid = document.getElementById('main-products-grid');
+      if (mainGrid) {
+        mainGrid.innerHTML = landingRes.items.map(p => {
+          const inCart = cart.find(i => i.product.id === p.id);
+          return renderProductCard(p, inCart ? inCart.quantity : 0);
+        }).join('');
+      }
+    });
+
+    // Landing page [ ↓ ] pastga qarab yana yuklash funksiyasi
+    let currentLandingPage = 1;
+    async function loadMoreLandingProducts() {
+      currentLandingPage++;
+      const btn = document.getElementById('btn-load-more');
+      btn.style.opacity = '0.7';
+      btn.querySelector('span').textContent = "Yuklanmoqda...";
+
+      // Backend so'rov simulyatsiyasi
+      setTimeout(async () => {
+        const moreRes = await window.marketAPI.getLandingProducts(currentLandingPage);
+        const mainGrid = document.getElementById('main-products-grid');
+        const cart = window.marketAPI.getCart();
+
+        // Yangi kartalarni qo'shish
+        const newCardsHtml = moreRes.items.map(p => {
+          const inCart = cart.find(i => i.product.id === p.id);
+          return renderProductCard(p, inCart ? inCart.quantity : 0);
+        }).join('');
+
+        mainGrid.insertAdjacentHTML('beforeend', newCardsHtml);
+
+        btn.style.opacity = '1';
+        btn.querySelector('span').textContent = "Yana ko'rsatish (Landing page pastga qarab)";
+        showToast("Yangi mahsulotlar muvaffaqiyatli yuklandi!", 'info');
+
+        // Silliq pastga aylantirish
+        window.scrollBy({ top: 380, behavior: 'smooth' });
+      }, 500);
+    }
+
+    // Auth modal funksiyalari
+    function openAuthModal() {
+      document.getElementById('auth-modal').style.display = 'flex';
+    }
+    function closeAuthModal() {
+      document.getElementById('auth-modal').style.display = 'none';
+    }
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      closeAuthModal();
+      showToast("Tizimga muvaffaqiyatli kirdingiz!", 'success');
+      setTimeout(() => {
+        window.location.href = 'account-page.html';
+      }, 600);
+    }
+  </script>
+</body>
+</html>

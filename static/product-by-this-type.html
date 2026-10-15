@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kategoriya Mahsulotlari — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .category-filter-bar {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+      scrollbar-width: none;
+    }
+    .filter-chip {
+      padding: 8px 18px;
+      border-radius: 20px;
+      background: white;
+      border: 1px solid var(--border-color);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .filter-chip.active, .filter-chip:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .products-grid-3x3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 900px) {
+      .products-grid-3x3 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .products-grid-3x3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <!-- Chizmadagi: home /link => /home-page -->
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa (home)</a>
+        <a href="category-page.html" class="badge-link active">📂 Barcha toifalar</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="liked-page.html" class="badge-link">❤️ Sevimlilar</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          Saralash: <strong>Ommabopligi bo'yicha</strong>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <!-- KATEGORIYA NOMI VA QIDIRUV STATISTIKASI -->
+    <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-size: 26px; font-weight: 800;" id="current-category-title">
+          Barcha mahsulotlar
+        </h1>
+        <p style="font-size: 14px; color: var(--text-muted); margin-top: 4px;" id="current-category-desc">
+          Eng sara va sifatli mahsulotlar to'plami
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <select style="padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 8px; background: white; font-weight: 600; font-size: 13px;" onchange="handleSortChange(this.value)">
+          <option value="popular">Eng ommabop</option>
+          <option value="cheap">Arzonroq</option>
+          <option value="expensive">Qimmatroq</option>
+          <option value="rating">Yuqori reytingli</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- TOIFALAR RO'YXATI (CHIPLAR) -->
+    <div class="category-filter-bar" id="category-chips-list">
+      <!-- JS orqali toifalar joylanadi -->
+    </div>
+
+    <!-- 3x3 MAHSULOTLAR GRIDI (Chizmadagi 3x3 format) -->
+    <!-- BACKEND: GET /api/v1/product/category/{slug}?page=1 -->
+    <div class="products-grid-3x3" id="category-products-grid">
+      <!-- JS orqali 9 ta mahsulot kartasi yuklanadi -->
+    </div>
+
+    <!-- PAGINATION: CHAP | O'NG (< 1 >) -->
+    <!-- Chizmadagi: pagination chap|o'ng < 1 > -->
+    <div class="pagination-wrapper" id="category-pagination">
+      <button class="page-btn" id="btn-cat-prev" onclick="changeCategoryPage(-1)">❮</button>
+      <button class="page-btn active" id="cat-page-1" onclick="goToCategoryPage(1)">1</button>
+      <button class="page-btn" id="cat-page-2" onclick="goToCategoryPage(2)">2</button>
+      <button class="page-btn" id="cat-page-3" onclick="goToCategoryPage(3)">3</button>
+      <button class="page-btn" id="btn-cat-next" onclick="changeCategoryPage(1)">❯</button>
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let currentCategorySlug = "all";
+    let currentCatPage = 1;
+    const catTotalPages = 3;
+
+    function getParam(key) {
+      return new URLSearchParams(window.location.search).get(key);
+    }
+
+    async function loadCategoryPage() {
+      const slugFromUrl = getParam('category');
+      const searchFromUrl = getParam('search');
+
+      if (slugFromUrl) currentCategorySlug = slugFromUrl;
+
+      // Toifalar chiplarini generatsiya qilish
+      const categories = await window.marketAPI.getCategories();
+      const chipsBox = document.getElementById('category-chips-list');
+
+      chipsBox.innerHTML = `
+        <div class="filter-chip ${currentCategorySlug === 'all' ? 'active' : ''}" onclick="selectCategoryChip('all')">
+          Barchasi (All)
+        </div>
+        ${categories.map(c => `
+          <div class="filter-chip ${currentCategorySlug === c.slug ? 'active' : ''}" onclick="selectCategoryChip('${c.slug}')">
+            ${c.name} (${c.count})
+          </div>
+        `).join('')}
+      `;
+
+      if (searchFromUrl) {
+        document.getElementById('current-category-title').textContent = `Qidiruv natijalari: "${searchFromUrl}"`;
+        document.getElementById('current-category-desc').textContent = "Kalit so'z bo'yicha topilgan mahsulotlar";
+      } else if (currentCategorySlug !== 'all') {
+        const found = categories.find(c => c.slug === currentCategorySlug);
+        if (found) {
+          document.getElementById('current-category-title').textContent = found.name;
+          document.getElementById('current-category-desc').textContent = `${found.count} ta mahsulot mavjud`;
+        }
+      }
+
+      renderCategoryProducts();
+    }
+
+    async function renderCategoryProducts() {
+      const res = await window.marketAPI.getProductsByCategory(currentCategorySlug, currentCatPage);
+      const grid = document.getElementById('category-products-grid');
+      const cart = window.marketAPI.getCart();
+
+      if (!res.items || res.items.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; background: white; padding: 48px; text-align: center; border-radius: 16px;">
+            <h3>Ushbu toifada hozircha mahsulotlar yo'q</h3>
+          </div>
+        `;
+        return;
+      }
+
+      // 9 ta mahsulotni chizmadagi andoza bo'yicha ko'rsatish
+      // Har bir kartada: PRODUCT IMAGE, current price, product name, heart icon, rating, to buscket (- 0 +), detail /link
+      grid.innerHTML = res.items.slice(0, 9).map(p => {
+        const inCart = cart.find(i => i.product.id === p.id);
+        const inCartCount = inCart ? inCart.quantity : 0;
+        const isLiked = window.marketAPI.isProductLiked(p.id);
+        const img = (p.images && p.images.length > 0) ? p.images[0] : 'https://placehold.co/400';
+
+        return `
+          <div class="product-card" style="max-width: none; flex: auto;">
+            <div class="card-media">
+              <span class="badge-discount">-${p.discountPercent || 20}%</span>
+              <button class="btn-like ${isLiked ? 'liked' : ''}" onclick="handleLikeClick(event, ${p.id})">♥</button>
+              <img src="${img}" alt="${p.title}" class="card-img" id="card-img-${p.id}" data-images='${JSON.stringify(p.images)}' data-current-index="0">
+              <button class="card-nav-arrow prev" onclick="handleCardImageNav(event, ${p.id}, -1)">‹</button>
+              <button class="card-nav-arrow next" onclick="handleCardImageNav(event, ${p.id}, 1)">›</button>
+            </div>
+
+            <div class="card-body">
+              <a href="one-product-detail.html?id=${p.id}" class="card-title">
+                ${p.title}
+              </a>
+
+              <div class="card-rating-row">
+                <span class="stars">★ ${p.rating}</span>
+                <span>(${p.reviewsCount} sharh)</span>
+              </div>
+
+              <div class="card-prices">
+                <span class="current-price">${formatPrice(p.currentPrice)}</span>
+                ${p.oldPrice ? `<span class="old-price">${formatPrice(p.oldPrice)}</span>` : ''}
+              </div>
+
+              <!-- ACTION: TO BUCKET (- 0 +) VA DETAIL LINK -->
+              <!-- Chizmadagi: to buscket - 0 + va detail /link -->
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                <div class="card-action-bar">
+                  <div class="qty-stepper">
+                    <button class="qty-btn" onclick="handleCardQtyChange(event, ${p.id}, -1)">-</button>
+                    <span class="qty-value" id="card-qty-${p.id}">${inCartCount}</span>
+                    <button class="qty-btn" onclick="handleCardQtyChange(event, ${p.id}, 1)">+</button>
+                  </div>
+                  <button class="btn-to-cart ${inCartCount > 0 ? 'in-cart' : ''}" id="btn-cart-${p.id}" onclick="handleAddToCartClick(event, ${p.id})">
+                    🛒 ${inCartCount > 0 ? "Savatda" : "Savatga"}
+                  </button>
+                </div>
+
+                <!-- DETAIL /LINK => /one-product-detail -->
+                <a href="one-product-detail.html?id=${p.id}" class="badge-link" style="text-align: center; justify-content: center; font-size: 12px; background: #f0f1f5;">
+                  Batafsil ko'rish (detail) →
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateCategoryPagination();
+    }
+
+    function selectCategoryChip(slug) {
+      currentCategorySlug = slug;
+      currentCatPage = 1;
+      loadCategoryPage();
+    }
+
+    function updateCategoryPagination() {
+      for (let i = 1; i <= catTotalPages; i++) {
+        const btn = document.getElementById(`cat-page-${i}`);
+        if (btn) {
+          if (i === currentCatPage) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      }
+      document.getElementById('btn-cat-prev').disabled = currentCatPage <= 1;
+      document.getElementById('btn-cat-next').disabled = currentCatPage >= catTotalPages;
+    }
+
+    function changeCategoryPage(delta) {
+      const p = currentCatPage + delta;
+      if (p >= 1 && p <= catTotalPages) {
+        currentCatPage = p;
+        renderCategoryProducts();
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      }
+    }
+
+    function goToCategoryPage(p) {
+      currentCatPage = p;
+      renderCategoryProducts();
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    function handleSortChange(val) {
+      showToast(`Saralash: ${val}`, 'info');
+      renderCategoryProducts();
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCategoryPage);
+  </script>
+</body>
+</html>

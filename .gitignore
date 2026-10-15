@@ -210,5 +210,6 @@ media/
 .continue/
 config.yaml
 
-qoidalar.md
-http_code.od
+.qoidalar.md
+.http_code.od
+.my_query.md

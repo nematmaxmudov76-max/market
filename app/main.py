@@ -40,7 +40,9 @@ app.include_router(user_router)
 app.include_router(common_router)
 app.include_router(product_router)
 
+from starlette.staticfiles import StaticFiles
 admin.mount_to(app=app)
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 
 app.add_middleware(
     TrustedHostMiddleware,

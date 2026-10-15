@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyurtmalarim — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .order-history-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      position: relative;
+    }
+    .order-img-box {
+      width: 100%;
+      height: 180px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #f8f9fa;
+      position: relative;
+    }
+    .order-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .status-badge.warning {
+      background: #fff8e1;
+      color: #b78103;
+      border: 1px solid #ffe082;
+    }
+    .status-badge.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    @media (max-width: 768px) {
+      .order-history-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <!-- CURRENT ADDRESS (Chizmadagi: current address) -->
+      <div style="font-size: 13px; color: var(--text-muted);">
+        📍 Joriy qabul qilish manzili: <strong id="top-current-address" style="color: var(--text-main);">Toshkent sh., Chilonzor tumani, 9-mavze, 14-uy</strong>
+      </div>
+
+      <!-- NAV LINKS (Chizmadagi: to bucket /link, account /link, home /link) -->
+      <div class="nav-links-row">
+        <!-- Chizmadagi: home /link => /home-page -->
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa (home)</a>
+        <!-- Chizmadagi: to bucket /link => /bucket-page -->
+        <a href="bucket-page.html" class="badge-link">🛒 Savat (to bucket)</a>
+        <!-- Chizmadagi: account link => /account-page -->
+        <a href="account-page.html" class="badge-link">👤 Kabinet (account)</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px; max-width: 1000px;">
+
+    <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 800;">
+          Mening buyurtmalarim (/ordered-product-page)
+        </h1>
+        <p style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">
+          Barcha joriy yetkazilayotgan va yakunlangan buyurtmalar
+        </p>
+      </div>
+
+      <div style="font-size: 14px; font-weight: 600; color: var(--primary);" id="total-orders-count">
+        3 ta buyurtma
+      </div>
+    </div>
+
+    <!-- BUYURTMALAR RO'YXATI -->
+    <!-- BACKEND: GET /api/v1/order/my-orders -->
+    <div id="orders-list-container">
+      <!-- JS orqali generatsiya qilinadi -->
+    </div>
+
+    <!-- PASTGA STRELKA / LANDING PAGE [ ↓ ] -->
+    <!-- Chizmadagi: LANDING PAGE PASTGA QARAB [ ↓ ] -->
+    <div class="landing-bottom-bar" style="margin: 32px 0 48px;">
+      <button class="btn-landing-down" onclick="loadMoreOrdersHistory()">
+        <div class="down-arrow-circle">↓</div>
+        <span>Yana eski buyurtmalarni yuklash (Landing page pastga qarab)</span>
+        <small style="color: var(--text-muted); font-weight: 500;">Oldingi barcha xaridlar tarixini ko'rsatish</small>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    async function loadOrdersPage() {
+      const orders = await window.marketAPI.getMyOrders();
+      const container = document.getElementById('orders-list-container');
+      document.getElementById('total-orders-count').textContent = `Jami ${orders.length} ta buyurtma`;
+
+      if (!orders || orders.length === 0) {
+        container.innerHTML = `
+          <div style="background: white; padding: 48px; border-radius: 16px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 48px;">📦</div>
+            <h3 style="margin: 16px 0 8px;">Sizda hali buyurtmalar yo'q</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Xarid qilingan tovarlar shu yerda paydo bo'ladi</p>
+            <a href="home-page.html" class="badge-link active" style="padding: 10px 24px;">Xarid qilish</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = orders.map(ord => {
+        const firstItem = (ord.items && ord.items.length > 0) ? ord.items[0] : null;
+        const img = (firstItem && firstItem.images && firstItem.images.length > 0) ? firstItem.images[0] : 'https://placehold.co/300';
+        const isDelivered = ord.status === 'delivered';
+
+        return `
+          <div class="order-history-card">
+            <!-- IMAGE (CAROUSEL) -->
+            <div class="order-img-box">
+              <img src="${img}" alt="${firstItem ? firstItem.title : 'Order'}">
+              <button class="card-nav-arrow prev" style="opacity: 1;" onclick="showToast('Rasm almashtirildi', 'info')">‹</button>
+              <button class="card-nav-arrow next" style="opacity: 1;" onclick="showToast('Rasm almashtirildi', 'info')">›</button>
+            </div>
+
+            <!-- DETAILS, STATUS, UNIQ ID -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <!-- STATUS (Chizmadagi: STATUS) -->
+                <span class="status-badge ${isDelivered ? 'success' : 'warning'}">
+                  ${isDelivered ? '✓ ' : '🚚 '} ${ord.statusText}
+                </span>
+
+                <!-- UNIQ ID (Chizmadagi: uniq id) -->
+                <span style="font-family: monospace; font-size: 14px; font-weight: 700; background: #f0f1f5; padding: 4px 10px; border-radius: 6px;">
+                  ID: ${ord.uniqId}
+                </span>
+              </div>
+
+              <!-- PRODUCT DETAIL (Chizmadagi: PRODUCT DETAIL) -->
+              <div style="margin-bottom: 14px;">
+                <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 4px;">
+                  ${firstItem ? firstItem.title : 'Mahsulotlar to\'plami'}
+                </h3>
+                <div style="font-size: 13px; color: var(--text-muted);">
+                  ${firstItem ? firstItem.details : ''} | Buyurtma sanasi: <strong>${ord.createdAt}</strong>
+                </div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                  Manzil: <strong>${ord.deliveryAddress}</strong>
+                </div>
+                ${ord.courier ? `
+                  <div style="margin-top: 8px; font-size: 13px; background: #fdfaf4; border: 1px solid #f9edd4; border-radius: 6px; padding: 8px 12px; display: inline-flex; align-items: center; gap: 8px;">
+                    <span>🚴 Kuryer: <strong>${ord.courier.name}</strong> (${ord.courier.vehicle})</span>
+                    <span>• Tel: <a href="tel:${ord.courier.phone}" style="color: var(--primary); font-weight: 600;">${ord.courier.phone}</a></span>
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- JAMI NARX VA AMALLAR -->
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 12px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <span style="font-size: 12px; color: var(--text-muted);">Jami qiymati:</span>
+                  <div style="font-size: 18px; font-weight: 800; color: var(--primary);">
+                    ${formatPrice(ord.totalPrice)}
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="order-tracking-page.html?tracking=TRK-984321" class="badge-link active" style="background: var(--ozon-blue);">
+                    📍 Kuzatish (Tracking)
+                  </a>
+                  ${firstItem ? `
+                    <a href="one-product-detail.html?id=${firstItem.productId}" class="badge-link">
+                      Mahsulot
+                    </a>
+                  ` : ''}
+                  <a href="chatting-with-buyer.html" class="badge-link">
+                    💬 Xabar
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadMoreOrdersHistory() {
+      showToast("Barcha buyurtmalar tarixi to'liq ko'rsatildi", 'info');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadOrdersPage);
+  </script>
+</body>
+</html>

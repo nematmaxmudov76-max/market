@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Do'kon Vitrinasi — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .shop-banner-box {
+      width: 100%;
+      height: 220px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      background: #1f2026;
+      margin-bottom: -50px;
+    }
+    .shop-banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+    }
+    .shop-profile-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      box-shadow: var(--shadow-sm);
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .shop-logo-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 3px solid white;
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <a href="category-page.html" class="badge-link">📂 Katalog</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="liked-page.html" class="badge-link">❤️ Sevimlilar</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          🏪 Rasmiy sertifikatlangan sotuvchi do'koni
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <!-- SHOP BANNER (Model: Media / Shop) -->
+    <div class="shop-banner-box">
+      <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80" 
+           alt="Shop Banner" class="shop-banner-img" id="shop-banner">
+    </div>
+
+    <!-- SHOP PROFILE CARD (Model: Shop, Shop_Rating) -->
+    <!-- BACKEND: GET /api/v1/product/shop/{id} -->
+    <div class="shop-profile-card">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=200&q=80" 
+             alt="Shop Logo" class="shop-logo-img" id="shop-logo">
+        <div>
+          <h1 style="font-size: 24px; font-weight: 800;" id="shop-name">
+            Xiaomi Official Store
+          </h1>
+          <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px; font-size: 13px;">
+            <span style="color: #ffb703; font-weight: 700;" id="shop-rating-val">★ 4.92</span>
+            <span style="color: var(--text-muted);" id="shop-reviews-count">(840 ta xaridor bahosi)</span>
+            <span class="badge-stock" style="background: #e6fffa; color: #00a884;">✓ Rasmiy brend</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px; max-width: 600px;" id="shop-desc">
+            Xiaomi brendining O'zbekistondagi rasmiy sertifikatlangan do'koni. Barcha smartfonlar va gadjetlar kafolatga ega.
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <!-- SHOP RATING BUTTON -->
+        <button class="badge-link" onclick="openShopRateModal()">
+          ⭐ Do'konga baho berish
+        </button>
+        <!-- CHAT WITH SELLER -->
+        <a href="chatting-with-buyer.html" class="badge-link active">
+          💬 Sotuvchiga xabar yozish
+        </a>
+      </div>
+    </div>
+
+    <!-- DO'KONNING MAHSULOTLAR RO'YXATI (Shop_Product) -->
+    <!-- BACKEND: GET /api/v1/product/shop/{id}/products -->
+    <section class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Do'kon Mahsulotlari</h2>
+          <span class="section-tag" id="shop-product-count-tag">64 ta mahsulot</span>
+        </div>
+        <div>
+          <select style="padding: 8px 14px; border: 1px solid var(--border-color); border-radius: 8px; background: white; font-size: 13px;">
+            <option>Ommabopligi bo'yicha</option>
+            <option>Arzonroq</option>
+            <option>Qimmatroq</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="products-grid" id="shop-products-grid">
+        <!-- JS orqali do'kon tovarlari generatsiya qilinadi -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- DO'KONGA BAHO BERISH MODALI (Shop_Rating) -->
+  <div id="shop-rate-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px;">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Do'konga baho berish (Shop Rating)</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Xizmat ko'rsatish va tovarlar sifatiga baho bering</p>
+
+      <div style="display: flex; gap: 8px; font-size: 32px; color: #ffb703; cursor: pointer; margin-bottom: 20px;" id="shop-rate-stars">
+        <span onclick="setShopRate(1)">★</span>
+        <span onclick="setShopRate(2)">★</span>
+        <span onclick="setShopRate(3)">★</span>
+        <span onclick="setShopRate(4)">★</span>
+        <span onclick="setShopRate(5)">★</span>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="badge-link" onclick="closeShopRateModal()">Bekor qilish</button>
+        <button class="badge-link active" onclick="submitShopRate()">Bahoni saqlash</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let currentShopId = 1;
+    let givenShopRate = 5;
+
+    async function loadShopPage() {
+      const params = new URLSearchParams(window.location.search);
+      currentShopId = Number(params.get('id') || 1);
+
+      const shop = await window.marketAPI.getShopById(currentShopId);
+
+      document.title = `${shop.name} — Market`;
+      document.getElementById('shop-name').textContent = shop.name;
+      document.getElementById('shop-desc').textContent = shop.description;
+      document.getElementById('shop-rating-val').textContent = `★ ${shop.rating}`;
+      document.getElementById('shop-reviews-count').textContent = `(${shop.reviewsCount} ta baho)`;
+      document.getElementById('shop-logo').src = shop.logo;
+      document.getElementById('shop-banner').src = shop.banner;
+      document.getElementById('shop-product-count-tag').textContent = `${shop.productsCount} ta tovar`;
+
+      // Do'kon mahsulotlarini render qilish
+      const all = [
+        ...MOCK_DATA.seasonalProducts,
+        ...MOCK_DATA.weeklyProducts,
+        ...MOCK_DATA.landingProducts
+      ];
+      const grid = document.getElementById('shop-products-grid');
+      const cart = window.marketAPI.getCart();
+
+      grid.innerHTML = all.slice(0, 8).map(p => {
+        const inCart = cart.find(i => i.product.id === p.id);
+        return renderProductCard(p, inCart ? inCart.quantity : 0);
+      }).join('');
+    }
+
+    function openShopRateModal() {
+      document.getElementById('shop-rate-modal').style.display = 'flex';
+    }
+    function closeShopRateModal() {
+      document.getElementById('shop-rate-modal').style.display = 'none';
+    }
+    function setShopRate(val) {
+      givenShopRate = val;
+      const stars = document.querySelectorAll('#shop-rate-stars span');
+      stars.forEach((s, i) => {
+        s.style.opacity = i < val ? '1' : '0.3';
+      });
+    }
+    async function submitShopRate() {
+      await window.marketAPI.rateShop(currentShopId, givenShopRate);
+      closeShopRateModal();
+      showToast(`Do'konga ${givenShopRate} ball berildi! Rahmat!`, 'success');
+      loadShopPage();
+    }
+
+    document.addEventListener('DOMContentLoaded', loadShopPage);
+  </script>
+</body>
+</html>

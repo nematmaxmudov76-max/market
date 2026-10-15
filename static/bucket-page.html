@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Savatcha — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- TOP STRIP NAVIGATION -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <!-- user chizmasidagi "home /link" => "home" ga o'zgartirildi va /home-page ga ulandi -->
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <!-- user chizmasidagi "account /link" => "account" ga o'zgartirildi va /account-page ga ulandi -->
+        <a href="account-page.html" class="badge-link">👤 Kabinet</a>
+        <a href="category-page.html" class="badge-link">📂 Katalog</a>
+        <a href="liked-page.html" class="badge-link">❤️ Sevimlilar</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div>
+        <span style="font-size: 14px; color: var(--text-muted);">
+          Savatchangizdagi mahsulotlar 1 kunda yetkaziladi
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <!-- SAVAT SARLAVHASI VA FOYDALANUVCHI CHIZMASIDAGI TOP BAR -->
+    <div class="bucket-header-card">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 800;">Savatcha</h1>
+        <p style="font-size: 13px; color: var(--text-muted);" id="bucket-items-count-text">
+          Yuklanmoqda...
+        </p>
+      </div>
+
+      <!-- SELECT ALL CHECKBOX -->
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
+        <input type="checkbox" id="select-all-checkbox" class="custom-checkbox" checked onchange="toggleSelectAll(this.checked)">
+        <span>Hammasini tanlash</span>
+      </label>
+    </div>
+
+    <!-- SAVATCHA TARKIBI VA BUYURTMA XULOSASI (LAYOUT) -->
+    <div class="bucket-layout">
+
+      <!-- CHAP TOMON: SAVATCHADAGI MAHSULOTLAR RO'YXATI -->
+      <!-- BACKEND: GET /api/v1/order/bucket -->
+      <div id="bucket-items-list">
+        <!-- JS orqali dinamik kartalar generatsiya qilinadi -->
+      </div>
+
+      <!-- O'NG TOMON: "CURRENT PRICE ONLY PRODUCT IS MARKED" VA "TO BUY" KARTASI -->
+      <!-- Chizmadagi: CURRENT PRICE ONLY PRODUCT IS MARKED + TO BUY -->
+      <div class="order-summary-card">
+        <h3 class="summary-title">Buyurtma xulosasi</h3>
+
+        <div class="summary-row">
+          <span>Tanlangan tovarlar:</span>
+          <span id="summary-selected-count">0 dona</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Mahsulotlar summasi:</span>
+          <span id="summary-subtotal">0 so'm</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Yetkazib berish:</span>
+          <span style="color: var(--success); font-weight: 600;">Bepul (1 kunda)</span>
+        </div>
+
+        <div class="summary-total">
+          <span>Jami to'lov:</span>
+          <span id="summary-total-price" style="color: var(--primary);">0 so'm</span>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4;">
+          * Eslatma: Faqat belgilangan (checkbox qo'yilgan) mahsulotlar uchun buyurtma rasmiylashtiriladi.
+        </p>
+
+        <!-- TO BUY BUTTON -> /order-procces-page -->
+        <button class="btn-primary-block" id="btn-to-buy" onclick="handleProceedToCheckout()">
+          Buyurtma berishga o'tish (TO BUY) →
+        </button>
+      </div>
+
+    </div>
+
+    <!-- TAVSIYA ETILADIGAN MAHSULOTLAR / LANDING PASTGA QARAB [ ↓ ] -->
+    <section class="section-block" style="margin-top: 48px;">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Sizga yoqishi mumkin</h2>
+          <span class="section-tag">Tavsiyalar</span>
+        </div>
+      </div>
+
+      <div class="products-grid" id="recommended-products-grid">
+        <!-- JS orqali tavsiya kartalari yuklanadi -->
+      </div>
+
+      <!-- PASTGA STRELKA / LANDING PAGE [ ↓ ] -->
+      <div class="landing-bottom-bar">
+        <a href="home-page.html" class="btn-landing-down">
+          <div class="down-arrow-circle">↓</div>
+          <span>Bosh sahifadan ko'proq xarid qilish</span>
+          <small style="color: var(--text-muted); font-weight: 500;">Barcha mavsumiy chegirmalar va toifalar</small>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Savatchani render qilish
+    async function renderBucketPage() {
+      const cart = window.marketAPI.getCart();
+      const container = document.getElementById('bucket-items-list');
+      const countText = document.getElementById('bucket-items-count-text');
+
+      if (!cart || cart.length === 0) {
+        countText.textContent = "Savatchangiz bo'sh";
+        container.innerHTML = `
+          <div style="background: white; border-radius: 16px; padding: 48px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 48px; margin-bottom: 16px;">🛒</div>
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Savatchangiz hozircha bo'sh</h3>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">Bosh sahifadagi chegirmalar va toifalardan mahsulotlar tanlang</p>
+            <a href="home-page.html" class="badge-link active" style="padding: 12px 24px; font-size: 15px; display: inline-flex;">
+              Xarid qilishni boshlash
+            </a>
+          </div>
+        `;
+        updateBucketSummary();
+        return;
+      }
+
+      countText.textContent = `${cart.length} xil mahsulot mavjud`;
+
+      container.innerHTML = cart.map((item, idx) => {
+        const p = item.product;
+        const isLiked = window.marketAPI.isProductLiked(p.id);
+        const overallPrice = p.currentPrice * item.quantity;
+        const currentImg = (p.images && p.images.length > 0) ? p.images[0] : 'https://placehold.co/300';
+
+        return `
+          <div class="bucket-item-card" id="bucket-card-${p.id}">
+            <!-- CHECKBOX: IS MARKED SO IS LOAD ORDER PAGE -->
+            <input type="checkbox" class="custom-checkbox item-checkbox" 
+                   data-product-id="${p.id}" 
+                   ${item.isSelected ? 'checked' : ''} 
+                   onchange="handleItemCheckboxChange(${p.id}, this.checked)">
+
+            <!-- THUMBNAIL / CAROUSEL -->
+            <div class="bucket-thumb-wrap">
+              <img src="${currentImg}" alt="${p.title}" class="bucket-thumb-img" id="bucket-img-${p.id}" data-images='${JSON.stringify(p.images)}' data-current-index="0">
+              <button class="card-nav-arrow prev" onclick="handleCardImageNav(event, ${p.id}, -1)">‹</button>
+              <button class="card-nav-arrow next" onclick="handleCardImageNav(event, ${p.id}, 1)">›</button>
+              <button class="btn-like ${isLiked ? 'liked' : ''}" onclick="handleLikeClick(event, ${p.id})" style="top: 4px; right: 4px;">♥</button>
+            </div>
+
+            <!-- OVERALL DETAIL -->
+            <div class="bucket-details">
+              <a href="one-product-detail.html?id=${p.id}" class="bucket-title">
+                ${p.title}
+              </a>
+              <div class="bucket-desc">
+                Sotuvchi: <strong>${p.shopName || "Market Brand"}</strong> | Toifa: ${p.categoryName || "Umumiy"}
+              </div>
+              <div style="font-size: 12px; color: var(--success); font-weight: 600;">
+                ✓ Omborda mavjud (${p.stockCount} dona qoldi)
+              </div>
+              <button onclick="removeItemFromCart(${p.id})" style="color: var(--accent-pink); font-size: 13px; font-weight: 600; width: fit-content; margin-top: 6px;">
+                🗑 Savatdan o'chirish
+              </button>
+            </div>
+
+            <!-- OVERALL PRICE & CURRENT COUNT -->
+            <div class="bucket-price-block">
+              <div>
+                <div style="font-size: 18px; font-weight: 800; color: var(--text-main);" id="bucket-item-price-${p.id}">
+                  ${formatPrice(overallPrice)}
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted);">
+                  ${formatPrice(p.currentPrice)} / dona
+                </div>
+              </div>
+
+              <!-- CURRENT COUNT STEPPER (- 0 +) -->
+              <div class="qty-stepper">
+                <button class="qty-btn" onclick="changeBucketItemQty(${p.id}, -1)">-</button>
+                <span class="qty-value" id="bucket-qty-${p.id}">${item.quantity}</span>
+                <button class="qty-btn" onclick="changeBucketItemQty(${p.id}, 1)">+</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateBucketSummary();
+    }
+
+    // Checkbox o'zgarganda (CURRENT PRICE ONLY PRODUCT IS MARKED)
+    function handleItemCheckboxChange(productId, isChecked) {
+      window.marketAPI.toggleCartSelection(productId, isChecked);
+      updateBucketSummary();
+    }
+
+    // Hammasini tanlash / tanlamaslik
+    function toggleSelectAll(checked) {
+      const cart = window.marketAPI.getCart();
+      cart.forEach(item => {
+        item.isSelected = checked;
+      });
+      window.marketAPI.saveCart(cart);
+      renderBucketPage();
+    }
+
+    // Miqdorni o'zgartirish
+    function changeBucketItemQty(productId, delta) {
+      const cart = window.marketAPI.getCart();
+      const item = cart.find(i => i.product.id === productId);
+      if (item) {
+        const newQty = item.quantity + delta;
+        if (newQty <= 0) {
+          if (confirm("Ushbu tovar savatdan o'chirilsinmi?")) {
+            window.marketAPI.updateCartQuantity(productId, 0);
+          }
+        } else {
+          window.marketAPI.updateCartQuantity(productId, newQty);
+        }
+        renderBucketPage();
+      }
+    }
+
+    // Savatdan to'liq olib tashlash
+    function removeItemFromCart(productId) {
+      window.marketAPI.updateCartQuantity(productId, 0);
+      showToast("Mahsulot savatchadan olib tashlandi", 'info');
+      renderBucketPage();
+    }
+
+    // Jami hisob-kitob (Faqat tanlangan mahsulotlar uchun)
+    function updateBucketSummary() {
+      const cart = window.marketAPI.getCart();
+      const selectedItems = cart.filter(i => i.isSelected);
+
+      const totalCount = selectedItems.reduce((acc, i) => acc + i.quantity, 0);
+      const subtotal = selectedItems.reduce((acc, i) => acc + (i.product.currentPrice * i.quantity), 0);
+
+      document.getElementById('summary-selected-count').textContent = `${totalCount} dona`;
+      document.getElementById('summary-subtotal').textContent = formatPrice(subtotal);
+      document.getElementById('summary-total-price').textContent = formatPrice(subtotal);
+
+      const toBuyBtn = document.getElementById('btn-to-buy');
+      if (toBuyBtn) {
+        if (totalCount === 0) {
+          toBuyBtn.disabled = true;
+          toBuyBtn.style.opacity = '0.5';
+          toBuyBtn.style.cursor = 'not-allowed';
+          toBuyBtn.title = "Hech qanday mahsulot tanlanmagan";
+        } else {
+          toBuyBtn.disabled = false;
+          toBuyBtn.style.opacity = '1';
+          toBuyBtn.style.cursor = 'pointer';
+        }
+      }
+    }
+
+    // TO BUY tugmasi bosilganda -> /order-procces-page
+    function handleProceedToCheckout() {
+      const cart = window.marketAPI.getCart();
+      const selected = cart.filter(i => i.isSelected);
+      if (selected.length === 0) {
+        showToast("Iltimos, buyurtma berish uchun kamida bitta mahsulotni belgilang!", 'warning');
+        return;
+      }
+      window.location.href = "order-procces-page.html";
+    }
+
+    // Sahifa ishga tushganda
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderBucketPage();
+
+      // Tavsiyalar blokini to'ldirish
+      const weekly = await window.marketAPI.getWeeklyProducts();
+      const recContainer = document.getElementById('recommended-products-grid');
+      if (recContainer) {
+        recContainer.innerHTML = weekly.slice(0, 4).map(p => renderProductCard(p, 0)).join('');
+      }
+    });
+  </script>
+</body>
+</html>

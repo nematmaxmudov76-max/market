@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mahsulot haqida — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- TOP NAVIGATION STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <!-- Chizmadagi: home (link) => "home" -> /home-page -->
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <!-- Chizmadagi: to bucked (/link) => /bucket-page -->
+        <a href="bucket-page.html" class="badge-link">🛒 Savatchaga o'tish</a>
+        <a href="category-page.html" class="badge-link">📂 Katalog</a>
+        <a href="liked-page.html" class="badge-link">❤️ Sevimlilar</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          🚚 Ertaga yetkazib beriladi!
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN PRODUCT DETAIL CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <!-- MAHSULOTNING ASOSIY BLOKI (2 USTUNLI: CHAPDA RASM, O'NGDA MA'LUMOTLAR) -->
+    <!-- BACKEND: GET /api/v1/product/{id} -->
+    <div class="product-detail-layout" id="product-detail-box">
+
+      <!-- CHAP USTUN: IMAGE CAROUSEL VA PRODUCT NAME -->
+      <div>
+        <div class="gallery-main">
+          <!-- LIKE BUTTON (IS MARKED SO IS LIKED) -->
+          <button class="btn-like" id="detail-like-btn" onclick="toggleDetailLike()" title="Sevimlilarga qo'shish">
+            ♥
+          </button>
+          
+          <!-- IMAGE SLIDER BUTTONS -->
+          <button class="slider-btn" onclick="detailImageNav(-1)" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); z-index: 5;">❮</button>
+          <img src="https://placehold.co/600" alt="Product" class="gallery-main-img" id="detail-main-img">
+          <button class="slider-btn" onclick="detailImageNav(1)" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); z-index: 5;">❯</button>
+        </div>
+
+        <!-- THUMBNAILS ROW -->
+        <div class="gallery-thumbs" id="detail-thumbs"></div>
+
+        <!-- PRODUCT NAME -->
+        <h1 class="detail-title" id="detail-product-name" style="margin-top: 20px;">
+          Yuklanmoqda...
+        </h1>
+        <a href="shop-detail-page.html?id=1" style="color: var(--primary); font-size: 14px; font-weight: 600; margin-top: 6px; display: inline-block;" id="detail-shop-name">
+          🏪 Do'kon: Xiaomi Official Store (Vitrinani ko'rish →)
+        </a>
+      </div>
+
+      <!-- O'NG USTUN: RATING, PRICES, QUANTITY, LINKS -->
+      <div class="product-info-col">
+
+        <!-- 1. RATING & MARK RATING -->
+        <!-- Chizmadagi: RATING + MARK RATING -->
+        <div class="detail-rating-box">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="stars" style="font-size: 18px;" id="detail-stars">★ 4.9</span>
+            <span style="font-weight: 700;" id="detail-rating-val">4.9</span>
+            <span style="color: var(--text-muted); font-size: 13px;" id="detail-reviews-badge">(142 ta sharh)</span>
+          </div>
+
+          <!-- MARK RATING BUTTON -->
+          <button class="badge-link" onclick="openRatingModal()" style="background: white; border: 1px solid var(--border-color);">
+            ⭐ Baho berish (Mark rating)
+          </button>
+        </div>
+
+        <!-- 2. CURRENT PRICE BY DISCOUNT OR PROMO CODE & HOW MANY IN STORE -->
+        <!-- Chizmadagi: CURRENT PRICE BY DISCOUNT OR PROMO CODE + how many this product in store -->
+        <div class="detail-price-box">
+          <div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 2px;">Joriy narx (chegirma bilan):</div>
+            <div style="font-size: 28px; font-weight: 900; color: var(--primary);" id="detail-current-price">
+              0 so'm
+            </div>
+            <div style="font-size: 14px; color: var(--text-light); text-decoration: line-through;" id="detail-old-price"></div>
+          </div>
+
+          <div style="text-align: right;">
+            <span class="badge-stock" style="font-size: 13px; padding: 6px 10px;" id="detail-stock-count">
+              Omborda: 18 ta qoldi
+            </span>
+          </div>
+        </div>
+
+        <!-- INSTALLMENT BADGE -->
+        <div class="card-installment" style="font-size: 13px; padding: 6px 12px;" id="detail-installment">
+          Muddatli to'lov: 349 000 so'm/oy
+        </div>
+
+        <!-- 3. HOW MANY TO BUY (- 0 +) VA ADD TO BUCKET -->
+        <!-- Chizmadagi: - 0 + va add to bucked -->
+        <div class="detail-action-row">
+          <div class="qty-stepper" style="height: 48px;">
+            <button class="qty-btn" style="width: 44px; font-size: 20px;" onclick="changeDetailQty(-1)">-</button>
+            <span class="qty-value" style="width: 44px; font-size: 16px;" id="detail-qty-val">1</span>
+            <button class="qty-btn" style="width: 44px; font-size: 20px;" onclick="changeDetailQty(1)">+</button>
+          </div>
+
+          <button class="btn-add-detail" id="btn-detail-add-cart" onclick="addCurrentProductToCart()">
+            🛒 Savatga qo'shish (Add to bucked)
+          </button>
+        </div>
+
+        <!-- 4. HOW MANY THIS PRODUCT IN BUCKED THE OTHER USER -->
+        <!-- Chizmadagi: how many this product in BUCKED the other user -->
+        <div style="background: #eef7ff; border: 1px solid #c9e4ff; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #0056b3; display: flex; align-items: center; gap: 8px;">
+          <span>🔥</span>
+          <span id="detail-in-baskets-text">Ayni paytda 47 nafar boshqa xaridorlar savatida turibdi</span>
+        </div>
+
+        <!-- 5. CATEGORY VA COMMENTS LINKLARI -->
+        <!-- Chizmadagi: products in this category /link va OTHERS COMMENT /link + comment count -->
+        <div class="detail-links-grid" style="margin-top: 12px;">
+          <!-- PRODUCTS IN THIS CATEGORY LINK -->
+          <a href="#" id="link-category-products" class="detail-box-link">
+            <span>📁 Ushbu toifadagi tovarlar</span>
+            <span>→</span>
+          </a>
+
+          <!-- OTHERS COMMENT LINK -->
+          <a href="#" id="link-product-comments" class="detail-box-link">
+            <span>💬 Barcha sharhlar (<span id="detail-comments-count">142</span>)</span>
+            <span>→</span>
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 6. DESCRIPTIONS BLOKI -->
+    <!-- Chizmadagi katta to'liq pastki maydon: DESCRIPTIONS -->
+    <div class="detail-description-card">
+      <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px; border-bottom: 2px solid var(--primary-light); padding-bottom: 8px; width: fit-content;">
+        Mahsulot tavsifi va xususiyatlari (DESCRIPTIONS)
+      </h2>
+      <div id="detail-description-text" style="font-size: 15px; line-height: 1.8; color: #374151;">
+        Yuklanmoqda...
+      </div>
+
+      <!-- QO'SHIMCHA XUSUSIYATLAR JADVALI -->
+      <div style="margin-top: 24px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+        <div style="background: #f8f9fa; padding: 14px; border-radius: 8px;">
+          <strong>Yetkazib berish:</strong> Ertaga, bepul
+        </div>
+        <div style="background: #f8f9fa; padding: 14px; border-radius: 8px;">
+          <strong>Kafolat:</strong> 12 oy rasmiy servis kafolati
+        </div>
+        <div style="background: #f8f9fa; padding: 14px; border-radius: 8px;">
+          <strong>Qaytarish:</strong> 10 kun ichida oson qaytarish
+        </div>
+        <div style="background: #f8f9fa; padding: 14px; border-radius: 8px;">
+          <strong>To'lov:</strong> Qabul qilganda yoki muddatli to'lov
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- RATING MODAL (MARK RATING) -->
+  <div id="rating-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px;">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Mahsulotga baho berish</h3>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">Yulduzchalar ustiga bosing va sharhingizni yozing</p>
+      
+      <div style="display: flex; gap: 8px; font-size: 32px; color: #ffb703; cursor: pointer; margin-bottom: 16px;" id="rating-star-selector">
+        <span onclick="setRating(1)">★</span>
+        <span onclick="setRating(2)">★</span>
+        <span onclick="setRating(3)">★</span>
+        <span onclick="setRating(4)">★</span>
+        <span onclick="setRating(5)">★</span>
+      </div>
+
+      <textarea id="rating-comment-text" placeholder="Sharhingizni qoldiring..." rows="4" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px;"></textarea>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="badge-link" onclick="closeRatingModal()">Bekor qilish</button>
+        <button class="badge-link active" onclick="submitRating()">Yuborish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let currentProduct = null;
+    let currentImageIndex = 0;
+    let selectedRating = 5;
+
+    // URL parametrlaridan mahsulot ID sini olish
+    function getProductIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id') || 101;
+    }
+
+    async function loadProductDetail() {
+      const prodId = getProductIdFromUrl();
+      currentProduct = await window.marketAPI.getProductById(prodId);
+
+      // Sarlavha va ma'lumotlar
+      document.title = `${currentProduct.title} — Market`;
+      document.getElementById('detail-product-name').textContent = currentProduct.title;
+      document.getElementById('detail-shop-name').textContent = `Do'kon: ${currentProduct.shopName || "Market Brand"}`;
+      document.getElementById('detail-current-price').textContent = formatPrice(currentProduct.currentPrice);
+      
+      if (currentProduct.oldPrice) {
+        document.getElementById('detail-old-price').textContent = formatPrice(currentProduct.oldPrice);
+      }
+      
+      document.getElementById('detail-stock-count').textContent = `Omborda: ${currentProduct.stockCount} ta qoldi`;
+      document.getElementById('detail-rating-val').textContent = currentProduct.rating;
+      document.getElementById('detail-reviews-badge').textContent = `(${currentProduct.reviewsCount} ta sharh)`;
+      document.getElementById('detail-comments-count').textContent = currentProduct.reviewsCount;
+      document.getElementById('detail-in-baskets-text').textContent = `Ayni paytda ${currentProduct.inOtherBaskets || 32} nafar boshqa xaridorlar savatida turibdi`;
+      document.getElementById('detail-description-text').textContent = currentProduct.description || "Ushbu mahsulot haqida batafsil ma'lumot tez kunda to'ldiriladi.";
+
+      // Havolalar:
+      // 1. products in this category /link => /product-by-this-type
+      const catLink = document.getElementById('link-category-products');
+      catLink.href = `product-by-this-type.html?category=${currentProduct.category}`;
+      catLink.querySelector('span').textContent = `📁 ${currentProduct.categoryName || "Kategoriya"} mahsulotlari`;
+
+      // 2. other comment /link => /one-product-comment
+      const commLink = document.getElementById('link-product-comments');
+      commLink.href = `one-product-comments.html?id=${currentProduct.id}`;
+
+      // Like holati
+      updateLikeBtnState();
+
+      // Rasmlar galereyasi
+      renderGallery();
+    }
+
+    function renderGallery() {
+      const mainImg = document.getElementById('detail-main-img');
+      const thumbsBox = document.getElementById('detail-thumbs');
+      const images = currentProduct.images || ['https://placehold.co/600'];
+
+      mainImg.src = images[currentImageIndex];
+
+      thumbsBox.innerHTML = images.map((imgUrl, i) => `
+        <div class="thumb-item ${i === currentImageIndex ? 'active' : ''}" onclick="selectThumb(${i})">
+          <img src="${imgUrl}" alt="Thumb">
+        </div>
+      `).join('');
+    }
+
+    function selectThumb(index) {
+      currentImageIndex = index;
+      renderGallery();
+    }
+
+    function detailImageNav(step) {
+      const images = currentProduct.images || [];
+      if (images.length <= 1) return;
+      currentImageIndex = (currentImageIndex + step + images.length) % images.length;
+      renderGallery();
+    }
+
+    function updateLikeBtnState() {
+      const likeBtn = document.getElementById('detail-like-btn');
+      const isLiked = window.marketAPI.isProductLiked(currentProduct.id);
+      if (isLiked) {
+        likeBtn.classList.add('liked');
+      } else {
+        likeBtn.classList.remove('liked');
+      }
+    }
+
+    function toggleDetailLike() {
+      const isNowLiked = window.marketAPI.toggleLike(currentProduct.id);
+      updateLikeBtnState();
+      showToast(isNowLiked ? "Mahsulot sevimlilarga saqlandi ❤️" : "Sevimlilardan olib tashlandi", 'info');
+    }
+
+    function changeDetailQty(delta) {
+      const qtyEl = document.getElementById('detail-qty-val');
+      let val = parseInt(qtyEl.textContent || '1', 10);
+      val = Math.max(1, Math.min(currentProduct.stockCount, val + delta));
+      qtyEl.textContent = val;
+    }
+
+    function addCurrentProductToCart() {
+      const qty = parseInt(document.getElementById('detail-qty-val').textContent, 10);
+      window.marketAPI.addToCart(currentProduct, qty);
+      showToast(`${currentProduct.title.substring(0, 25)}... savatga qo'shildi!`, 'success');
+      updateHeaderCounters();
+    }
+
+    // Rating modal
+    function openRatingModal() {
+      document.getElementById('rating-modal').style.display = 'flex';
+    }
+    function closeRatingModal() {
+      document.getElementById('rating-modal').style.display = 'none';
+    }
+    function setRating(val) {
+      selectedRating = val;
+      const stars = document.querySelectorAll('#rating-star-selector span');
+      stars.forEach((s, i) => {
+        s.style.opacity = i < val ? '1' : '0.3';
+      });
+    }
+    function submitRating() {
+      closeRatingModal();
+      showToast(`Bahoyingiz (${selectedRating} ⭐) qabul qilindi! Rahmat!`, 'success');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProductDetail);
+  </script>
+</body>
+</html>

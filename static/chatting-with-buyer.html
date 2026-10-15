@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatlar — Market (Do'kon va Kuryer bilan aloqa)</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      height: calc(100vh - 180px);
+      min-height: 520px;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .chat-channels-list {
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      background: #fafafa;
+    }
+    .channel-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      transition: var(--transition);
+    }
+    .channel-item:hover, .channel-item.active {
+      background: white;
+      border-left: 4px solid var(--primary);
+    }
+    .chat-main-area {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .chat-header-bar {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+    }
+    .chat-messages-scroll {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .message-bubble {
+      max-width: 65%;
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      position: relative;
+    }
+    .message-bubble.incoming {
+      background: white;
+      color: var(--text-main);
+      align-self: flex-start;
+      border: 1px solid var(--border-color);
+      border-bottom-left-radius: 4px;
+    }
+    .message-bubble.outgoing {
+      background: var(--primary);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-input-bar {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 12px;
+      background: white;
+    }
+    @media (max-width: 768px) {
+      .chat-layout { grid-template-columns: 1fr; }
+      .chat-channels-list { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <a href="account-page.html" class="badge-link">👤 Kabinet</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="ordered-product-page.html" class="badge-link">📦 Buyurtmalar</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          💬 Tezkor onlayn qo'llab-quvvatlash va savollar
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <div class="chat-layout">
+
+      <!-- CHAP: SUHBATDOSHLAR RO'YXATI -->
+      <!-- BACKEND: GET /api/v1/common/chats -->
+      <div class="chat-channels-list">
+        <div style="padding: 16px; border-bottom: 1px solid var(--border-color); font-weight: 700; font-size: 16px;">
+          Suhbatlar
+        </div>
+
+        <div class="channel-item active" onclick="selectChannel('Xiaomi Official Store', '🏪 Sotuvchi do\'kon', this)">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #ff6600; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+            MI
+          </div>
+          <div style="flex: 1; overflow: hidden;">
+            <div style="font-weight: 700; font-size: 14px;">Xiaomi Official Store</div>
+            <div style="font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              Kafolat talonini qutining ichidan...
+            </div>
+          </div>
+        </div>
+
+        <div class="channel-item" onclick="selectChannel('Dilshod Akramov', '🚴 Kuryer (Skuter)', this)">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #7000ff; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+            DA
+          </div>
+          <div style="flex: 1; overflow: hidden;">
+            <div style="font-weight: 700; font-size: 14px;">Dilshod Akramov</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Kuryer: 15 daqiqada yetib boraman</div>
+          </div>
+        </div>
+
+        <div class="channel-item" onclick="selectChannel('Market Qo\'llab-quvvatlash', '🛡 Rasmiy servis 24/7', this)">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #00b553; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+            24
+          </div>
+          <div style="flex: 1; overflow: hidden;">
+            <div style="font-weight: 700; font-size: 14px;">Market Yordam 24/7</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Qanday savollaringiz bor?</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- O'NG: ASOSIY CHAT OYNASI -->
+      <div class="chat-main-area">
+        <div class="chat-header-bar">
+          <div>
+            <strong style="font-size: 16px;" id="chat-title">Xiaomi Official Store</strong>
+            <div style="font-size: 12px; color: var(--success);" id="chat-subtitle">● Onlayn (Sotuvchi)</div>
+          </div>
+          <div>
+            <a href="ordered-product-page.html" class="badge-link">Buyurtma ma'lumoti</a>
+          </div>
+        </div>
+
+        <!-- MESSAGES SCROLL -->
+        <div class="chat-messages-scroll" id="chat-messages-box">
+          <div class="message-bubble incoming">
+            Assalomu alaykum! Xiaomi Redmi Note 13 Pro xaridingiz uchun rahmat. Mahsulot sizga yetib bordimi?
+            <div style="font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 4px;">11:35</div>
+          </div>
+
+          <div class="message-bubble outgoing">
+            Assalomu alaykum. Ha, bugun yetkazib berishdi. Mahsulot juda yaxshi, faqat kafolat muddati haqida so'ramoqchi edim.
+            <div style="font-size: 10px; color: rgba(255,255,255,0.8); text-align: right; margin-top: 4px;">11:38</div>
+          </div>
+
+          <div class="message-bubble incoming">
+            Kafolat talonini qutining ichidan topishingiz mumkin. Servis markazi 12 oy davomida bepul xizmat ko'rsatadi.
+            <div style="font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 4px;">11:40</div>
+          </div>
+        </div>
+
+        <!-- INPUT BAR -->
+        <!-- BACKEND: POST /api/v1/common/chat/send -->
+        <form class="chat-input-bar" onsubmit="handleSendMessage(event)">
+          <input type="text" id="chat-input" placeholder="Xabaringizni yozing..." class="search-input" style="flex: 1;" required>
+          <button type="submit" class="btn-primary-block" style="width: auto; padding: 0 24px;">
+            Yuborish ➤
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    function selectChannel(title, subtitle, el) {
+      document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('chat-title').textContent = title;
+      document.getElementById('chat-subtitle').textContent = `● ${subtitle}`;
+    }
+
+    function handleSendMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const box = document.getElementById('chat-messages-box');
+      const time = new Date().toLocaleTimeString().substring(0, 5);
+
+      const msgEl = document.createElement('div');
+      msgEl.className = 'message-bubble outgoing';
+      msgEl.innerHTML = `
+        ${text}
+        <div style="font-size: 10px; color: rgba(255,255,255,0.8); text-align: right; margin-top: 4px;">${time}</div>
+      `;
+      box.appendChild(msgEl);
+      input.value = '';
+      box.scrollTop = box.scrollHeight;
+
+      // Avtomatik javob simulyatsiyasi
+      setTimeout(() => {
+        const replyEl = document.createElement('div');
+        replyEl.className = 'message-bubble incoming';
+        replyEl.innerHTML = `
+          Xabaringiz qabul qilindi. Tez orada javob beramiz!
+          <div style="font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 4px;">${time}</div>
+        `;
+        box.appendChild(replyEl);
+        box.scrollTop = box.scrollHeight;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

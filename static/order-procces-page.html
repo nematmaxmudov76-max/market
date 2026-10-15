@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyurtmani Rasmiylashtirish — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .checkout-item-mini {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: 110px 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+    .checkout-thumb {
+      width: 110px;
+      height: 110px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      background: #f8f9fa;
+    }
+    .checkout-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <!-- Chizmadagi: to bucket /link => /bucket-page -->
+        <a href="bucket-page.html" class="badge-link">🛒 Savatchaga qaytish (to bucket)</a>
+        <!-- Chizmadagi: account /link => /account-page -->
+        <a href="account-page.html" class="badge-link">👤 Kabinet (account)</a>
+        <!-- Chizmadagi: home /link => /home-page -->
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa (home)</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          🔒 Barcha to'lovlar xavfsiz himoyalangan (SSL 256-bit)
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 20px;">
+      Buyurtmani rasmiylashtirish (/order-procces-page)
+    </h1>
+
+    <div class="checkout-grid">
+
+      <!-- CHAP USTUN: MAHSULOTLAR RO'YXATI VA LANDING PASTGA QARAB -->
+      <div>
+        <div style="background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+          <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 14px;">
+            Buyurtma qilinayotgan tovarlar
+          </h2>
+          <div id="checkout-items-list">
+            <!-- JS orqali savatdagi tanlangan tovarlar joylanadi -->
+          </div>
+        </div>
+
+        <!-- PASTGA STRELKA / LANDING PAGE [ ↓ ] -->
+        <div class="landing-bottom-bar" style="margin: 20px 0;">
+          <a href="home-page.html" class="btn-landing-down" style="width: 100%;">
+            <div class="down-arrow-circle">↓</div>
+            <span>Yana boshqa mahsulotlarni qo'shish (Landing page pastga qarab)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- O'NG USTUN: USER DETAILS, DELIVERY METHOD, PAYMENT TYPE, PROMO CODE, CALCULATE PRICE, BUY BUTTON -->
+      <div>
+
+        <!-- 1. USER DETAILS -->
+        <!-- Chizmadagi: user details -->
+        <div class="checkout-card">
+          <h3 class="checkout-title">1. Qabul qiluvchi ma'lumotlari (User details)</h3>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Ism va familiya:</label>
+              <input type="text" id="checkout-user-name" value="Olimjon Karimov" class="search-input" style="padding: 8px 12px; font-size: 14px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Telefon raqami:</label>
+              <input type="tel" id="checkout-user-phone" value="+998 90 123 45 67" class="search-input" style="padding: 8px 12px; font-size: 14px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. DELIVERY METHOD (DROP-OFF POINT | VIA COURIER) & ADDRESS -->
+        <!-- Chizmadagi: via a drop-off point | via courier + drop-off point or delivery current address + change -->
+        <div class="checkout-card">
+          <h3 class="checkout-title">2. Yetkazib berish usuli</h3>
+
+          <div class="delivery-tabs">
+            <button class="delivery-tab-btn active" id="tab-drop-off" onclick="selectDeliveryTab('drop_off_point')">
+              🏢 Topshirish punkti (PVZ)
+            </button>
+            <button class="delivery-tab-btn" id="tab-courier" onclick="selectDeliveryTab('courier')">
+              🚴 Kuryer orqali
+            </button>
+          </div>
+
+          <div style="background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 12px; color: var(--text-muted);" id="address-type-label">Tanlangan topshirish punkti:</div>
+              <div style="font-weight: 600; font-size: 14px; margin-top: 4px;" id="checkout-address-text">
+                Toshkent sh., Chilonzor tumani, Bunyodkor shoh ko'chasi 12A (Ertaga, bepul)
+              </div>
+            </div>
+            <button class="badge-link" onclick="changeAddressModal()" style="background: white; border: 1px solid var(--border-color);">
+              O'zgartirish (change)
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. PAYMENT TYPE -->
+        <!-- Chizmadagi: PAYMENT TYPE: credit card, cash, Payment upon receipt, installment plan -->
+        <div class="checkout-card">
+          <h3 class="checkout-title">3. To'lov turi (PAYMENT TYPE)</h3>
+
+          <div class="payment-options-list">
+            <!-- 1. Credit card -->
+            <label class="payment-option-card selected" onclick="selectPaymentMethod(this, 'credit_card')">
+              <input type="radio" name="payment_type" value="credit_card" checked class="custom-checkbox">
+              <div style="flex: 1;">
+                <strong>Bank kartasi (Credit card)</strong>
+                <div style="font-size: 12px; color: var(--text-muted);">Uzcard, Humo, Visa, Mastercard</div>
+              </div>
+            </label>
+
+            <!-- 2. Cash -->
+            <label class="payment-option-card" onclick="selectPaymentMethod(this, 'cash')">
+              <input type="radio" name="payment_type" value="cash" class="custom-checkbox">
+              <div style="flex: 1;">
+                <strong>Naqd pul (Cash)</strong>
+                <div style="font-size: 12px; color: var(--text-muted);">Qabul qilib olish vaqtida kuryerga</div>
+              </div>
+            </label>
+
+            <!-- 3. Payment upon receipt -->
+            <label class="payment-option-card" onclick="selectPaymentMethod(this, 'receipt')">
+              <input type="radio" name="payment_type" value="receipt" class="custom-checkbox">
+              <div style="flex: 1;">
+                <strong>Qabul qilib olganda to'lov (Payment upon receipt)</strong>
+                <div style="font-size: 12px; color: var(--text-muted);">Terminal orqali topshirish punktida</div>
+              </div>
+            </label>
+
+            <!-- 4. Installment plan -->
+            <label class="payment-option-card" onclick="selectPaymentMethod(this, 'installment')">
+              <input type="radio" name="payment_type" value="installment" class="custom-checkbox">
+              <div style="flex: 1;">
+                <strong>Muddatli to'lov / Nasiya (Installment plan)</strong>
+                <div style="font-size: 12px; color: var(--text-muted);">3, 6 yoki 12 oyga foizsiz bo'lib to'lash</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. PROMO CODE -->
+        <!-- Chizmadagi: promo-code + add -->
+        <div class="checkout-card">
+          <h3 class="checkout-title">4. Promokod</h3>
+          <div class="promo-input-row">
+            <input type="text" id="promo-code-input" placeholder="Promokodni kiriting (masalan: UZUM2026)" class="promo-input">
+            <button class="btn-promo-apply" onclick="applyPromoCode()">Qo'shish (add)</button>
+          </div>
+          <div id="promo-status-msg" style="font-size: 13px; font-weight: 600;"></div>
+        </div>
+
+        <!-- 5. CALCULATE LAST PRICE WITH DISCOUNT OR PROMO CODE & BUY BUTTON -->
+        <!-- Chizmadagi: conculate last prise with discount or promo code + BUY /link -->
+        <div class="checkout-card" style="background: #faf7ff; border-color: #ebd9ff;">
+          <h3 class="checkout-title" style="color: var(--primary);">
+            5. Jami hisob-kitob (Conculate last price)
+          </h3>
+
+          <div class="summary-row">
+            <span>Mahsulotlar qiymati:</span>
+            <span id="calc-subtotal">0 so'm</span>
+          </div>
+
+          <div class="summary-row" id="calc-discount-row" style="display: none; color: var(--accent-pink);">
+            <span>Promokod chegirmasi:</span>
+            <span id="calc-discount">-0 so'm</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Yetkazib berish xarajati:</span>
+            <span style="color: var(--success); font-weight: 600;">0 so'm (Bepul)</span>
+          </div>
+
+          <div class="summary-total">
+            <span>Yakuniy to'lov:</span>
+            <span id="calc-final-price" style="color: var(--primary);">0 so'm</span>
+          </div>
+
+          <!-- BUY /LINK => /ordered-product-page -->
+          <!-- BACKEND: POST /api/v1/order/create -->
+          <button class="btn-primary-block" style="padding: 16px; font-size: 17px;" onclick="handleBuySubmit()">
+            BUY (Buyurtmani tasdiqlash) →
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let checkoutItems = [];
+    let deliveryMethod = "drop_off_point";
+    let selectedPayment = "credit_card";
+    let promoDiscount = 0;
+
+    async function initCheckout() {
+      const cart = window.marketAPI.getCart();
+      checkoutItems = cart.filter(i => i.isSelected);
+
+      if (checkoutItems.length === 0) {
+        // Agar savat bo'sh bo'lsa default bitta tovar olamiz
+        checkoutItems = [{
+          product: MOCK_DATA.seasonalProducts[0],
+          quantity: 1,
+          isSelected: true
+        }];
+      }
+
+      renderCheckoutItems();
+      calculateTotals();
+    }
+
+    function renderCheckoutItems() {
+      const list = document.getElementById('checkout-items-list');
+      list.innerHTML = checkoutItems.map(item => {
+        const p = item.product;
+        const img = (p.images && p.images.length > 0) ? p.images[0] : 'https://placehold.co/200';
+
+        return `
+          <div class="checkout-item-mini">
+            <div class="checkout-thumb">
+              <img src="${img}" alt="${p.title}">
+            </div>
+            <div>
+              <a href="one-product-detail.html?id=${p.id}" style="font-weight: 600; font-size: 14px; color: var(--text-main);">
+                ${p.title}
+              </a>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                Sotuvchi: ${p.shopName || "Market"} | Omborda: <strong>${p.stockCount} ta</strong>
+              </div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--primary); margin-top: 6px;">
+                ${formatPrice(p.currentPrice)} × ${item.quantity} dona
+              </div>
+            </div>
+            <div style="font-size: 16px; font-weight: 800; color: var(--text-main);">
+              ${formatPrice(p.currentPrice * item.quantity)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectDeliveryTab(method) {
+      deliveryMethod = method;
+      document.getElementById('tab-drop-off').classList.toggle('active', method === 'drop_off_point');
+      document.getElementById('tab-courier').classList.toggle('active', method === 'courier');
+
+      const label = document.getElementById('address-type-label');
+      const text = document.getElementById('checkout-address-text');
+
+      if (method === 'courier') {
+        label.textContent = "Kuryer yetkazadigan joriy manzil:";
+        text.textContent = "Toshkent sh., Chilonzor tumani, 9-mavze, 14-uy, 28-xonadon (Kuryer 24 soatda)";
+      } else {
+        label.textContent = "Tanlangan topshirish punkti (PVZ):";
+        text.textContent = "Toshkent sh., Chilonzor tumani, Bunyodkor shoh ko'chasi 12A (Ertaga, bepul)";
+      }
+    }
+
+    function changeAddressModal() {
+      const newAddr = prompt("Yetkazib berish manzilini kiriting:", document.getElementById('checkout-address-text').textContent);
+      if (newAddr) {
+        document.getElementById('checkout-address-text').textContent = newAddr;
+        showToast("Manzil muvaffaqiyatli yangilandi", 'success');
+      }
+    }
+
+    function selectPaymentMethod(cardEl, method) {
+      selectedPayment = method;
+      document.querySelectorAll('.payment-option-card').forEach(c => c.classList.remove('selected'));
+      cardEl.classList.add('selected');
+      cardEl.querySelector('input[type="radio"]').checked = true;
+    }
+
+    function applyPromoCode() {
+      const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
+      const statusMsg = document.getElementById('promo-status-msg');
+
+      if (MOCK_DATA.promoCodes[code]) {
+        const promo = MOCK_DATA.promoCodes[code];
+        const subtotal = checkoutItems.reduce((acc, i) => acc + (i.product.currentPrice * i.quantity), 0);
+
+        if (promo.discountPercent) {
+          promoDiscount = Math.min(promo.maxDiscount || 9999999, Math.round(subtotal * (promo.discountPercent / 100)));
+        } else if (promo.discountAmount) {
+          promoDiscount = promo.discountAmount;
+        }
+
+        statusMsg.style.color = "var(--success)";
+        statusMsg.textContent = `✓ "${code}" promokodi qo'llandi! Chegirma: ${formatPrice(promoDiscount)}`;
+        showToast("Promokod faollashtirildi!", 'success');
+      } else {
+        promoDiscount = 0;
+        statusMsg.style.color = "var(--accent-pink)";
+        statusMsg.textContent = "✕ Noto'g'ri yoki muddati o'tgan promokod";
+        showToast("Bunday promokod topilmadi", 'warning');
+      }
+
+      calculateTotals();
+    }
+
+    function calculateTotals() {
+      const subtotal = checkoutItems.reduce((acc, i) => acc + (i.product.currentPrice * i.quantity), 0);
+      const finalPrice = Math.max(0, subtotal - promoDiscount);
+
+      document.getElementById('calc-subtotal').textContent = formatPrice(subtotal);
+
+      const discountRow = document.getElementById('calc-discount-row');
+      if (promoDiscount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('calc-discount').textContent = `-${formatPrice(promoDiscount)}`;
+      } else {
+        discountRow.style.display = 'none';
+      }
+
+      document.getElementById('calc-final-price').textContent = formatPrice(finalPrice);
+    }
+
+    // BUY /link tugmasi bosilganda -> /ordered-product-page
+    async function handleBuySubmit() {
+      const subtotal = checkoutItems.reduce((acc, i) => acc + (i.product.currentPrice * i.quantity), 0);
+      const finalPrice = Math.max(0, subtotal - promoDiscount);
+      const addr = document.getElementById('checkout-address-text').textContent;
+
+      const orderPayload = {
+        totalPrice: finalPrice,
+        deliveryMethod: deliveryMethod,
+        deliveryAddress: addr,
+        paymentMethod: selectedPayment,
+        paymentMethodText: selectedPayment === 'credit_card' ? 'Bank kartasi orqali to\'langan' : 'Naqd/Yetkazilganda to\'lov',
+        items: checkoutItems.map(item => ({
+          productId: item.product.id,
+          title: item.product.title,
+          images: item.product.images,
+          price: item.product.currentPrice,
+          quantity: item.quantity,
+          details: `Do'kon: ${item.product.shopName || "Market"}`
+        }))
+      };
+
+      // BACKEND API chaqiruvi
+      const newOrder = await window.marketAPI.createOrder(orderPayload);
+      showToast(`Buyurtma qabul qilindi! ID: ${newOrder.uniqId}`, 'success');
+
+      setTimeout(() => {
+        window.location.href = `ordered-product-page.html?orderId=${newOrder.uniqId}`;
+      }, 700);
+    }
+
+    document.addEventListener('DOMContentLoaded', initCheckout);
+  </script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mahsulot Sharhlari — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .comment-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .comment-media-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .comment-img-carousel {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #f8f9fa;
+    }
+
+    .comment-img-carousel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .comment-meta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+    }
+
+    .comment-content-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .comment-user-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar-sm {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .comment-text-body {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #374151;
+      background: #fafafa;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid #f0f0f0;
+    }
+
+    @media (max-width: 768px) {
+      .comment-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <!-- Chizmadagi: to product /link => /one-product-detail -->
+        <a href="one-product-detail.html" id="link-back-product" class="badge-link active">
+          ← Mahsulotga qaytish (to product)
+        </a>
+        <!-- Chizmadagi: home /link => /home-page -->
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa (home)</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savat</a>
+      </div>
+      <div>
+        <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);" id="reviews-header-subtitle">
+          Haqiqiy xaridorlar sharhlari va fotosuratlari
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px; max-width: 980px;">
+
+    <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 800;" id="comments-product-title">
+          Mahsulot sharhlari
+        </h1>
+        <p style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">
+          Umumiy baho: <strong style="color: #ffb703;">★ 4.9</strong> (142 ta tasdiqlangan xarid sharhi)
+        </p>
+      </div>
+
+      <button class="badge-link active" onclick="alert('Sharh qoldirish uchun xarid qilingan bo\'lishi lozim!')">
+        ✍️ Sharh qoldirish
+      </button>
+    </div>
+
+    <!-- SHARHLAR RO'YXATI -->
+    <!-- BACKEND: GET /api/v1/product/{id}/comments?page=1 -->
+    <div id="comments-list-container">
+      <!-- JS orqali generatsiya qilinadi -->
+    </div>
+
+    <!-- PAGINATION: CHAP | O'NG (< 1 >) -->
+    <!-- Chizmadagi: pagination chap|o'ng < 1 > -->
+    <div class="pagination-wrapper" id="comments-pagination">
+      <button class="page-btn" id="btn-prev-page" onclick="changeCommentsPage(-1)">❮</button>
+      <button class="page-btn active" id="page-1" onclick="goToCommentsPage(1)">1</button>
+      <button class="page-btn" id="page-2" onclick="goToCommentsPage(2)">2</button>
+      <button class="page-btn" id="page-3" onclick="goToCommentsPage(3)">3</button>
+      <button class="page-btn" id="btn-next-page" onclick="changeCommentsPage(1)">❯</button>
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let currentCommentPage = 1;
+    const totalPages = 3;
+
+    function getParam(key) {
+      return new URLSearchParams(window.location.search).get(key);
+    }
+
+    async function loadProductComments() {
+      const prodId = getParam('id') || 101;
+      const product = await window.marketAPI.getProductById(prodId);
+
+      document.getElementById('comments-product-title').textContent = `${product.title} — Sharhlar`;
+      document.getElementById('link-back-product').href = `one-product-detail.html?id=${prodId}`;
+
+      renderComments();
+    }
+
+    async function renderComments() {
+      const prodId = getParam('id') || 101;
+      const res = await window.marketAPI.getProductComments(prodId, currentCommentPage);
+      const container = document.getElementById('comments-list-container');
+
+      container.innerHTML = res.items.map((c, idx) => {
+        const hasImages = c.images && c.images.length > 0;
+        const firstImg = hasImages ? c.images[0] : 'https://placehold.co/300?text=No+Photo';
+
+        return `
+          <div class="comment-card">
+            <!-- CHAPDA: IMAGES CAROUSEL, RATING VA CREATED AT -->
+            <div class="comment-media-box">
+              <div class="comment-img-carousel">
+                <img src="${firstImg}" alt="Comment photo" id="comm-img-${c.id}">
+                ${hasImages && c.images.length > 1 ? `
+                  <button class="card-nav-arrow prev" style="opacity: 1;" onclick="slideCommentImg(${c.id}, -1)">‹</button>
+                  <button class="card-nav-arrow next" style="opacity: 1;" onclick="slideCommentImg(${c.id}, 1)">›</button>
+                ` : ''}
+              </div>
+
+              <div class="comment-meta-row">
+                <div style="color: #ffb703; font-weight: 700; font-size: 15px;">
+                  ${'★'.repeat(c.rating)}${'☆'.repeat(5 - c.rating)} (${c.rating}/5)
+                </div>
+                <div style="color: var(--text-muted); font-size: 12px;">
+                  🗓 Qoldirilgan sana: <strong>${c.createdAt}</strong>
+                </div>
+                <div style="color: var(--success); font-size: 12px; font-weight: 600;">
+                  ✓ Haqiqiy xaridor tomonidan baholandi
+                </div>
+              </div>
+            </div>
+
+            <!-- O'NGDA: ONE USER COMMENT -->
+            <div class="comment-content-box">
+              <div class="comment-user-header">
+                <img src="${c.userAvatar}" alt="${c.userName}" class="user-avatar-sm">
+                <div>
+                  <strong style="font-size: 16px; color: var(--text-main);">${c.userName}</strong>
+                  <div style="font-size: 12px; color: var(--text-muted);">Toshkent, O'zbekiston</div>
+                </div>
+              </div>
+
+              <!-- COMMENT TEXT -->
+              <div class="comment-text-body">
+                "${c.text}"
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updatePaginationButtons();
+    }
+
+    function updatePaginationButtons() {
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.getElementById(`page-${i}`);
+        if (btn) {
+          if (i === currentCommentPage) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      }
+
+      document.getElementById('btn-prev-page').disabled = currentCommentPage <= 1;
+      document.getElementById('btn-next-page').disabled = currentCommentPage >= totalPages;
+    }
+
+    function changeCommentsPage(delta) {
+      const newPage = currentCommentPage + delta;
+      if (newPage >= 1 && newPage <= totalPages) {
+        currentCommentPage = newPage;
+        renderComments();
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      }
+    }
+
+    function goToCommentsPage(page) {
+      currentCommentPage = page;
+      renderComments();
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProductComments);
+  </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyurtmani Kuzatish (Tracking) — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .tracking-timeline {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin: 24px 0;
+      padding-left: 36px;
+    }
+    .tracking-timeline::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 10px;
+      bottom: 20px;
+      width: 3px;
+      background: var(--border-color);
+    }
+    .timeline-step {
+      position: relative;
+      margin-bottom: 28px;
+    }
+    .timeline-icon-dot {
+      position: absolute;
+      left: -36px;
+      top: 2px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      z-index: 2;
+    }
+    .timeline-step.done .timeline-icon-dot {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+    .timeline-step.current .timeline-icon-dot {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 5px var(--primary-light);
+    }
+    .courier-info-box {
+      background: #faf7ff;
+      border: 1px solid #ebd9ff;
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <a href="ordered-product-page.html" class="badge-link active">📦 Buyurtmalarim</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="account-page.html" class="badge-link">👤 Kabinet</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          📍 Jonli GPS va Yetkazib berish holati
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px; max-width: 900px;">
+
+    <!-- SEARCH BY TRACKING CODE -->
+    <!-- BACKEND: GET /api/v1/order/delivery-tracking/{code} -->
+    <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); margin-bottom: 24px;">
+      <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">
+        Buyurtmani kuzatish (Delivery Tracking)
+      </h1>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
+        Trek-kod orqali buyurtmaning joriy bosqichini aniqlang
+      </p>
+
+      <form onsubmit="handleSearchTracking(event)" style="display: flex; gap: 10px;">
+        <input type="text" id="tracking-input" value="TRK-984321" class="search-input" style="padding: 12px 16px; font-weight: 700; font-family: monospace; font-size: 16px;" placeholder="Trek-kod (masalan: TRK-984321)">
+        <button type="submit" class="btn-primary-block" style="width: auto; padding: 0 24px;">
+          Kuzatish
+        </button>
+      </form>
+    </div>
+
+    <!-- TRACKING RESULT DETAILS -->
+    <div style="background: white; border-radius: 16px; padding: 32px; border: 1px solid var(--border-color); margin-bottom: 24px;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <span class="badge-stock" style="background: #e0f2fe; color: #0284c7; font-size: 13px;">
+            Buyurtma: <strong id="trk-order-id">ORD-984321</strong>
+          </span>
+          <h2 style="font-size: 22px; font-weight: 800; margin-top: 8px;" id="trk-status-title">
+            Xaridor manziliga eltib berilmoqda
+          </h2>
+          <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+            Taxminiy yetib borish vaqti: <strong style="color: var(--primary);" id="trk-est-time">Bugun, taxminan 25 daqiqa ichida</strong>
+          </div>
+        </div>
+
+        <div style="text-align: right;">
+          <div style="font-size: 12px; color: var(--text-muted);">Yetkazib berish to'lovi:</div>
+          <strong style="color: var(--success); font-size: 16px;">0 so'm (Bepul)</strong>
+        </div>
+      </div>
+
+      <!-- KURYER MA'LUMOTLARI -->
+      <div class="courier-info-box" style="margin-top: 24px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" 
+               alt="Courier" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+          <div>
+            <div style="font-weight: 800; font-size: 16px;" id="trk-courier-name">Dilshod Akramov</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              🛵 <span id="trk-courier-vehicle">Skuter (Elektromoped)</span> • Reyting: <span style="color: #ffb703;">★ 4.95</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <a href="tel:+998934567890" class="badge-link active" style="padding: 10px 18px;">
+            📞 Kuryerga qo'ng'iroq
+          </a>
+          <a href="chatting-with-buyer.html" class="badge-link" style="background: white; border: 1px solid var(--border-color);">
+            💬 Xabar yozish
+          </a>
+        </div>
+      </div>
+
+      <!-- YETKAZIB BERISH BOSQICHLARI (TIMELINE) -->
+      <h3 style="font-size: 18px; font-weight: 700; margin-top: 32px;">Yetkazib berish jarayoni</h3>
+      <div class="tracking-timeline" id="tracking-steps-container">
+        <!-- JS orqali 5 ta bosqich joylanadi -->
+      </div>
+
+      <!-- YETKAZISH MANZILI -->
+      <div style="background: #f8f9fa; border-radius: 10px; padding: 16px; margin-top: 16px; font-size: 13px;">
+        🎯 <strong>Yetkazib berish manzili:</strong> <span id="trk-destination">Toshkent sh., Chilonzor tumani, 9-mavze, 14-uy, 28-xonadon</span>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    async function loadTrackingData() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('tracking') || "TRK-984321";
+      document.getElementById('tracking-input').value = code;
+
+      const data = await window.marketAPI.getDeliveryTracking(code);
+
+      document.getElementById('trk-order-id').textContent = data.orderId;
+      document.getElementById('trk-status-title').textContent = data.statusText;
+      document.getElementById('trk-est-time').textContent = data.estimatedDelivery;
+      document.getElementById('trk-courier-name').textContent = data.courier.name;
+      document.getElementById('trk-courier-vehicle').textContent = data.courier.vehicle;
+      document.getElementById('trk-destination').textContent = data.destination;
+
+      // Bosqichlar
+      const stepsBox = document.getElementById('tracking-steps-container');
+      stepsBox.innerHTML = data.steps.map(s => {
+        let stepClass = '';
+        let dotContent = '•';
+        if (s.done) {
+          stepClass = 'done';
+          dotContent = '✓';
+        } else if (s.current) {
+          stepClass = 'current';
+          dotContent = '▶';
+        }
+
+        return `
+          <div class="timeline-step ${stepClass}">
+            <div class="timeline-icon-dot">${dotContent}</div>
+            <strong style="font-size: 15px; color: var(--text-main);">${s.title}</strong>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+              ${s.desc}
+            </div>
+            <small style="color: var(--primary); font-weight: 600; display: block; margin-top: 4px;">
+              ⏰ ${s.time}
+            </small>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleSearchTracking(e) {
+      e.preventDefault();
+      const code = document.getElementById('tracking-input').value.trim();
+      if (code) {
+        showToast(`Trek-kod qidirilmoqda: ${code}`, 'info');
+        loadTrackingData();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadTrackingData);
+  </script>
+</body>
+</html>

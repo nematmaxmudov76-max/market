@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mahsulotlar Katalogi — Market (Uzum / Ozon Analog)</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .catalog-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 28px;
+    }
+    .catalog-nav-list {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .catalog-nav-item {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+    }
+    .catalog-nav-item:hover, .catalog-nav-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .catalog-content-box {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+    }
+    .subcategory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .subcat-group-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      display: block;
+    }
+    .subcat-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .subcat-links a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+    @media (max-width: 900px) {
+      .catalog-layout { grid-template-columns: 1fr; }
+      .subcategory-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <a href="category-page.html" class="badge-link active">📂 Barcha toifalar</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="liked-page.html" class="badge-link">❤️ Sevimlilar</a>
+        <a href="account-page.html" class="badge-link">👤 Kabinet</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          100 000 dan ortiq tovarlar katalogi
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 24px;">
+      Mahsulotlar katalogi (/category-page)
+    </h1>
+
+    <div class="catalog-layout">
+
+      <!-- CHAP USTUN: TOIFALAR RO'YXATI -->
+      <!-- BACKEND: GET /api/v1/product/categories -->
+      <div class="catalog-nav-list" id="catalog-categories-list">
+        <!-- JS orqali toifalar joylanadi -->
+      </div>
+
+      <!-- O'NG USTUN: ICHKI SUBKATEGORIYALAR VA MAHSULOTLARGA TEZKOR O'TISH -->
+      <div class="catalog-content-box" id="catalog-subcategories-box">
+        <!-- JS orqali dinamik tanlangan toifa ma'lumotlari chiqadi -->
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    const subcategoryData = {
+      "elektronika": [
+        { title: "Noutbuklar va kompyuterlar", links: ["Noutbuklar", "Monobloklar", "Monitorlar", "Tizim bloklari", "Aksessuarlar"] },
+        { title: "Audio va video texnika", links: ["Quloqchinlar (AirPods)", "Portativ karnaylar", "Televizorlar", "Proyektorlar"] },
+        { title: "Foto va video uskunalar", links: ["Fotoapparatlar", "Videoregistratorlar", "Shtativlar", "Mikrofonlar"] }
+      ],
+      "smartfonlar": [
+        { title: "Smartfonlar", links: ["Apple iPhone", "Xiaomi / Redmi", "Samsung Galaxy", "Realme", "Honor"] },
+        { title: "Aqlli gadjetlar", links: ["Smart soatlar", "Fitnes bilaguzuklar", "VR ko'zoynaklar", "Bolalar soatlari"] },
+        { title: "Aksessuarlar", links: ["G'iloflar (Chexol)", "Himoya oynalari", "Zaryadlovchi qurilmalar", "Powerbanklar"] }
+      ],
+      "maishiy-texnika": [
+        { title: "Oshxona texnikasi", links: ["Muzlatgichlar", "Gaz plitalari", "Mikroto'lqinli pechlar", "Qahva mashinalari", "Blenderlar"] },
+        { title: "Uy parvarishi", links: ["Changyutgichlar", "Kir yuvish mashinalari", "Dazmollar", "Havo namlagichlar"] },
+        { title: "Iqlim texnikasi", links: ["Konditsionerlar", "Isitgichlar", "Ventilyatorlar"] }
+      ],
+      "kiyim-kechak": [
+        { title: "Erkaklar kiyimi", links: ["Kurtkalar va paltolar", "Kostyum va shimlar", "Xudi va sviterlar", "Futbolkalar"] },
+        { title: "Ayollar kiyimi", links: ["Ko'ylaklar", "Yubkalar", "Kardiganlar", "Sport kiyimlari"] },
+        { title: "Bolalar kiyimi", links: ["Mavsumiy kiyimlar", "Maktab formasi", "Uy kiyimlari"] }
+      ]
+    };
+
+    let activeCategorySlug = "elektronika";
+
+    async function loadCatalog() {
+      const categories = await window.marketAPI.getCategories();
+      const listContainer = document.getElementById('catalog-categories-list');
+
+      listContainer.innerHTML = categories.map(c => `
+        <div class="catalog-nav-item ${c.slug === activeCategorySlug ? 'active' : ''}" onclick="selectCatalogCategory('${c.slug}', this)">
+          <span>${c.name}</span>
+          <span style="font-size: 12px; opacity: 0.6;">${c.count}</span>
+        </div>
+      `).join('');
+
+      renderSubcategories(categories.find(c => c.slug === activeCategorySlug) || categories[0]);
+    }
+
+    function selectCatalogCategory(slug, el) {
+      activeCategorySlug = slug;
+      document.querySelectorAll('.catalog-nav-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+
+      const cat = MOCK_DATA.categories.find(c => c.slug === slug);
+      renderSubcategories(cat);
+    }
+
+    function renderSubcategories(cat) {
+      const box = document.getElementById('catalog-subcategories-box');
+      const groups = subcategoryData[cat.slug] || [
+        { title: `${cat.name} — Ommabop`, links: ["Yangi kelganlar", "Top sotuvlar", "Chegirmalar", "Barcha tovarlar"] },
+        { title: "Brendlar", links: ["Original tovarlar", "O'zbekiston brendlari", "Import mahsulotlar"] }
+      ];
+
+      box.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 22px; font-weight: 800;">${cat.name}</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">${cat.count} ta mahsulot mavjud</p>
+          </div>
+          <a href="product-by-this-type.html?category=${cat.slug}" class="badge-link active">
+            Barcha mahsulotlarni ko'rish →
+          </a>
+        </div>
+
+        <div class="subcategory-grid">
+          ${groups.map(g => `
+            <div>
+              <span class="subcat-group-title">${g.title}</span>
+              <ul class="subcat-links">
+                ${g.links.map(link => `
+                  <li><a href="product-by-this-type.html?category=${cat.slug}&sub=${encodeURIComponent(link)}">${link}</a></li>
+                `).join('')}
+              </ul>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCatalog);
+  </script>
+</body>
+</html>

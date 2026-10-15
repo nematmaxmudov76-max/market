@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saralangan Mahsulotlar (Sevimlilar) — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <a href="category-page.html" class="badge-link">📂 Katalog</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="account-page.html" class="badge-link">👤 Kabinet</a>
+        <a href="courier-page.html" class="badge-link courier-btn">⚡ Kuryer portali</a>
+      </div>
+      <div>
+        <span style="font-size: 13px; color: var(--text-muted);">
+          ❤️ Siz yoqtirgan va saqlab qo'ygan mahsulotlar
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 800;">
+          Sevimlilar (Saralangan mahsulotlar)
+        </h1>
+        <p style="font-size: 14px; color: var(--text-muted); margin-top: 4px;" id="likes-count-text">
+          Yuklanmoqda...
+        </p>
+      </div>
+
+      <a href="home-page.html" class="badge-link active">
+        Bosh sahifadan yana tovarlar tanlash →
+      </a>
+    </div>
+
+    <!-- MAHSULOTLAR GRIDI -->
+    <!-- BACKEND: GET /api/v1/product/likes -->
+    <div class="products-grid" id="liked-products-grid">
+      <!-- JS orqali generatsiya qilinadi -->
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    async function loadLikedPage() {
+      const likedIds = window.marketAPI.getLikes();
+      const grid = document.getElementById('liked-products-grid');
+      const countText = document.getElementById('likes-count-text');
+
+      if (!likedIds || likedIds.length === 0) {
+        countText.textContent = "Sevimlilar ro'yxati bo'sh";
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; background: white; padding: 48px; border-radius: 16px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 48px; margin-bottom: 12px;">💔</div>
+            <h3 style="font-size: 18px; font-weight: 700;">Hozircha hech qanday mahsulot yoqtirilmagan</h3>
+            <p style="color: var(--text-muted); margin: 8px 0 20px;">O'zingizga yoqqan mahsulotlarga yurakcha (♥) belgisini bosing</p>
+            <a href="home-page.html" class="badge-link active" style="padding: 10px 24px;">Mahsulotlarni ko'rish</a>
+          </div>
+        `;
+        return;
+      }
+
+      countText.textContent = `Sizda ${likedIds.length} ta sevimli mahsulot bor`;
+
+      const all = [
+        ...MOCK_DATA.seasonalProducts,
+        ...MOCK_DATA.weeklyProducts,
+        ...MOCK_DATA.landingProducts
+      ];
+
+      const likedProducts = all.filter(p => likedIds.includes(p.id));
+      const cart = window.marketAPI.getCart();
+
+      grid.innerHTML = likedProducts.map(p => {
+        const inCart = cart.find(i => i.product.id === p.id);
+        return renderProductCard(p, inCart ? inCart.quantity : 0);
+      }).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadLikedPage);
+    window.addEventListener('likesUpdated', loadLikedPage);
+  </script>
+</body>
+</html>

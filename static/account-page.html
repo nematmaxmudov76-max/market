@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shaxsiy Kabinet — Market</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- TOP BAR & NAVBAR (Chizmadagi: home/link, to bucket/link, chats/link, my shop/link, I'm courier, log out) -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <!-- 1. home /link => home-page.html -->
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa (home)</a>
+
+        <!-- 2. to bucket /link => bucket-page.html -->
+        <a href="bucket-page.html" class="badge-link">🛒 Savatchaga (to bucket)</a>
+
+        <!-- 3. chats /link => /chatting-with-buyer -->
+        <a href="chatting-with-buyer.html" class="badge-link">💬 Chatlar (chats)</a>
+
+        <!-- 4. notifications -->
+        <a href="notifications-page.html" class="badge-link">🔔 Xabarlar</a>
+
+        <!-- 5. order tracking -->
+        <a href="order-tracking-page.html" class="badge-link">📍 Buyurtmani kuzatish</a>
+
+        <!-- 6. role request -->
+        <a href="role-request-page.html" class="badge-link">💼 Hamkorlik arizasi</a>
+
+        <!-- 7. my shop /link => http://127.0.0.1:8000/admin/merchant/me -->
+        <a href="shop-detail-page.html?id=1" class="badge-link">🏪 Do'konim (my shop)</a>
+
+        <!-- 8. I'm courier => /courier-page (Uzum kuryer sahifasiga ulandi!) -->
+        <a href="courier-page.html" class="badge-link courier-btn">
+          ⚡ Men kuryerman (I'm courier)
+        </a>
+      </div>
+
+      <div>
+        <!-- 9. log out -->
+        <button class="badge-link" onclick="handleLogout()" style="color: var(--accent-pink); border-color: rgba(249,17,85,0.2);">
+          🚪 Chiqish (log out)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <!-- YUQORI FOYDALANUVCHI MA'LUMOTLARI BLOKI -->
+    <!-- Chizmadagi: image or default image by progarmm + USER DETAILS + change -->
+    <!-- BACKEND: GET /api/v1/user/profile -->
+    <div class="account-top-card">
+      <div class="user-profile-info">
+        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80" 
+             alt="Avatar" class="avatar-big" id="account-avatar">
+        <div>
+          <h2 style="font-size: 22px; font-weight: 800;" id="account-fullname">
+            Olimjon Karimov
+          </h2>
+          <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">
+            📞 <span id="account-phone">+998 90 123 45 67</span> | ✉️ <span id="account-email">olimjon.karimov@example.uz</span>
+          </div>
+          <div style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
+            <a href="wallet-page.html" class="badge-link" style="background: #eef7ff; color: #0056b3; font-weight: 700;" title="Hamyonni boshqarish">
+              💳 Hamyon balansi: <span id="account-balance">1 450 000 so'm</span> (To'ldirish →)
+            </a>
+            <span class="badge-stock" style="background: #ecfdf5; color: #059669;">
+              Faol xaridor maqomi
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANGE BUTTON -->
+      <button class="badge-link active" onclick="openEditProfileModal()">
+        ✏️ Tahrirlash (change)
+      </button>
+    </div>
+
+    <!-- ASOSIY 2 USTUNLI BLOK: SIDEBAR VA CONTEXT PAGE -->
+    <!-- Chizmadagi: 9 ta menyu tugmasi va o'ngda side panel on the context page -->
+    <div class="account-body-layout">
+
+      <!-- CHAP SIDEBAR (9 TA TUGMA) -->
+      <div class="account-sidebar">
+        <!-- 1. in this time orders and in history -->
+        <div class="account-menu-item active" onclick="switchContextTab(this, 'orders')">
+          📦 Joriy va tarixiy buyurtmalar
+        </div>
+
+        <!-- 2. sent back orders -->
+        <div class="account-menu-item" onclick="switchContextTab(this, 'returns')">
+          ↩️ Qaytarilgan buyurtmalar (sent back)
+        </div>
+
+        <!-- 3. comments -->
+        <div class="account-menu-item" onclick="switchContextTab(this, 'comments')">
+          💬 Mening izohlarim (comments)
+        </div>
+
+        <!-- 4. promo codes -->
+        <div class="account-menu-item" onclick="switchContextTab(this, 'promos')">
+          🎟 Promokodlar (promo codes)
+        </div>
+
+        <!-- 5. settings -->
+        <div class="account-menu-item" onclick="switchContextTab(this, 'settings')">
+          ⚙️ Sozlamalar va xavfsizlik (settings)
+        </div>
+
+        <!-- 6. langauge -->
+        <div class="account-menu-item" onclick="switchContextTab(this, 'language')">
+          🌐 Tilni tanlash (language)
+        </div>
+
+        <!-- 7. location -->
+        <div class="account-menu-item" onclick="switchContextTab(this, 'locations')">
+          📍 Manzillarim (location)
+        </div>
+
+        <!-- 8. Messages I sent to the shop -->
+        <div class="account-menu-item" onclick="switchContextTab(this, 'shop_messages')">
+          ✉️ Do'konga xabarlarim (Messages)
+        </div>
+
+        <!-- 9. the new other shops -->
+        <div class="account-menu-item" onclick="switchContextTab(this, 'new_shops')">
+          🏪 Yangi boshqa do'konlar (new shops)
+        </div>
+      </div>
+
+      <!-- O'NG TOMON: CONTEXT PANEL -->
+      <!-- Chizmadagi: side panel on the context page -->
+      <div class="account-context-panel" id="account-context-content">
+        <!-- Dinamik kontent JS orqali joylanadi -->
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- TAHRIRLASH MODAL OYNASI -->
+  <div id="edit-profile-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px;">
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Profil ma'lumotlarini o'zgartirish</h3>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div>
+          <label style="font-size: 13px; font-weight: 600;">Ism:</label>
+          <input type="text" id="edit-firstname" value="Olimjon" class="search-input" style="padding: 10px;">
+        </div>
+        <div>
+          <label style="font-size: 13px; font-weight: 600;">Familiya:</label>
+          <input type="text" id="edit-lastname" value="Karimov" class="search-input" style="padding: 10px;">
+        </div>
+        <div>
+          <label style="font-size: 13px; font-weight: 600;">Telefon:</label>
+          <input type="tel" id="edit-phone" value="+998 90 123 45 67" class="search-input" style="padding: 10px;">
+        </div>
+        <div>
+          <label style="font-size: 13px; font-weight: 600;">Email:</label>
+          <input type="email" id="edit-email" value="olimjon.karimov@example.uz" class="search-input" style="padding: 10px;">
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+        <button class="badge-link" onclick="closeEditProfileModal()">Bekor qilish</button>
+        <button class="badge-link active" onclick="saveProfileChanges()">Saqlash</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    let currentUser = null;
+
+    async function loadAccountPage() {
+      currentUser = await window.marketAPI.getCurrentUser();
+      document.getElementById('account-fullname').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+      document.getElementById('account-phone').textContent = currentUser.phone;
+      document.getElementById('account-email').textContent = currentUser.email;
+      document.getElementById('account-balance').textContent = formatPrice(currentUser.balance);
+      document.getElementById('account-avatar').src = currentUser.avatar;
+
+      // Dastlabki kontekst: 'orders'
+      renderOrdersContext();
+    }
+
+    // Sidebar tabini almashtirish
+    function switchContextTab(element, tabKey) {
+      document.querySelectorAll('.account-menu-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+
+      if (tabKey === 'orders') renderOrdersContext();
+      else if (tabKey === 'returns') renderReturnsContext();
+      else if (tabKey === 'comments') renderCommentsContext();
+      else if (tabKey === 'promos') renderPromosContext();
+      else if (tabKey === 'settings') renderSettingsContext();
+      else if (tabKey === 'language') renderLanguageContext();
+      else if (tabKey === 'locations') renderLocationsContext();
+      else if (tabKey === 'shop_messages') renderShopMessagesContext();
+      else if (tabKey === 'new_shops') renderNewShopsContext();
+    }
+
+    // 1. Joriy va tarixiy buyurtmalar
+    async function renderOrdersContext() {
+      const orders = await window.marketAPI.getMyOrders();
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="font-size: 20px; font-weight: 800;">Joriy va yakunlangan buyurtmalar (${orders.length})</h2>
+          <a href="ordered-product-page.html" class="badge-link active">To'liq ro'yxat sahifasi →</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          ${orders.map(o => `
+            <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 700; font-size: 15px;">Buyurtma #${o.uniqId}</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Sana: ${o.createdAt} | Status: <strong style="color: var(--primary);">${o.statusText}</strong></div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 16px; font-weight: 800; color: var(--primary);">${formatPrice(o.totalPrice)}</div>
+                <a href="ordered-product-page.html" style="font-size: 13px; color: var(--ozon-blue); text-decoration: underline; margin-top: 4px; display: inline-block;">Kuzatish</a>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // 2. Qaytarilgan buyurtmalar
+    function renderReturnsContext() {
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Qaytarilgan buyurtmalar</h2>
+        <div style="background: #f8f9fa; border: 1px dashed var(--border-color); border-radius: 12px; padding: 36px; text-align: center;">
+          <div style="font-size: 36px; margin-bottom: 10px;">↩️</div>
+          <h3 style="font-size: 16px; font-weight: 700;">Hozircha qaytarilgan buyurtmalar mavjud emas</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">
+            Siz sotib olgan barcha tovarlar 10 kun ichida qaytarish kafolatiga ega.
+          </p>
+        </div>
+      `;
+    }
+
+    // 3. Mening izohlarim
+    function renderCommentsContext() {
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Mening izohlarim va baholarim</h2>
+        <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong>Xiaomi Redmi Note 13 Pro</strong>
+            <span style="color: #ffb703; font-weight: 700;">★★★★★ 5.0</span>
+          </div>
+          <p style="font-size: 14px; color: var(--text-muted); margin: 8px 0;">
+            "Telefon ajoyib darajada tez ishlayapti! Kamera juda tiniq, 200MP seziladi. 1 kunda yetkazib berishdi."
+          </p>
+          <small style="color: var(--text-light);">2026-10-12 14:20</small>
+        </div>
+      `;
+    }
+
+    // 4. Promokodlar
+    function renderPromosContext() {
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Faol promokodlarim</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div style="background: #faf7ff; border: 1px solid #ebd9ff; border-radius: 12px; padding: 16px;">
+            <div style="font-weight: 800; color: var(--primary); font-size: 18px;">UZUM2026</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">10% chegirma barcha texnikalarga</div>
+            <div style="font-size: 12px; color: var(--text-light); margin-top: 8px;">Muddati: 2026-12-31 gacha</div>
+          </div>
+          <div style="background: #eef7ff; border: 1px solid #c9e4ff; border-radius: 12px; padding: 16px;">
+            <div style="font-weight: 800; color: #0056b3; font-size: 18px;">OZONMARKET</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">50 000 so'm chegirma 300 000+ xaridga</div>
+            <div style="font-size: 12px; color: var(--text-light); margin-top: 8px;">Muddati: Cheklanmagan</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 5. Sozlamalar
+    function renderSettingsContext() {
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Xavfsizlik va bildirishnomalar</h2>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px; cursor: pointer;">
+            <input type="checkbox" checked class="custom-checkbox">
+            <span>Buyurtma statusi o'zgarganda SMS bildirishnoma yuborish</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px; cursor: pointer;">
+            <input type="checkbox" checked class="custom-checkbox">
+            <span>Chegirma va aksiyalar haqida xabardor qilish</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 12px; font-size: 14px; cursor: pointer;">
+            <input type="checkbox" checked class="custom-checkbox">
+            <span>Ikki bosqichli xavfsizlik (2FA)</span>
+          </label>
+        </div>
+      `;
+    }
+
+    // 6. Til
+    function renderLanguageContext() {
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Tilni tanlang (Language)</h2>
+        <div style="display: flex; flex-direction: column; gap: 10px; max-width: 320px;">
+          <button class="badge-link active" style="padding: 12px;">🇺🇿 O'zbek tili (Lotin)</button>
+          <button class="badge-link" style="padding: 12px;">🇺🇿 Ўзбек тили (Кирилл)</button>
+          <button class="badge-link" style="padding: 12px;">🇷🇺 Русский язык</button>
+          <button class="badge-link" style="padding: 12px;">🇬🇧 English</button>
+        </div>
+      `;
+    }
+
+    // 7. Manzillarim
+    function renderLocationsContext() {
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 style="font-size: 20px; font-weight: 800;">Saqlangan yetkazib berish manzillari</h2>
+          <button class="badge-link active" onclick="addNewLocation()">+ Yangi manzil</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="border: 1px solid var(--primary); border-radius: 12px; padding: 16px; background: #faf7ff;">
+            <div style="font-weight: 700;">🏠 Uyim (Asosiy manzil)</div>
+            <p style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">
+              Toshkent sh., Chilonzor tumani, 9-mavze, 14-uy, 28-xonadon
+            </p>
+          </div>
+          <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+            <div style="font-weight: 700;">💼 Ishxona</div>
+            <p style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">
+              Toshkent sh., Yakkasaroy tumani, Shota Rustaveli ko'chasi, 45-uy
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    // 8. Do'konga yuborilgan xabarlar
+    function renderShopMessagesContext() {
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 style="font-size: 20px; font-weight: 800;">Do'konga yuborilgan xabarlar (Messages)</h2>
+          <a href="chatting-with-buyer.html" class="badge-link active">Chat oynasini ochish →</a>
+        </div>
+        <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between;">
+            <strong>Xiaomi Official Store</strong>
+            <span style="font-size: 12px; color: var(--text-muted);">Bugun 11:40</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">
+            "Kafolat talonini qutining ichidan topishingiz mumkin. Savolingiz bo'lsa marhamat..."
+          </p>
+        </div>
+      `;
+    }
+
+    // 9. Yangi boshqa do'konlar
+    function renderNewShopsContext() {
+      const panel = document.getElementById('account-context-content');
+      panel.innerHTML = `
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Tavsiya etiladigan do'konlar</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;">
+          <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+            <strong>Apple Authorised Store</strong>
+            <div style="font-size: 13px; color: var(--text-muted); margin: 4px 0;">⭐ 4.98 | 1200+ sotuvlar</div>
+            <a href="home-page.html" class="badge-link" style="font-size: 12px; margin-top: 6px;">Do'konga o'tish</a>
+          </div>
+          <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+            <strong>Nordic Wear Fashion</strong>
+            <div style="font-size: 13px; color: var(--text-muted); margin: 4px 0;">⭐ 4.75 | 580+ sotuvlar</div>
+            <a href="home-page.html" class="badge-link" style="font-size: 12px; margin-top: 6px;">Do'konga o'tish</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function addNewLocation() {
+      const loc = prompt("Yangi yetkazib berish manzilini kiriting:");
+      if (loc) {
+        showToast("Yangi manzil muvaffaqiyatli qo'shildi!", 'success');
+        renderLocationsContext();
+      }
+    }
+
+    function openEditProfileModal() {
+      document.getElementById('edit-profile-modal').style.display = 'flex';
+    }
+    function closeEditProfileModal() {
+      document.getElementById('edit-profile-modal').style.display = 'none';
+    }
+    async function saveProfileChanges() {
+      const fName = document.getElementById('edit-firstname').value.trim();
+      const lName = document.getElementById('edit-lastname').value.trim();
+      const phone = document.getElementById('edit-phone').value.trim();
+      const email = document.getElementById('edit-email').value.trim();
+
+      await window.marketAPI.updateUserProfile({
+        firstName: fName,
+        lastName: lName,
+        phone,
+        email
+      });
+
+      closeEditProfileModal();
+      showToast("Profil muvaffaqiyatli yangilandi!", 'success');
+      loadAccountPage();
+    }
+
+    function handleLogout() {
+      if (confirm("Haqiqatan ham hisobdan chiqmoqchimisiz?")) {
+        showToast("Tizimdan chiqildi", 'info');
+        setTimeout(() => {
+          window.location.href = "home-page.html";
+        }, 500);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAccountPage);
+  </script>
+</body>
+</html>

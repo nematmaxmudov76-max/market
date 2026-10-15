@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuryer Portali — Market (Uzum Tezkor / Courier)</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .courier-hero-strip {
+      background: linear-gradient(135deg, #ff8800, #ff5500);
+      color: white;
+      padding: 24px 0;
+      margin-bottom: 24px;
+      border-radius: var(--radius-lg);
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 56px;
+      height: 30px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider-toggle {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .3s;
+      border-radius: 34px;
+    }
+    .slider-toggle:before {
+      position: absolute;
+      content: "";
+      height: 22px; width: 22px;
+      left: 4px; bottom: 4px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider-toggle { background-color: var(--success); }
+    input:checked + .slider-toggle:before { transform: translateX(26px); }
+
+    .vehicle-selector-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background: white;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .vehicle-selector-btn.active {
+      border-color: #ff6600;
+      background: #fff5eb;
+      color: #ff6600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="page-header-strip">
+    <div class="container page-header-nav">
+      <div class="nav-links-row">
+        <a href="home-page.html" class="badge-link">🏠 Bosh sahifa</a>
+        <a href="account-page.html" class="badge-link">👤 Foydalanuvchi kabineti</a>
+        <a href="bucket-page.html" class="badge-link">🛒 Savatcha</a>
+        <a href="ordered-product-page.html" class="badge-link">📦 Buyurtmalar</a>
+      </div>
+      <div style="font-size: 13px; font-weight: 700; color: #ff6600;">
+        ⚡ Uzum / Market Kuryerlik xizmati
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <!-- COURIER HERO / STATUS BANNER -->
+    <!-- BACKEND: GET /api/v1/courier/dashboard -->
+    <div class="courier-hero-strip">
+      <div style="padding: 0 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+        <div>
+          <div style="font-size: 14px; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Kuryer Ishchi Paneli</div>
+          <h1 style="font-size: 28px; font-weight: 800; margin-top: 4px;" id="courier-hero-name">
+            Xush kelibsiz, Olimjon!
+          </h1>
+          <p style="font-size: 14px; opacity: 0.9; margin-top: 4px;">
+            Transport vositangiz: <strong id="courier-hero-vehicle">Skuter (Elektromoped)</strong> | Status: <strong id="courier-online-text">ONLAYN (Buyurtmalarni qabul qilishga tayyor)</strong>
+          </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 16px 24px; border-radius: 14px; display: flex; align-items: center; gap: 16px;">
+          <div>
+            <div style="font-size: 12px; font-weight: 600;">Ish holati:</div>
+            <div style="font-size: 15px; font-weight: 700;" id="status-toggle-label">Faol (Onlayn)</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="courier-toggle-checkbox" checked onchange="toggleCourierOnline(this.checked)">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSPORT VOSITASINI TANLASH (TZ talabiga binoan: Piyoda, Velosiped, Skuter, Avto) -->
+    <div style="background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 18px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+      <div>
+        <strong style="font-size: 15px;">Transport vositasini tanlang:</strong>
+        <p style="font-size: 12px; color: var(--text-muted);">Tanlangan transportga qarab buyurtma masofasi va stavkasi belgilanadi</p>
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="vehicle-selector-btn" onclick="selectVehicle('Piyoda kuryer', this)">🚶 Piyoda</button>
+        <button class="vehicle-selector-btn" onclick="selectVehicle('Velosiped', this)">🚲 Velosiped</button>
+        <button class="vehicle-selector-btn active" onclick="selectVehicle('Skuter (Elektromoped)', this)">🛵 Skuter</button>
+        <button class="vehicle-selector-btn" onclick="selectVehicle('Avtomobil', this)">🚗 Avtomobil</button>
+      </div>
+    </div>
+
+    <!-- KURYER STATISTIKASI (4 TA KARTA) -->
+    <div class="courier-stat-cards" style="margin-bottom: 32px;">
+      <div class="courier-stat-card">
+        <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Joriy hisob balansi:</span>
+        <div class="courier-stat-value" id="stat-balance">820 000 so'm</div>
+        <button class="badge-link active" onclick="payoutMoney()" style="margin-top: 6px; padding: 6px 12px; font-size: 12px; width: fit-content;">
+          💳 Kartaga chiqarish
+        </button>
+      </div>
+
+      <div class="courier-stat-card">
+        <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Bugungi daromad:</span>
+        <div class="courier-stat-value" style="color: var(--success);" id="stat-today-earnings">240 000 so'm</div>
+        <small style="color: var(--text-muted);">+ 15 000 so'm choypuli (tips)</small>
+      </div>
+
+      <div class="courier-stat-card">
+        <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Yetkazilgan buyurtmalar:</span>
+        <div class="courier-stat-value" style="color: #ff6600;" id="stat-completed-count">8 ta</div>
+        <small style="color: var(--text-muted);">O'rtacha yetkazish vaqti: 22 daq.</small>
+      </div>
+
+      <div class="courier-stat-card">
+        <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Kuryerlik reytingi:</span>
+        <div class="courier-stat-value" style="color: #ffb703;">★ 4.95</div>
+        <small style="color: var(--success); font-weight: 600;">Top kuryerlar ro'yxatida</small>
+      </div>
+    </div>
+
+    <!-- 1. FAOL BUYURTMA (ACTIVE ORDER) -->
+    <section class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title" style="color: #ff5500;">Faol yetkazib berilayotgan buyurtma</h2>
+          <span class="section-tag" style="background: #fff0e0; color: #ff5500;">Hozir bajarilmoqda</span>
+        </div>
+      </div>
+
+      <div id="active-tasks-container">
+        <!-- JS orqali faol buyurtma chiqadi -->
+      </div>
+    </section>
+
+    <!-- 2. YANGI MAVJUD BUYURTMALAR (AVAILABLE ORDERS FOR ACCEPTING) -->
+    <section class="section-block">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Yangi buyurtmalar</h2>
+          <span class="section-tag">Qabul qilish uchun tayyor</span>
+        </div>
+      </div>
+
+      <div id="available-tasks-container">
+        <!-- JS orqali mavjud buyurtmalar chiqadi -->
+      </div>
+    </section>
+
+    <!-- 3. KURYERLIK MA'LUMOTI VA FAQ -->
+    <div style="background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 40px;">
+      <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Kuryerlar uchun foydali ma'lumotlar</h3>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; font-size: 14px;">
+        <div style="background: #f8f9fa; padding: 16px; border-radius: 10px;">
+          <strong>🎯 Kunlik bonuslar</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;">Kuniga 15 ta va undan ko'p buyurtma yetkazgan kuryerlarga 100 000 so'm qo'shimcha bonus beriladi.</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 16px; border-radius: 10px;">
+          <strong>🛡 Xavfsizlik va termobag</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;">Har bir kuryer bepul kiyim, yomg'irpo'sh va termobag bilan ta'minlanadi.</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 16px; border-radius: 10px;">
+          <strong>📞 Kuryerlar dispetcheri</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;">Favqulodda vaziyatda dispetcherlik: <a href="tel:+998781400000" style="color: var(--primary); font-weight: 600;">+998 78 140 00 00</a></p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SKRIPTLAR -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    async function loadCourierDashboard() {
+      const tasks = await window.marketAPI.getCourierTasks();
+      const profile = MOCK_DATA.currentUser.courierProfile;
+
+      document.getElementById('courier-hero-name').textContent = `Xush kelibsiz, ${profile.fullName}!`;
+      document.getElementById('courier-hero-vehicle').textContent = profile.vehicleType;
+      document.getElementById('stat-balance').textContent = formatPrice(profile.currentBalance);
+      document.getElementById('stat-today-earnings').textContent = formatPrice(profile.todayEarnings);
+      document.getElementById('stat-completed-count').textContent = `${profile.completedToday} ta`;
+
+      renderActiveTasks(tasks.active);
+      renderAvailableTasks(tasks.available);
+    }
+
+    function renderActiveTasks(activeList) {
+      const container = document.getElementById('active-tasks-container');
+      if (!activeList || activeList.length === 0) {
+        container.innerHTML = `
+          <div style="background: white; border: 1px dashed var(--border-color); border-radius: 16px; padding: 36px; text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🚴‍♂️</div>
+            <h3 style="font-size: 16px; font-weight: 700;">Hozirda faol buyurtmangiz yo'q</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Quyidagi ro'yxatdan yangi buyurtmalarni qabul qilishingiz mumkin</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = activeList.map(task => `
+        <div class="courier-task-card" style="border: 2px solid #ff8800; background: #fffcf8;">
+          <div>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+              <span class="badge-link active" style="background: #ff5500; font-size: 12px;">Faol yetkazish</span>
+              <strong style="font-size: 16px;">Buyurtma #${task.orderId}</strong>
+              <span style="color: var(--text-muted); font-size: 13px;">(${task.itemsSummary})</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+              <div>📍 <strong>Qayerdan:</strong> ${task.fromAddress}</div>
+              <div>🎯 <strong>Qayerga:</strong> ${task.toAddress}</div>
+              <div>👤 <strong>Xaridor:</strong> ${task.customerName} (<a href="tel:${task.customerPhone}" style="color: var(--primary); font-weight: 600;">${task.customerPhone}</a>)</div>
+              <div style="display: flex; gap: 16px; color: var(--text-muted); font-size: 13px; margin-top: 4px;">
+                <span>Masofa: <strong>${task.distance}</strong></span>
+                <span>Taxminiy vaqt: <strong>${task.estimatedTime}</strong></span>
+                <span>Yetkazish to'lovi: <strong style="color: var(--success); font-size: 15px;">${formatPrice(task.fee)}</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn-primary-block" style="background: var(--success); padding: 12px 20px;" onclick="completeTask('${task.id}')">
+              ✓ Yetkazib berildi (Bajarildi)
+            </button>
+            <a href="tel:${task.customerPhone}" class="badge-link" style="justify-content: center; background: white; border: 1px solid var(--border-color);">
+              📞 Mijozga qo'ng'iroq
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderAvailableTasks(availableList) {
+      const container = document.getElementById('available-tasks-container');
+      if (!availableList || availableList.length === 0) {
+        container.innerHTML = `
+          <div style="background: white; border-radius: 16px; padding: 24px; text-align: center; border: 1px solid var(--border-color);">
+            <p style="color: var(--text-muted);">Ayni damda hududingizda yangi buyurtmalar kutilmoqda...</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = availableList.map(task => `
+        <div class="courier-task-card">
+          <div>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 16px;">Buyurtma #${task.orderId}</strong>
+              <span class="badge-stock" style="background: #eef7ff; color: #0056b3;">Masofa: ${task.distance}</span>
+              <span style="color: var(--text-muted); font-size: 13px;">${task.estimatedTime}</span>
+            </div>
+
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+              <div>📍 <strong>Qayerdan:</strong> ${task.fromAddress}</div>
+              <div>🎯 <strong>Qayerga:</strong> ${task.toAddress}</div>
+              <div>📦 <strong>Tarkib:</strong> ${task.itemsSummary}</div>
+            </div>
+          </div>
+
+          <div style="text-align: right;">
+            <div style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">
+              + ${formatPrice(task.fee)}
+            </div>
+            <button class="badge-link courier-btn" style="padding: 10px 22px; font-size: 14px;" onclick="acceptTask('${task.id}')">
+              ⚡ Qabul qilish
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function acceptTask(taskId) {
+      const res = await window.marketAPI.acceptCourierTask(taskId);
+      if (res.success) {
+        showToast("Buyurtma muvaffaqiyatli qabul qilindi!", 'success');
+        loadCourierDashboard();
+      } else {
+        showToast(res.message, 'warning');
+      }
+    }
+
+    async function completeTask(taskId) {
+      const res = await window.marketAPI.completeCourierTask(taskId);
+      if (res.success) {
+        showToast(`Buyurtma yetkazildi! Hisobingizga +${formatPrice(res.task.fee)} qo'shildi!`, 'success');
+        loadCourierDashboard();
+      } else {
+        showToast(res.message, 'warning');
+      }
+    }
+
+    function toggleCourierOnline(isOnline) {
+      const label = document.getElementById('status-toggle-label');
+      const text = document.getElementById('courier-online-text');
+      if (isOnline) {
+        label.textContent = "Faol (Onlayn)";
+        text.textContent = "ONLAYN (Buyurtmalarni qabul qilishga tayyor)";
+        showToast("Siz onlaynsiz! Yangi buyurtmalar qabul qilinadi", 'success');
+      } else {
+        label.textContent = "Dam olishda (Oflayn)";
+        text.textContent = "OFLAYN (Tanaffusda)";
+        showToast("Siz oflayn holatga o'tdingiz", 'info');
+      }
+    }
+
+    function selectVehicle(vehicleName, btnEl) {
+      document.querySelectorAll('.vehicle-selector-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      document.getElementById('courier-hero-vehicle').textContent = vehicleName;
+      MOCK_DATA.currentUser.courierProfile.vehicleType = vehicleName;
+      showToast(`Transport turi yangilandi: ${vehicleName}`, 'info');
+    }
+
+    function payoutMoney() {
+      const amount = prompt("Yechib olmoqchi bo'lgan summani kiriting (so'm):", "500000");
+      if (amount && Number(amount) > 0) {
+        showToast(`${formatPrice(Number(amount))} kartangizga yuborildi!`, 'success');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCourierDashboard);
+  </script>
+</body>
+</html>
