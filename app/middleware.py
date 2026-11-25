@@ -87,6 +87,8 @@ class TimeCounter(BaseHTTPMiddleware):
         response = await call_next(request)
         time_delta = time.perf_counter() - start_time
         response.headers["X-proccess-time"] = str(time_delta)
+        response.headers["X-Debug-Path"] = str(request.url.path)
+        response.headers["X-Debug-Root"] = str(request.scope.get("root_path", ""))
         return response
 
 
