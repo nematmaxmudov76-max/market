@@ -22,3 +22,6 @@ dependencies = [
     "uvicorn>=0.52.1",
     "zxcvbn>=4.5.0",
 ]
+
+[tool.vercel]
+entrypoint = "app/main.py"
