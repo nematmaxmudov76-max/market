@@ -1,13 +1,15 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+IS_VERCEL = bool(os.environ.get("VERCEL"))
 
 
 class Settings(BaseSettings):
     PROJECT_VERSION: str = "v1"
-    PROJECT_NAME: str
+    PROJECT_NAME: str = "Market Platform"
     PROJECT_DESCRIPTION: str = "Ilovada sotuv, sotib olish, kuryer bo'lish imkoni bor"
 
     # for session auth
@@ -18,19 +20,19 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     EXP_DATETIME_ROLE_REQUEST: int = 1  # user(active user) tanlagan rolni-> active qilish uchun registerga ulgurish vaqti
     ALGORITHM: str = "HS256"
-    SECRET_KEY: str
+    SECRET_KEY: str = "vercel-temporary-demo-secret-key-change-me"
 
     # common
-    DEBUG: bool
-    DB_USER: str
-    DB_PASSWORD: str
-    DB_HOST: str
-    DB_PORT: int
-    DB_NAME: str
+    DEBUG: bool = True
+    DB_USER: str = ""
+    DB_PASSWORD: str = ""
+    DB_HOST: str = ""
+    DB_PORT: int = 5432
+    DB_NAME: str = ""
     SECURE_DISPATCH: bool = False  # set_cookie(secure = false)
 
     # MEDIA
-    MEDIA_PATH: str = "media"
+    MEDIA_PATH: str = "/tmp/media" if IS_VERCEL else "media"
     BASE_URL: str = "http://market-place"
     FILE_SIZE: int = 1024 * 1024 * 5  # 5MB
     FILE_TYPE: list[str] = [".jpg", ".png", ".jpeg", ".pdf", ".docx", ".doc", ".txt"]
@@ -39,7 +41,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str | None = None
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
-    REDIS_URL: str
+    REDIS_URL: str = ""
     # Vercel muhitida Celery ishlamaydi, shuning uchun optional qilamiz
     CELERY_BROKER_URL: str = ""
     CELERY_RESULT_BACKEND: str = ""
@@ -48,13 +50,16 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "nematmaxmudov76@gmail.com"
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
-    EMAIL_PASSWORD: str
+    EMAIL_PASSWORD: str = ""
 
     # EXTRA METADATA
     MAX_LIKED_PRODUCT: int = 10
     # Pydantic v2 uchun yangi config va kutilmagan extra o'zgaruvchilarni e'tiborsiz qoldirish
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR / ".env", env_file_encoding="utf-8", case_sensitive=True
+        env_file=BASE_DIR / ".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",
     )
 
 

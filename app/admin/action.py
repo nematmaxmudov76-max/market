@@ -2,7 +2,6 @@ from typing import Any
 from datetime import datetime, timezone, timedelta
 from starlette.requests import Request
 from fastapi import APIRouter, HTTPException, Depends
-from app.celery import send_email_message
 
 from app.model import User, Notification, Role_Request
 from app.database import db_dep

@@ -1,3 +1,5 @@
+import time
+import logging
 import redis
 import smtplib
 from enum import Enum
@@ -7,8 +9,8 @@ from email.mime.text import MIMEText
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from app.config import settings
-from email.mime.text import MIMEText
-from app.config import settings
+
+logger = logging.getLogger("uvicorn.error")
 
 
 context = CryptContext(schemes=["argon2"], deprecated="auto")
@@ -62,6 +64,9 @@ def decode_jwt_token(token: str):
 
 
 def send_email(to_email: str, subject: str, body: str):
+    if not settings.EMAIL_PASSWORD:
+        logger.warning(f"[DEMO MODE - SMTP yo'q] Email -> {to_email} | {subject}: {body}")
+        return
     msg = MIMEText(body)
     msg["Subject"] = subject
     msg["From"] = settings.EMAIL_FROM
@@ -73,7 +78,75 @@ def send_email(to_email: str, subject: str, body: str):
         server.send_message(msg)
 
 
-redis_url = redis.from_url(settings.REDIS_URL)
+class _InMemoryRedis:
+    """Redis bo'lmagan muhit (masalan Vercel demo) uchun vaqtinchalik xotira kesh."""
+
+    def __init__(self):
+        self._store: dict[str, tuple[bytes, float | None]] = {}
+
+    def setex(self, name: str, time_sec: int, value: str | bytes):
+        raw = value.encode("utf-8") if isinstance(value, str) else value
+        self._store[name] = (raw, time.time() + int(time_sec))
+
+    def get(self, name: str) -> bytes | None:
+        item = self._store.get(name)
+        if not item:
+            return None
+        raw, exp = item
+        if exp is not None and time.time() > exp:
+            self._store.pop(name, None)
+            return None
+        return raw
+
+    def delete(self, *names: str) -> int:
+        deleted = 0
+        for name in names:
+            if name in self._store:
+                del self._store[name]
+                deleted += 1
+        return deleted
+
+
+class _FallbackRedis:
+    """Avval haqiqiy Redis ga ulanadi; ulanmasa yoki REDIS_URL bo'sh bo'lsa InMemory ga o'tadi."""
+
+    def __init__(self, url: str):
+        self._memory = _InMemoryRedis()
+        self._client = None
+        if url and url.startswith(("redis://", "rediss://", "unix://")):
+            try:
+                client = redis.from_url(url, socket_connect_timeout=1)
+                client.ping()
+                self._client = client
+            except Exception as exc:
+                logger.warning(f"Redis ulanmadi ({exc}), vaqtinchalik InMemory rejim yoqildi.")
+
+    def setex(self, name: str, time_sec: int, value: str | bytes):
+        if self._client is not None:
+            try:
+                return self._client.setex(name, time_sec, value)
+            except Exception:
+                pass
+        return self._memory.setex(name, time_sec, value)
+
+    def get(self, name: str):
+        if self._client is not None:
+            try:
+                return self._client.get(name)
+            except Exception:
+                pass
+        return self._memory.get(name)
+
+    def delete(self, *names: str):
+        if self._client is not None:
+            try:
+                return self._client.delete(*names)
+            except Exception:
+                pass
+        return self._memory.delete(*names)
+
+
+redis_url = _FallbackRedis(settings.REDIS_URL)
 
 
 #### ENUMS ________________________________________________________________________________-

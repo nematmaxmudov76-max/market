@@ -73,9 +73,13 @@ async def create_new_user(
         body=f"your verify code: {secret_kod}",
     )
 
+    resp_content = {"message": "Send confirmation code to your email, check in gmail!!!"}
+    if not settings.EMAIL_PASSWORD:
+        resp_content["demo_verify_code"] = secret_kod
+
     return JSONResponse(
         status_code=201,
-        content={"message": "Send confirmation code to your email, check in gmail!!!"},
+        content=resp_content,
     )
 
 

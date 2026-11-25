@@ -1,3 +1,4 @@
+import os
 from typing import Annotated
 from fastapi import Depends
 from sqlalchemy import create_engine
@@ -5,10 +6,21 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import settings
 
-# Docker uchun settings.DB_HOST="db" bo'lishi kerak
-DB_URL = f"postgresql+psycopg2://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+# Agar DATABASE_URL yoki Postgres sozlamalari berilgan bo'lsa Postgres ishlaydi,
+# aks holda vaqtinchalik/Vercel test rejimi uchun SQLite ishlatiladi.
+if settings.DATABASE_URL:
+    DB_URL = settings.DATABASE_URL
+elif settings.DB_HOST and settings.DB_USER and settings.DB_NAME:
+    DB_URL = f"postgresql+psycopg2://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+else:
+    sqlite_path = "/tmp/market.db" if os.environ.get("VERCEL") else "./market_temp.db"
+    DB_URL = f"sqlite:///{sqlite_path}"
 
-engine = create_engine(DB_URL, echo=True)
+engine_kwargs = {"echo": False}
+if DB_URL.startswith("sqlite"):
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+
+engine = create_engine(DB_URL, **engine_kwargs)
 
 SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 

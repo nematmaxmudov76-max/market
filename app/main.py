@@ -1,5 +1,9 @@
+import os
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from app.config import settings
+from app.database import Base, DB_URL, engine
+import app.model  # noqa: F401 - SQLAlchemy jadvallarini ro'yxatdan o'tkazish
 from .middleware import SessionValidationMiddleware, TimeCounter, limiter
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.cors import CORSMiddleware
@@ -15,6 +19,10 @@ if not hasattr(sqlalchemy.orm.attributes, "ScalarObjectAttributeImpl"):
     sqlalchemy.orm.attributes.ScalarObjectAttributeImpl = getattr(
         sqlalchemy.orm.attributes, "_ScalarObjectAttributeImpl", None
     )
+
+# SQLite (vaqtinchalik Vercel demo) rejimida jadvallarni avtomatik yaratish
+if DB_URL.startswith("sqlite"):
+    Base.metadata.create_all(bind=engine)
 
 # Qolgan barcha importlaringiz shu yerdan pastda davom etadi:
 from app.admin.settings import admin
@@ -34,6 +42,12 @@ app = FastAPI(
     description=settings.PROJECT_DESCRIPTION,
 )
 
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/static/home-page.html")
+
+
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(user_router)
@@ -42,7 +56,8 @@ app.include_router(product_router)
 
 from starlette.staticfiles import StaticFiles
 admin.mount_to(app=app)
-app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+if os.path.isdir("static"):
+    app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 
 app.add_middleware(
     TrustedHostMiddleware,
