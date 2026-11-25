@@ -1,3 +1,6 @@
+from app.main import app
+
+
 def main():
     print("Hello from market!")
 
