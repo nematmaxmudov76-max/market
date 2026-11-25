@@ -1,3 +1,4 @@
+import json
 import sys
 import traceback
 from pathlib import Path
@@ -8,21 +9,25 @@ if str(ROOT_DIR) not in sys.path:
 
 try:
     from app.main import app
-except Exception as exc:
-    from fastapi import FastAPI
-    from fastapi.responses import JSONResponse
-
+except BaseException as exc:
     _startup_error = str(exc)
-    _startup_trace = traceback.format_exc()
-    app = FastAPI()
+    _startup_trace = traceback.format_exc().splitlines()
 
-    @app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
-    async def startup_error_handler(full_path: str = ""):
-        return JSONResponse(
-            status_code=500,
-            content={
-                "error": "Startup failed",
-                "detail": _startup_error,
-                "traceback": _startup_trace.splitlines(),
-            },
-        )
+    async def app(scope, receive, send):
+        if scope["type"] == "http":
+            body = json.dumps(
+                {
+                    "error": "Startup failed",
+                    "detail": _startup_error,
+                    "traceback": _startup_trace,
+                },
+                indent=2,
+            ).encode("utf-8")
+            await send(
+                {
+                    "type": "http.response.start",
+                    "status": 500,
+                    "headers": [(b"content-type", b"application/json")],
+                }
+            )
+            await send({"type": "http.response.body", "body": body})
