@@ -7,7 +7,7 @@ import urllib.parse
 
 logger = logging.getLogger("uvicorn.error")
 from datetime import datetime, timezone
-from fastapi import HTTPException, APIRouter, UploadFile, Request, status, Form, File
+from fastapi import HTTPException, APIRouter, UploadFile, Request, status, Form, File, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from app.database import db_dep
@@ -28,8 +28,8 @@ from app.utils import (
     ManageNotificationCreate,
     RoleRequestStatus,
     ChooseRoleRequest,
+    send_email,
 )
-from app.celery import send_email_message
 from app.config import settings
 from pathlib import Path
 from app.dependense import current_active_user_dep
@@ -42,7 +42,12 @@ router = APIRouter(prefix="/user/auth", tags=["Auth"])
 
 # active user => get access_token
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-async def create_new_user(session: db_dep, data: UserRegisterRequest, request: Request):
+async def create_new_user(
+    session: db_dep,
+    data: UserRegisterRequest,
+    request: Request,
+    background_tasks: BackgroundTasks,
+):
     stmt = select(User).where(User.email == data.email)
     res = (session.execute(stmt)).scalar_one_or_none()
 
@@ -60,9 +65,12 @@ async def create_new_user(session: db_dep, data: UserRegisterRequest, request: R
         secret_kod, 300, json.dumps(user_temp)
     )  # redis kodni 300 sekund (5 daqiqa) saqlab turadi
 
-    # send to email kod
-    send_email_message.delay(
-        data.email, "Email confirmation processing", f"your verify code: {secret_kod}"
+    # send to email kod (Vercel uchun BackgroundTasks ishlatamiz, Celery emas)
+    background_tasks.add_task(
+        send_email,
+        to_email=data.email,
+        subject="Email confirmation processing",
+        body=f"your verify code: {secret_kod}",
     )
 
     return JSONResponse(

@@ -22,9 +22,11 @@ async def create_upload_file(file: UploadFile, db: db_dep):
             status_code=400,
             detail="File type is not supported. Only .jpg, .png, .jpeg, .pdf, .docx, .doc, .txt are allowed.",
         )
+    # Vercel muhitida MEDIA_PATH=/tmp bo'ladi (environment variable orqali)
+    # Mahalliy muhitda media/ papkasida saqlanadi
     path = Path(settings.MEDIA_PATH)
-    path.mkdir(exist_ok=True)
-    res = path / file.filename  # chesnokuz/media/filename.jpg
+    path.mkdir(parents=True, exist_ok=True)
+    res = path / file.filename
     with open(res, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 

@@ -40,8 +40,9 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
     REDIS_URL: str
-    CELERY_BROKER_URL: str
-    CELERY_RESULT_BACKEND: str
+    # Vercel muhitida Celery ishlamaydi, shuning uchun optional qilamiz
+    CELERY_BROKER_URL: str = ""
+    CELERY_RESULT_BACKEND: str = ""
 
     # EMAIL SETTINGS
     EMAIL_FROM: str = "nematmaxmudov76@gmail.com"

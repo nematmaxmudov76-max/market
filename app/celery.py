@@ -3,10 +3,12 @@ from app.config import settings
 from app.utils import send_email
 
 
+# Vercel muhitida CELERY_BROKER_URL bo'sh bo'ladi, Celery ishlamaydi
+# Mahalliy va Docker muhitda to'liq ishlaydi
 celery = Celery(
     "market_tasks",
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND,
+    broker=settings.CELERY_BROKER_URL or "memory://",
+    backend=settings.CELERY_RESULT_BACKEND or "cache+memory://",
 )
 
 
