@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from app.config import settings
+from app.config import settings, IS_VERCEL
 
 # Agar DATABASE_URL yoki Postgres sozlamalari berilgan bo'lsa Postgres ishlaydi,
 # aks holda vaqtinchalik/Vercel test rejimi uchun SQLite ishlatiladi.
@@ -13,7 +13,7 @@ if settings.DATABASE_URL:
 elif settings.DB_HOST and settings.DB_USER and settings.DB_NAME:
     DB_URL = f"postgresql+psycopg2://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 else:
-    sqlite_path = "/tmp/market.db" if os.environ.get("VERCEL") else "./market_temp.db"
+    sqlite_path = "/tmp/market.db" if IS_VERCEL else "./market_temp.db"
     DB_URL = f"sqlite:///{sqlite_path}"
 
 engine_kwargs = {"echo": False}

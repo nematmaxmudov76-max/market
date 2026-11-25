@@ -4,7 +4,12 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-IS_VERCEL = bool(os.environ.get("VERCEL"))
+IS_VERCEL = bool(
+    os.environ.get("VERCEL")
+    or os.environ.get("VERCEL_ENV")
+    or os.environ.get("AWS_LAMBDA_FUNCTION_NAME")
+    or not os.access(BASE_DIR, os.W_OK)
+)
 
 
 class Settings(BaseSettings):
